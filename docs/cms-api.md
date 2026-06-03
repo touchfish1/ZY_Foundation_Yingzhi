@@ -96,6 +96,15 @@ GET /api/cms/pages/render?path=/plans&locale=zh-CN
 POST /admin/auth/login
 ```
 
+默认开发管理员：
+
+```text
+username: admin
+password: admin123
+```
+
+生产环境必须通过环境变量覆盖默认密码和 `JWT_SECRET`。
+
 请求：
 
 ```json

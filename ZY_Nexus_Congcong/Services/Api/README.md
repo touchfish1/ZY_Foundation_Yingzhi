@@ -27,6 +27,56 @@ system
 
 第一阶段采用模块化单体，后续可按业务边界拆分服务。
 
+## Auth MVP
+
+当前已实现后台认证基础能力：
+
+- 默认管理员初始化。
+- 默认 `super_admin` 角色初始化。
+- 默认权限码初始化。
+- BCrypt 密码哈希。
+- HMAC-SHA256 JWT。
+- `/admin/auth/login` 登录接口。
+- `/admin/auth/me` 当前用户接口。
+
+默认开发管理员：
+
+```text
+username: admin
+password: admin123
+```
+
+生产环境必须通过环境变量覆盖：
+
+```text
+JWT_SECRET
+DEFAULT_ADMIN_USERNAME
+DEFAULT_ADMIN_PASSWORD
+DEFAULT_ADMIN_NICKNAME
+```
+
+登录：
+
+```http
+POST /admin/auth/login
+```
+
+请求：
+
+```json
+{
+  "username": "admin",
+  "password": "admin123"
+}
+```
+
+当前用户：
+
+```http
+GET /admin/auth/me
+Authorization: Bearer <accessToken>
+```
+
 ## Local Verification
 
 需要本机安装 Java 21。

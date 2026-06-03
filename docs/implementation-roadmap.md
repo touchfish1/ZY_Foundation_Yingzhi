@@ -146,6 +146,8 @@ components/blocks/StatsBlock.vue
 - 实现 RBAC 权限模型。
 - 编写 Docker Compose。
 
+当前状态：Spring Boot API、PostgreSQL migration、Redis 配置、统一响应、管理员登录、JWT、RBAC 初始权限、Docker Compose 基础依赖已完成。
+
 ### 阶段 2：CMS 核心
 
 目标：运营可以新增页面、编辑多语言内容、发布页面。
