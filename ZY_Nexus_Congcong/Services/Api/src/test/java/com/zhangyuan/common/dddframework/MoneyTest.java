@@ -1,4 +1,4 @@
-package com.zhangyuan.common.ddd;
+package com.zhangyuan.common.dddframework;
 
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,3 +44,4 @@ class MoneyTest {
         assertThatThrownBy(() -> Money.of("10", "")).isInstanceOf(IllegalArgumentException.class);
     }
 }
+

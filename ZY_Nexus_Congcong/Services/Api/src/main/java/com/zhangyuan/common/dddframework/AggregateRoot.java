@@ -1,4 +1,4 @@
-package com.zhangyuan.common.ddd;
+package com.zhangyuan.common.dddframework;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,3 +24,4 @@ public abstract class AggregateRoot<T> extends Entity<T> {
         domainEvents.add(event);
     }
 }
+

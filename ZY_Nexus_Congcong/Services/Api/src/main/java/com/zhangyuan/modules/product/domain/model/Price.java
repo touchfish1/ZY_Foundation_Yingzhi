@@ -1,6 +1,6 @@
 package com.zhangyuan.modules.product.domain.model;
 
-import com.zhangyuan.common.ddd.Money;
+import com.zhangyuan.common.dddframework.Money;
 import java.math.BigDecimal;
 
 public class Price {

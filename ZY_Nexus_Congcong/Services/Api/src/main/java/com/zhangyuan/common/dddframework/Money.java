@@ -1,4 +1,4 @@
-package com.zhangyuan.common.ddd;
+package com.zhangyuan.common.dddframework;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -47,3 +47,4 @@ public record Money(BigDecimal amount, String currency) implements ValueObject {
         return new Money(BigDecimal.valueOf(amount), currency);
     }
 }
+

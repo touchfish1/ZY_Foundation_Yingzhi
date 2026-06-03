@@ -1,4 +1,4 @@
-package com.zhangyuan.common.ddd;
+package com.zhangyuan.common.dddframework;
 
 import java.time.Instant;
 
@@ -8,3 +8,4 @@ public interface DomainEvent {
         return Instant.now();
     }
 }
+

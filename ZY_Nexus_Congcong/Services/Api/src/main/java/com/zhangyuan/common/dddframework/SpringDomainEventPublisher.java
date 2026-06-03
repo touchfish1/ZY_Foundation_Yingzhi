@@ -1,4 +1,4 @@
-package com.zhangyuan.common.ddd;
+package com.zhangyuan.common.dddframework;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -24,3 +24,4 @@ public class SpringDomainEventPublisher implements DomainEventPublisher {
         events.forEach(this::publish);
     }
 }
+

@@ -1,4 +1,4 @@
-package com.zhangyuan.common.ddd;
+package com.zhangyuan.common.dddframework;
 
 import java.util.List;
 
@@ -8,3 +8,4 @@ public interface DomainEventPublisher {
 
     void publishAll(List<DomainEvent> events);
 }
+

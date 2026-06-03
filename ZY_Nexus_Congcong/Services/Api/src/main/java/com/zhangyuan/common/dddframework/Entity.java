@@ -1,4 +1,4 @@
-package com.zhangyuan.common.ddd;
+package com.zhangyuan.common.dddframework;
 
 import java.util.Objects;
 
@@ -32,3 +32,4 @@ public abstract class Entity<T> {
         return getClass().getSimpleName() + "{id=" + id + "}";
     }
 }
+
