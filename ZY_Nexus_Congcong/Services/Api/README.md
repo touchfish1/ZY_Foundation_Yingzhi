@@ -77,6 +77,36 @@ GET /admin/auth/me
 Authorization: Bearer <accessToken>
 ```
 
+## CMS MVP
+
+当前已实现 CMS 后端最小闭环：
+
+- 页面创建。
+- 页面列表。
+- 页面详情。
+- 多语言草稿保存。
+- 页面版本生成。
+- 页面发布。
+- 前台已发布页面渲染。
+- 默认区块定义初始化。
+
+后台接口需要 JWT：
+
+```http
+GET  /admin/cms/pages
+POST /admin/cms/pages
+GET  /admin/cms/pages/{pageId}
+PUT  /admin/cms/pages/{pageId}/translations/{locale}/draft
+POST /admin/cms/pages/{pageId}/translations/{locale}/publish
+GET  /admin/cms/block-definitions
+```
+
+前台渲染接口公开访问：
+
+```http
+GET /api/cms/pages/render?path=/plans&locale=zh-CN
+```
+
 ## Local Verification
 
 需要本机安装 Java 21。

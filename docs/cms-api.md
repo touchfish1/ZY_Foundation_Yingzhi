@@ -151,6 +151,8 @@ GET /admin/auth/me
 GET /admin/cms/pages?page=1&pageSize=20&keyword=plans
 ```
 
+当前 MVP 已实现基础列表，分页和关键词查询后续补充。
+
 ### 创建页面
 
 ```http
@@ -207,6 +209,8 @@ POST /admin/cms/pages/{pageId}/translations/{locale}/publish
   "remark": "发布套餐页第一版"
 }
 ```
+
+发布会将当前草稿版本写入已发布版本，并生成页面渲染快照。
 
 ### 预览页面
 
