@@ -1,593 +1,616 @@
 <template>
-  <div class="landing">
-    <header class="navbar">
-      <div class="nav-inner">
-        <NuxtLink to="/" class="brand">New API</NuxtLink>
-        <div class="nav-links">
-          <NuxtLink to="/" class="nav-link">首页</NuxtLink>
-          <NuxtLink to="/plans" class="nav-link">套餐</NuxtLink>
-          <NuxtLink to="/plans" class="nav-link">文档</NuxtLink>
-          <NuxtLink to="/plans" class="nav-link">控制台</NuxtLink>
-        </div>
-      </div>
+  <main class="plans-page">
+    <div class="orb orb-a" />
+    <div class="orb orb-b" />
+    <div class="grid-glow" />
+    <header class="topbar">
+      <NuxtLink to="/" class="brand">
+        <span class="brand-mark">N</span>
+        New API
+      </NuxtLink>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <NuxtLink to="/" class="nav-link active">价格</NuxtLink>
+        <a class="nav-link" href="#faq">FAQ</a>
+        <a class="console-link" href="#">控制台</a>
+      </nav>
     </header>
 
-    <section class="hero">
-      <div class="hero-bg" />
-      <div class="hero-content">
-        <h1 class="hero-title">New API</h1>
-        <p class="hero-subtitle">Unified AI API gateway and admin dashboard</p>
-        <div class="hero-actions">
-          <a href="#pricing" class="btn btn-primary">Get Started</a>
-          <a href="#features" class="btn btn-outline">View Docs</a>
+    <section class="headline">
+      <p class="eyebrow">Plans</p>
+      <h1>选择适合你的计划</h1>
+      <p class="subtitle">稳定、快速、简单的 AI API 中转服务，按需选择套餐即可开始使用。</p>
+      <div class="billing-switch">
+        <button :class="{ selected: billing === 'monthly' }" @click="billing = 'monthly'">月付</button>
+        <button :class="{ selected: billing === 'yearly' }" @click="billing = 'yearly'">年付 <span>省 20%</span></button>
+      </div>
+    </section>
+
+    <section class="plans-wrap" aria-label="Pricing plans">
+      <article v-for="plan in currentPlans" :key="plan.name" class="plan-card" :class="{ recommended: plan.recommended }">
+        <div v-if="plan.recommended" class="tag">推荐</div>
+        <h2>{{ plan.name }}</h2>
+        <p class="desc">{{ plan.description }}</p>
+        <div class="price-line">
+          <span class="currency">¥</span>
+          <strong>{{ plan.price }}</strong>
+          <span class="period">/{{ billing === 'monthly' ? '月' : '年' }}</span>
         </div>
-      </div>
+        <NuxtLink class="buy-button" :class="{ primary: plan.recommended }" to="/plans">
+          {{ plan.action }}
+          <span>→</span>
+        </NuxtLink>
+        <ul>
+          <li v-for="item in plan.features" :key="item">{{ item }}</li>
+        </ul>
+      </article>
     </section>
 
-    <section id="features" class="section features-section">
-      <div class="container">
-        <h2 class="section-title">特性</h2>
-        <div class="features-grid">
-          <div v-for="f in features" :key="f.title" class="feature-card">
-            <span class="feature-icon">{{ f.icon }}</span>
-            <h3 class="feature-title">{{ f.title }}</h3>
-            <p class="feature-desc">{{ f.desc }}</p>
-          </div>
-        </div>
+    <section class="notice">
+      <div>
+        <h2>所有套餐均包含</h2>
+        <p>统一 API 入口、余额管理、调用统计、密钥管理、基础安全策略和在线支持。</p>
       </div>
+      <NuxtLink to="/plans" class="notice-button">立即开始</NuxtLink>
     </section>
 
-    <section id="pricing" class="section pricing-section">
-      <div class="container">
-        <h2 class="section-title">Pricing Plans</h2>
-        <div class="pricing-grid">
-          <div v-for="p in plans" :key="p.name" class="pricing-card" :class="{ popular: p.popular }">
-            <div v-if="p.popular" class="popular-badge">推荐</div>
-            <h3 class="plan-name">{{ p.name }}</h3>
-            <div class="plan-price">
-              <span class="price-amount">{{ p.price }}</span>
-              <span v-if="p.period" class="price-period">/{{ p.period }}</span>
-            </div>
-            <ul class="plan-features">
-              <li v-for="f in p.features" :key="f" class="plan-feature-item">{{ f }}</li>
-            </ul>
-            <a href="/plans" class="btn" :class="p.popular ? 'btn-primary' : 'btn-outline'">立即开始</a>
-          </div>
-        </div>
+    <section id="faq" class="faq">
+      <h2>常见问题</h2>
+      <div class="faq-list">
+        <details v-for="item in faqs" :key="item.q" class="faq-item">
+          <summary>{{ item.q }}</summary>
+          <p>{{ item.a }}</p>
+        </details>
       </div>
     </section>
-
-    <section class="section faq-section">
-      <div class="container">
-        <h2 class="section-title">Frequently asked questions</h2>
-        <div class="faq-list">
-          <div v-for="(item, i) in faqs" :key="i" class="faq-item">
-            <button class="faq-question" @click="toggleFaq(i)">
-              <span>{{ item.q }}</span>
-              <span class="faq-arrow" :class="{ open: openFaq === i }">&#9662;</span>
-            </button>
-            <div v-show="openFaq === i" class="faq-answer">{{ item.a }}</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section cta-section">
-      <div class="cta-bg" />
-      <div class="cta-content">
-        <h2 class="cta-title">Ready to get started?</h2>
-        <a href="/plans" class="btn btn-cta">Start building for free</a>
-      </div>
-    </section>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        <span>&copy; 2026 New API. All rights reserved.</span>
-      </div>
-    </footer>
-  </div>
+  </main>
 </template>
 
 <script setup lang="ts">
-const openFaq = ref<number | null>(null)
+const billing = ref<'monthly' | 'yearly'>('monthly')
 
-function toggleFaq(i: number) {
-  openFaq.value = openFaq.value === i ? null : i
+const plans = {
+  monthly: [
+    {
+      name: '基础版',
+      description: '适合个人开发者和轻量测试场景。',
+      price: '19',
+      action: '选择基础版',
+      recommended: false,
+      features: ['每日 5,000 次请求', '3 个 API Key', '基础用量统计', '社区支持', '标准模型通道']
+    },
+    {
+      name: '专业版',
+      description: '适合高频调用、团队协作和正式业务。',
+      price: '49',
+      action: '选择专业版',
+      recommended: true,
+      features: ['每日 50,000 次请求', '不限 API Key 数量', '高级调用统计', '优先技术支持', '自定义限流策略']
+    },
+    {
+      name: '企业版',
+      description: '适合定制接入、专属容量和私有化需求。',
+      price: '199',
+      action: '联系购买',
+      recommended: false,
+      features: ['专属请求额度', '专属模型通道', '定制集成支持', '7x24 小时支持', 'SLA 服务保障']
+    }
+  ],
+  yearly: [
+    {
+      name: '基础版',
+      description: '适合个人开发者和轻量测试场景。',
+      price: '182',
+      action: '选择基础版',
+      recommended: false,
+      features: ['每日 5,000 次请求', '3 个 API Key', '基础用量统计', '社区支持', '标准模型通道']
+    },
+    {
+      name: '专业版',
+      description: '适合高频调用、团队协作和正式业务。',
+      price: '470',
+      action: '选择专业版',
+      recommended: true,
+      features: ['每日 50,000 次请求', '不限 API Key 数量', '高级调用统计', '优先技术支持', '自定义限流策略']
+    },
+    {
+      name: '企业版',
+      description: '适合定制接入、专属容量和私有化需求。',
+      price: '1900',
+      action: '联系购买',
+      recommended: false,
+      features: ['专属请求额度', '专属模型通道', '定制集成支持', '7x24 小时支持', 'SLA 服务保障']
+    }
+  ]
 }
 
-const features = [
-  { icon: '🧠', title: 'Multi-Model Support', desc: 'Access GPT-4, Claude, Gemini and more through a single unified API gateway.' },
-  { icon: '⚡', title: 'Rate Limiting', desc: 'Configure per-user and per-key rate limits to protect your infrastructure.' },
-  { icon: '📊', title: 'Usage Analytics', desc: 'Track token usage, request volumes, and costs with real-time dashboards.' },
-  { icon: '🔑', title: 'Key Management', desc: 'Generate, rotate, and revoke API keys with granular permissions.' },
-  { icon: '📝', title: 'Logging', desc: 'Complete request and response logging with search and filtering capabilities.' },
-  { icon: '🖥️', title: 'Admin Dashboard', desc: 'Full administrative interface for managing users, keys, and system settings.' }
-]
-
-const plans = [
-  {
-    name: 'Starter',
-    price: '$19',
-    period: 'mo',
-    popular: false,
-    features: ['5,000 requests/day', '3 API keys', 'Basic analytics', 'Email support', '1 model endpoint']
-  },
-  {
-    name: 'Pro',
-    price: '$49',
-    period: 'mo',
-    popular: true,
-    features: ['50,000 requests/day', 'Unlimited API keys', 'Advanced analytics', 'Priority support', 'All model endpoints', 'Custom rate limits']
-  },
-  {
-    name: 'Enterprise',
-    price: 'Custom',
-    period: null,
-    popular: false,
-    features: ['Unlimited requests', 'Dedicated infrastructure', 'Custom integrations', '24/7 phone support', 'SLA guarantee', 'On-premise deployment']
-  }
-]
+const currentPlans = computed(() => plans[billing.value])
 
 const faqs = [
-  { q: '什么是 New API？', a: 'New API 是一个统一的 AI API 网关和管理后台，让您可以通过单个接口访问多种 AI 模型，并提供密钥管理、用量监控、速率限制等企业级功能。' },
-  { q: '如何开始使用？', a: '注册账号后，您可以立即创建一个项目并生成 API 密钥。我们提供 Starter 免费套餐供您试用，无需绑定信用卡。' },
-  { q: '支持哪些 AI 模型？', a: '我们支持 OpenAI GPT-4、Anthropic Claude、Google Gemini、Meta Llama 等主流模型，并且持续增加新的模型提供商。' },
-  { q: '如何计费？', a: '我们提供按月的订阅套餐。Starter 套餐 $19/月，Pro 套餐 $49/月。Enterprise 套餐根据您的需求定制价格。所有套餐无隐藏费用。' },
-  { q: '你们提供什么样的技术支持？', a: 'Starter 用户享受邮件支持，Pro 用户享受优先支持，Enterprise 用户享受 24/7 电话支持和专属客户经理。' }
+  { q: '套餐可以随时升级吗？', a: '可以。升级后会立即使用新的额度和功能。' },
+  { q: '是否支持多个模型供应商？', a: '支持。系统可以统一接入多个模型供应商并通过同一 API 调用。' },
+  { q: '余额和套餐额度如何查看？', a: '登录控制台后可以查看实时余额、调用次数、请求日志和密钥状态。' },
+  { q: '企业版是否支持私有化？', a: '支持。企业版可根据需求提供专属部署、定制集成和 SLA。' }
 ]
 </script>
 
 <style scoped>
-.landing {
+.plans-page {
+  position: relative;
+  overflow: hidden;
   min-height: 100vh;
-  background: #fff;
-  color: #0a0a0a;
-  font-family: "Public Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  padding: 0 20px 64px;
+  color: #172033;
+  background:
+    radial-gradient(circle at 50% -160px, rgba(82, 142, 255, 0.22), transparent 420px),
+    linear-gradient(180deg, #f7fbff 0%, #fff 46%, #f8fbff 100%);
 }
 
-/* Navbar */
-.navbar {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: #fff;
-  border-bottom: 1px solid #e8e8e8;
+.orb,
+.grid-glow {
+  position: absolute;
+  pointer-events: none;
 }
 
-.nav-inner {
-  width: min(1120px, calc(100% - 40px));
+.orb {
+  width: 300px;
+  height: 300px;
+  border-radius: 999px;
+  filter: blur(60px);
+  opacity: 0.22;
+  animation: float-orb 8s ease-in-out infinite;
+}
+
+.orb-a {
+  top: 120px;
+  left: -130px;
+  background: #60a5fa;
+}
+
+.orb-b {
+  top: 90px;
+  right: -120px;
+  background: #93c5fd;
+  animation-delay: -3s;
+}
+
+.grid-glow {
+  inset: 0;
+  opacity: 0.28;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 58%);
+}
+
+.topbar {
+  position: relative;
+  z-index: 2;
+  width: min(1120px, 100%);
   height: 72px;
   margin: 0 auto;
+  padding: 0 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.brand,
+.nav-link,
+.console-link,
+.buy-button,
+.notice-button {
+  text-decoration: none;
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #172033;
   font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  text-decoration: none;
-  color: #0a0a0a;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  box-shadow: 0 10px 22px rgba(59, 130, 246, 0.22);
+  font-size: 15px;
 }
 
 .nav-links {
   display: flex;
-  gap: 32px;
-}
-
-.nav-link {
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: none;
-  color: #606060;
-  transition: color 0.2s;
-}
-
-.nav-link:hover {
-  color: #0a0a0a;
-}
-
-/* Hero */
-.hero {
-  position: relative;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 100px 20px 80px;
-  overflow: hidden;
+  gap: 20px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.hero-bg {
+.nav-link.active,
+.nav-link:hover {
+  color: #2563eb;
+}
+
+.console-link {
+  padding: 9px 16px;
+  color: #fff;
+  border-radius: 999px;
+  background: #2563eb;
+  border: 1px solid #2563eb;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+}
+
+.headline {
+  position: relative;
+  z-index: 2;
+  width: min(850px, 100%);
+  margin: 56px auto 34px;
+  text-align: center;
+  animation: fade-up 0.7s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.eyebrow {
+  width: fit-content;
+  margin: 0 auto 14px;
+  padding: 7px 14px;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+  border-radius: 999px;
+  background: #eff6ff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.headline h1 {
+  margin: 0;
+  font-size: clamp(36px, 6vw, 64px);
+  line-height: 1.08;
+  letter-spacing: -0.06em;
+  color: #101828;
+}
+
+.subtitle {
+  width: min(640px, 100%);
+  margin: 18px auto 0;
+  color: #667085;
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+.billing-switch {
+  width: fit-content;
+  margin: 28px auto 0;
+  padding: 5px;
+  display: flex;
+  gap: 4px;
+  border: 1px solid #dbeafe;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.1);
+}
+
+.billing-switch button {
+  min-width: 82px;
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 18px;
+  color: #64748b;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.billing-switch button.selected {
+  color: #fff;
+  background: #2563eb;
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.22);
+}
+
+.billing-switch span {
+  color: #22c55e;
+  font-size: 12px;
+}
+
+.plans-wrap {
+  position: relative;
+  z-index: 2;
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+.plan-card {
+  position: relative;
+  overflow: hidden;
+  padding: 28px;
+  color: #0f172a;
+  border: 1px solid #e5eaf3;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.07);
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+  animation: card-rise 0.7s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.plan-card::before {
+  content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #e0f2fe 0%, #fff 50%, #ede9fe 100%);
-  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(239, 246, 255, 0.75), transparent 45%);
+  opacity: 0;
+  transition: opacity .22s ease;
 }
 
-.hero-content {
+.plan-card > * {
   position: relative;
   z-index: 1;
-  text-align: center;
-  max-width: 720px;
 }
 
-.hero-title {
-  font-size: clamp(48px, 8vw, 80px);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  margin: 0 0 16px;
-  color: #0a0a0a;
-  animation: fadeUp 0.6s ease-out;
+.plan-card:hover {
+  transform: translateY(-5px);
+  border-color: #bfdbfe;
+  box-shadow: 0 22px 54px rgba(37, 99, 235, 0.12);
 }
 
-.hero-subtitle {
-  font-size: clamp(18px, 2.5vw, 24px);
-  color: #606060;
-  margin: 0 0 40px;
-  line-height: 1.5;
-  animation: fadeUp 0.6s ease-out 0.15s both;
+.plan-card:hover::before {
+  opacity: 1;
 }
 
-.hero-actions {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  flex-wrap: wrap;
-  animation: fadeUp 0.6s ease-out 0.3s both;
+.plan-card.recommended {
+  color: #0f172a;
+  border-color: #2563eb;
+  background: linear-gradient(180deg, #f8fbff, #fff);
+  transform: translateY(-8px);
+  box-shadow: 0 24px 64px rgba(37, 99, 235, 0.16);
 }
 
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 28px;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: 2px solid transparent;
+.plan-card.recommended:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 30px 74px rgba(37, 99, 235, 0.2);
 }
 
-.btn-primary {
-  background: #0a0a0a;
-  color: #fff;
-  border-color: #0a0a0a;
-}
-
-.btn-primary:hover {
-  background: #262626;
-}
-
-.btn-outline {
-  background: #fff;
-  color: #0a0a0a;
-  border-color: #d4d4d4;
-}
-
-.btn-outline:hover {
-  border-color: #0a0a0a;
-}
-
-.btn-cta {
-  background: #fff;
-  color: #0a0a0a;
-  font-weight: 700;
-  padding: 14px 36px;
-}
-
-.btn-cta:hover {
-  background: #f5f5f5;
-}
-
-/* Sections */
-.section {
-  padding: 80px 0;
-}
-
-.container {
-  width: min(1120px, calc(100% - 40px));
-  margin: 0 auto;
-}
-
-.section-title {
-  font-size: clamp(28px, 4vw, 40px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  text-align: center;
-  margin: 0 0 48px;
-  color: #0a0a0a;
-}
-
-/* Features */
-.features-section {
-  background: #fff;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-}
-
-@media (min-width: 640px) {
-  .features-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .features-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.feature-card {
-  background: #fff;
-  border: 1px solid #e8e8e8;
-  border-radius: 12px;
-  padding: 28px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s;
-  animation: fadeUp 0.6s ease-out both;
-}
-
-.feature-card:nth-child(1) { animation-delay: 0s; }
-.feature-card:nth-child(2) { animation-delay: 0.08s; }
-.feature-card:nth-child(3) { animation-delay: 0.16s; }
-.feature-card:nth-child(4) { animation-delay: 0.24s; }
-.feature-card:nth-child(5) { animation-delay: 0.32s; }
-.feature-card:nth-child(6) { animation-delay: 0.4s; }
-
-.feature-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.feature-icon {
-  font-size: 32px;
-  display: block;
-  margin-bottom: 12px;
-}
-
-.feature-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0 0 8px;
-  color: #0a0a0a;
-}
-
-.feature-desc {
-  font-size: 14px;
-  line-height: 1.6;
-  color: #606060;
-  margin: 0;
-}
-
-/* Pricing */
-.pricing-section {
-  background: #f5f5f5;
-}
-
-.pricing-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-  align-items: start;
-}
-
-@media (min-width: 640px) {
-  .pricing-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .pricing-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.pricing-card {
-  background: #fff;
-  border: 1px solid #e8e8e8;
-  border-radius: 12px;
-  padding: 32px 28px;
-  position: relative;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s;
-  animation: fadeUp 0.6s ease-out both;
-}
-
-.pricing-card:nth-child(2) { animation-delay: 0.1s; }
-.pricing-card:nth-child(3) { animation-delay: 0.2s; }
-
-.pricing-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.pricing-card.popular {
-  border-color: #0a0a0a;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-}
-
-.popular-badge {
+.tag {
   position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #0a0a0a;
+  top: 20px;
+  right: 20px;
+  padding: 5px 10px;
   color: #fff;
+  border-radius: 999px;
+  background: #2563eb;
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.22);
   font-size: 12px;
-  font-weight: 700;
-  padding: 4px 16px;
-  border-radius: 20px;
-  letter-spacing: 0.05em;
+  font-weight: 800;
 }
 
-.plan-name {
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0 0 12px;
-  color: #0a0a0a;
+.plan-card h2 {
+  margin: 0;
+  font-size: 25px;
+  letter-spacing: -0.04em;
 }
 
-.plan-price {
+.desc {
+  min-height: 54px;
+  margin: 12px 0 28px;
+  color: #64748b;
+  line-height: 1.7;
+}
+
+.price-line {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
   margin-bottom: 24px;
 }
 
-.price-amount {
-  font-size: 40px;
+.currency {
+  font-size: 24px;
   font-weight: 800;
-  letter-spacing: -0.03em;
-  color: #0a0a0a;
 }
 
-.price-period {
-  font-size: 16px;
-  color: #606060;
+.price-line strong {
+  font-size: 52px;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  background: linear-gradient(135deg, #101828, #2563eb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-.plan-features {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.plan-feature-item {
-  font-size: 14px;
-  color: #606060;
-  padding-left: 20px;
-  position: relative;
-}
-
-.plan-feature-item::before {
-  content: '✓';
-  position: absolute;
-  left: 0;
-  color: #0a0a0a;
+.period {
+  color: #64748b;
   font-weight: 700;
 }
 
-.pricing-card .btn {
-  width: 100%;
-}
-
-/* FAQ */
-.faq-section {
-  background: #fff;
-}
-
-.faq-list {
-  max-width: 720px;
-  margin: 0 auto;
+.buy-button {
   display: flex;
-  flex-direction: column;
-  gap: 0;
-  border-top: 1px solid #e8e8e8;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  background: #eff6ff;
+  font-weight: 800;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
 }
 
-.faq-item {
-  border-bottom: 1px solid #e8e8e8;
+.buy-button span {
+  margin-left: 8px;
+  transition: transform .18s ease;
 }
 
-.faq-question {
-  width: 100%;
+.buy-button:hover {
+  transform: translateY(-2px);
+  background: #dbeafe;
+  box-shadow: 0 14px 26px rgba(37, 99, 235, 0.18);
+}
+
+.buy-button:hover span {
+  transform: translateX(3px);
+}
+
+.buy-button.primary {
+  color: #fff;
+  border-color: #2563eb;
+  background: #2563eb;
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.24);
+}
+
+.plan-card ul {
+  margin: 26px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+  list-style: none;
+  color: #334155;
+  font-size: 14px;
+}
+
+.plan-card li::before {
+  content: '✓';
+  margin-right: 10px;
+  color: #2563eb;
+  font-weight: 900;
+}
+
+.notice,
+.faq {
+  position: relative;
+  z-index: 2;
+  width: min(1120px, 100%);
+  margin: 42px auto 0;
+}
+
+.notice {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 0;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  color: #0a0a0a;
-  text-align: left;
-  font-family: inherit;
-}
-
-.faq-question:hover {
-  color: #404040;
-}
-
-.faq-arrow {
-  font-size: 14px;
-  transition: transform 0.3s;
-  color: #a0a0a0;
-}
-
-.faq-arrow.open {
-  transform: rotate(180deg);
-}
-
-.faq-answer {
-  padding: 0 0 20px;
-  font-size: 15px;
-  line-height: 1.7;
-  color: #606060;
-}
-
-/* CTA */
-.cta-section {
-  position: relative;
-  padding: 100px 20px;
-  text-align: center;
-  overflow: hidden;
-}
-
-.cta-bg {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, #0a0a0a 0%, #262626 100%);
-  z-index: 0;
-}
-
-.cta-content {
-  position: relative;
-  z-index: 1;
-}
-
-.cta-title {
-  font-size: clamp(32px, 5vw, 48px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  gap: 24px;
+  padding: 28px 30px;
+  border: 1px solid #dbeafe;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: #fff;
-  margin: 0 0 32px;
+  box-shadow: 0 20px 50px rgba(37, 99, 235, 0.18);
 }
 
-/* Footer */
-.footer {
+.notice h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  letter-spacing: -0.04em;
+}
+
+.notice p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.7;
+}
+
+.notice-button {
+  flex: 0 0 auto;
+  padding: 12px 18px;
+  color: #0f172a;
+  border-radius: 999px;
   background: #fff;
-  border-top: 1px solid #e8e8e8;
+  font-weight: 800;
 }
 
-.footer-inner {
-  width: min(1120px, calc(100% - 40px));
-  margin: 0 auto;
-  padding: 24px 0;
+.faq {
+  padding-top: 18px;
+}
+
+.faq h2 {
+  margin: 0 0 18px;
   text-align: center;
-  font-size: 14px;
-  color: #a0a0a0;
+  color: #0f172a;
+  font-size: 32px;
+  letter-spacing: -0.04em;
 }
 
-/* Animation */
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+.faq-list {
+  overflow: hidden;
+  border: 1px solid rgba(226, 232, 240, 0.86);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.06);
+}
+
+.faq-item + .faq-item {
+  border-top: 1px solid #e5e7eb;
+}
+
+.faq-item summary {
+  padding: 20px 24px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.faq-item p {
+  margin: 0;
+  padding: 0 24px 20px;
+  color: #64748b;
+  line-height: 1.8;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes card-rise {
+  from { opacity: 0; transform: translateY(34px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes float-orb {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(24px, 18px, 0) scale(1.08); }
+}
+
+@media (max-width: 900px) {
+  .plans-wrap {
+    grid-template-columns: 1fr;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .plan-card.recommended {
+    transform: none;
+  }
+
+  .notice {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 640px) {
+  .nav-links {
+    gap: 12px;
+  }
+
+  .nav-link {
+    display: none;
+  }
+
+  .headline {
+    margin-top: 34px;
+  }
+
+  .plan-card {
+    padding: 24px;
   }
 }
 </style>
