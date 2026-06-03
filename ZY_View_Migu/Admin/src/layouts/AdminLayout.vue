@@ -27,10 +27,15 @@ const router = useRouter()
 
 const menuOptions = [
   { label: '仪表盘', key: '/' },
-  { label: '页面管理', key: '/cms/pages' }
+  { label: '页面管理', key: '/cms/pages' },
+  { label: '套餐管理', key: '/products/plan-groups' }
 ]
 
-const activeKey = computed(() => route.path.startsWith('/cms') ? '/cms/pages' : '/')
+const activeKey = computed(() => {
+  if (route.path.startsWith('/cms')) return '/cms/pages'
+  if (route.path.startsWith('/products')) return '/products/plan-groups'
+  return '/'
+})
 
 function go(path: string) {
   router.push(path)
