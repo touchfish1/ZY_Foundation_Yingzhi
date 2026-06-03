@@ -1,0 +1,33 @@
+# OS and editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+
+# Java / Gradle
+.gradle/
+build/
+out/
+
+# Node
+node_modules/
+.nuxt/
+.output/
+dist/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Docker local persistent data
+ZY_Foundation_Yingzhi/Docker/data/postgres/
+ZY_Foundation_Yingzhi/Docker/data/redis/
+ZY_Foundation_Yingzhi/Docker/data/minio/
+
+# Generated reports
+**/build/reports/
