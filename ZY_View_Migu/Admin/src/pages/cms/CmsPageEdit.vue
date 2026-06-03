@@ -1,71 +1,144 @@
 <template>
-  <div class="page-head">
-    <div>
-      <h2>编辑页面 {{ detail?.slug }}</h2>
-      <p>当前先提供 JSON 编辑器，后续替换为区块表单编辑器。</p>
+  <div class="edit-page">
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <n-button text @click="router.push('/cms/pages')">
+          ← 返回页面管理
+        </n-button>
+        <h2 class="page-title">编辑页面 {{ detail?.slug }}</h2>
+      </div>
+      <div class="top-bar-center">
+        <LocaleSwitcher
+          :translations="detail?.translations ?? []"
+          :current-locale="locale"
+          @select="onLocaleChange"
+        />
+      </div>
+      <div class="top-bar-right">
+        <n-button @click="save" :loading="saving">保存草稿</n-button>
+        <n-button type="primary" @click="publish" :loading="publishing">发布</n-button>
+      </div>
     </div>
-    <div class="actions">
-      <n-button @click="save" :loading="saving">保存草稿</n-button>
-      <n-button type="primary" @click="publish" :loading="publishing">发布</n-button>
+
+    <div v-if="detail" class="edit-body">
+      <div class="edit-left">
+        <n-card title="区块编辑器" size="small">
+          <BlockFormEditor
+            v-model:blocks="blocks"
+            :definitions="blockDefinitions"
+          />
+        </n-card>
+      </div>
+
+      <div class="edit-right">
+        <n-card title="基本信息" size="small">
+          <n-form label-placement="top">
+            <n-form-item label="标题">
+              <n-input v-model:value="title" placeholder="页面标题" />
+            </n-form-item>
+            <n-form-item label="SEO 标题">
+              <n-input v-model:value="seoTitle" placeholder="SEO 标题" />
+            </n-form-item>
+            <n-form-item label="SEO 描述">
+              <n-input v-model:value="seoDescription" type="textarea" placeholder="SEO 描述" />
+            </n-form-item>
+          </n-form>
+        </n-card>
+
+        <n-card title="页面信息" size="small" class="info-card">
+          <div class="info-row"><span class="info-label">状态</span><span>{{ detail.status }}</span></div>
+          <div class="info-row"><span class="info-label">默认语言</span><span>{{ detail.defaultLocale }}</span></div>
+        </n-card>
+      </div>
     </div>
   </div>
-
-  <n-card v-if="detail">
-    <n-form>
-      <n-form-item label="语言">
-        <n-input v-model:value="locale" />
-      </n-form-item>
-      <n-form-item label="标题">
-        <n-input v-model:value="title" />
-      </n-form-item>
-      <n-form-item label="SEO 标题">
-        <n-input v-model:value="seoTitle" />
-      </n-form-item>
-      <n-form-item label="SEO 描述">
-        <n-input v-model:value="seoDescription" type="textarea" />
-      </n-form-item>
-      <n-form-item label="页面 JSON">
-        <n-input v-model:value="content" type="textarea" :autosize="{ minRows: 14 }" />
-      </n-form-item>
-    </n-form>
-  </n-card>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { NButton, NCard, NForm, NFormItem, NInput, useMessage } from 'naive-ui'
-import { getPage, publishPage, saveDraft, type CmsPageDetail } from '../../api/cms'
+import { getPage, publishPage, saveDraft } from '../../api/cms'
+import { getBlockDefinitions, getDraftContent } from '../../api/block'
+import LocaleSwitcher from '../../components/page-editor/LocaleSwitcher.vue'
+import BlockFormEditor from '../../components/page-editor/BlockFormEditor.vue'
+import type { BlockDefinition, PageBlock } from '../../types/block'
 
 const route = useRoute()
+const router = useRouter()
 const message = useMessage()
 const pageId = Number(route.params.id)
-const detail = ref<CmsPageDetail | null>(null)
+
+const detail = ref<{
+  id: number
+  slug: string
+  defaultLocale: string
+  status: string
+  translations: Array<{
+    locale: string
+    title: string
+    seoTitle?: string
+    seoDescription?: string
+    seoKeywords?: string
+    draftVersionId?: number
+    publishedVersionId?: number
+    content?: unknown
+    status: string
+  }>
+} | null>(null)
+
 const locale = ref('zh-CN')
-const title = ref('套餐价格')
-const seoTitle = ref('套餐价格 - ZHANGYUAN')
-const seoDescription = ref('选择适合你的 API 套餐')
-const defaultContent = {
-  layout: 'default',
-  blocks: [
-    { id: 'hero_001', type: 'hero', props: { title: '选择适合你的套餐', subtitle: '稳定、高性能的 API 服务' } },
-    { id: 'pricing_001', type: 'pricing', props: { planGroupCode: 'api_plans', defaultBillingCycle: 'monthly' } }
-  ]
-}
-const content = ref(JSON.stringify(defaultContent, null, 2))
+const title = ref('')
+const seoTitle = ref('')
+const seoDescription = ref('')
+const blockDefinitions = ref<BlockDefinition[]>([])
+const blocks = ref<PageBlock[]>([])
 const saving = ref(false)
 const publishing = ref(false)
 
-async function load() {
+async function loadPage() {
   detail.value = await getPage(pageId)
-  const translation = detail.value.translations[0]
+}
+
+async function loadDefinitions() {
+  try {
+    blockDefinitions.value = await getBlockDefinitions()
+  } catch {
+    blockDefinitions.value = []
+  }
+}
+
+async function loadDraft(localeCode: string) {
+  try {
+    const draft = await getDraftContent(pageId, localeCode)
+    blocks.value = draft.blocks || []
+  } catch {
+    blocks.value = []
+  }
+}
+
+async function load() {
+  await loadPage()
+  await loadDefinitions()
+  const translation = detail.value!.translations[0]
   if (translation) {
     locale.value = translation.locale
     title.value = translation.title
     seoTitle.value = translation.seoTitle || title.value
     seoDescription.value = translation.seoDescription || ''
-    content.value = JSON.stringify(translation.content || defaultContent, null, 2)
+    await loadDraft(locale.value)
   }
+}
+
+async function onLocaleChange(newLocale: string) {
+  locale.value = newLocale
+  const translation = detail.value!.translations.find(t => t.locale === newLocale)
+  if (translation) {
+    title.value = translation.title
+    seoTitle.value = translation.seoTitle || title.value
+    seoDescription.value = translation.seoDescription || ''
+  }
+  await loadDraft(newLocale)
 }
 
 async function save() {
@@ -76,11 +149,14 @@ async function save() {
       seoTitle: seoTitle.value,
       seoDescription: seoDescription.value,
       seoKeywords: 'API,套餐,CMS',
-      content: JSON.parse(content.value),
+      content: {
+        layout: 'default',
+        blocks: blocks.value
+      },
       remark: 'admin draft'
     })
     message.success('草稿已保存')
-    await load()
+    await loadPage()
   } catch (error) {
     message.error(error instanceof Error ? error.message : '保存失败')
   } finally {
@@ -91,9 +167,15 @@ async function save() {
 async function publish() {
   publishing.value = true
   try {
-    await publishPage(pageId, locale.value, 'admin publish')
-    message.success('页面已发布')
-    await load()
+    const result = await publishPage(pageId, locale.value, 'admin publish')
+    const trans = result.translations.find(t => t.locale === locale.value)
+    const versionId = trans?.publishedVersionId
+    if (versionId) {
+      message.success(`页面已发布 (版本 #${versionId})`)
+    } else {
+      message.success('页面已发布')
+    }
+    await loadPage()
   } catch (error) {
     message.error(error instanceof Error ? error.message : '发布失败')
   } finally {
@@ -105,24 +187,74 @@ onMounted(load)
 </script>
 
 <style scoped>
-.page-head {
+.edit-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.top-bar-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.top-bar-right {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-body {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+}
+
+.edit-left {
+  min-height: 0;
+}
+
+.edit-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.info-card {
+  margin-top: 0;
+}
+
+.info-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  padding: 6px 0;
+  font-size: 13px;
 }
 
-.page-head h2 {
-  margin: 0 0 6px;
-}
-
-.page-head p {
-  margin: 0;
-  color: #64748b;
-}
-
-.actions {
-  display: flex;
-  gap: 12px;
+.info-label {
+  color: #6b7280;
 }
 </style>

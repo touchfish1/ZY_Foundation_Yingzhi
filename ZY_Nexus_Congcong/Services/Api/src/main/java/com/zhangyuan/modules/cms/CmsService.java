@@ -12,6 +12,7 @@ import com.zhangyuan.modules.cms.dto.PageTranslationResponse;
 import com.zhangyuan.modules.cms.dto.PublishPageRequest;
 import com.zhangyuan.modules.cms.dto.RenderPageResponse;
 import com.zhangyuan.modules.cms.dto.SaveDraftRequest;
+import com.zhangyuan.modules.cms.dto.VersionResponse;
 import com.zhangyuan.modules.cms.repository.CmsPageRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageTranslationRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageVersionRepository;
@@ -108,6 +109,26 @@ public class CmsService {
         page.touch();
 
         return toDetail(page, translationRepository.findByPageId(pageId));
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> getDraftVersion(Long pageId, String locale) {
+        CmsPageTranslation translation = translationRepository.findByPageIdAndLocale(pageId, locale)
+                .orElseThrow(() -> new IllegalArgumentException("CMS page translation not found for pageId=" + pageId + ", locale=" + locale));
+        if (translation.getDraftVersionId() == null) {
+            throw new IllegalArgumentException("CMS page translation has no draft version");
+        }
+        CmsPageVersion version = versionRepository.findById(translation.getDraftVersionId())
+                .orElseThrow(() -> new IllegalArgumentException("CMS draft version not found"));
+        return version.getContentJson();
+    }
+
+    @Transactional(readOnly = true)
+    public List<VersionResponse> listVersions(Long pageId, String locale) {
+        return versionRepository.findByPageIdAndLocaleOrderByVersionNoDesc(pageId, locale)
+                .stream()
+                .map(v -> new VersionResponse(v.getId(), v.getVersionNo(), v.getCreatedAt(), v.getRemark()))
+                .toList();
     }
 
     @Transactional(readOnly = true)

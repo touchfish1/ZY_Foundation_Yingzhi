@@ -82,6 +82,14 @@ public class CmsPageVersion {
         return snapshotJson;
     }
 
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
     public void publishSnapshot(Map<String, Object> snapshotJson) {
         this.snapshotJson = snapshotJson;
     }
