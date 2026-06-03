@@ -8,6 +8,10 @@ import com.zhangyuan.modules.cms.repository.CmsPageRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageTranslationRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageVersionRepository;
 import com.zhangyuan.modules.cms.repository.CmsPublishRecordRepository;
+import com.zhangyuan.modules.product.repository.ProductFeatureRepository;
+import com.zhangyuan.modules.product.repository.ProductPlanGroupRepository;
+import com.zhangyuan.modules.product.repository.ProductPlanRepository;
+import com.zhangyuan.modules.product.repository.ProductPriceRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -40,6 +44,18 @@ class ZhangyuanApplicationTests {
 
     @MockBean
     private CmsBlockDefinitionRepository cmsBlockDefinitionRepository;
+
+    @MockBean
+    private ProductPlanGroupRepository productPlanGroupRepository;
+
+    @MockBean
+    private ProductPlanRepository productPlanRepository;
+
+    @MockBean
+    private ProductPriceRepository productPriceRepository;
+
+    @MockBean
+    private ProductFeatureRepository productFeatureRepository;
 
     @Test
     void contextLoads() {

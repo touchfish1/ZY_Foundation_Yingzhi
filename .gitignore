@@ -12,12 +12,14 @@ Thumbs.db
 .gradle/
 build/
 out/
+*.tsbuildinfo
 
 # Node
 node_modules/
 .nuxt/
 .output/
 dist/
+ZY_View_Migu/Admin/src/**/*.js
 
 # Environment
 .env

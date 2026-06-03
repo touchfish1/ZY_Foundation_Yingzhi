@@ -34,3 +34,28 @@ src/
   styles/
   types/
 ```
+
+## Local Run
+
+```bash
+npm install
+npm run dev
+```
+
+默认访问：
+
+```text
+http://localhost:5173
+```
+
+开发服务器会将 `/admin`、`/api`、`/actuator` 代理到：
+
+```text
+http://localhost:8080
+```
+
+默认登录账号：
+
+```text
+admin / admin123
+```
