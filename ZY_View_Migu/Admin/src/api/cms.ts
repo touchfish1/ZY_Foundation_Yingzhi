@@ -21,6 +21,7 @@ export interface CmsPageDetail {
     seoKeywords?: string
     draftVersionId?: number
     publishedVersionId?: number
+    content?: unknown
     status: string
   }>
 }

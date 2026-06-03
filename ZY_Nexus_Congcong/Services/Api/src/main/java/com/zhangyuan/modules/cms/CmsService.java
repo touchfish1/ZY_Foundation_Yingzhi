@@ -16,11 +16,17 @@ import com.zhangyuan.modules.cms.repository.CmsPageRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageTranslationRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageVersionRepository;
 import com.zhangyuan.modules.cms.repository.CmsPublishRecordRepository;
+import com.zhangyuan.modules.product.ProductService;
+import com.zhangyuan.modules.product.dto.FeatureResponse;
+import com.zhangyuan.modules.product.dto.PlanGroupResponse;
+import com.zhangyuan.modules.product.dto.PlanResponse;
+import com.zhangyuan.modules.product.dto.PriceResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,13 +37,16 @@ public class CmsService {
     private final CmsPageTranslationRepository translationRepository;
     private final CmsPageVersionRepository versionRepository;
     private final CmsPublishRecordRepository publishRecordRepository;
+    private final ProductService productService;
 
     public CmsService(CmsPageRepository pageRepository, CmsPageTranslationRepository translationRepository,
-                      CmsPageVersionRepository versionRepository, CmsPublishRecordRepository publishRecordRepository) {
+                      CmsPageVersionRepository versionRepository, CmsPublishRecordRepository publishRecordRepository,
+                      ProductService productService) {
         this.pageRepository = pageRepository;
         this.translationRepository = translationRepository;
         this.versionRepository = versionRepository;
         this.publishRecordRepository = publishRecordRepository;
+        this.productService = productService;
     }
 
     @Transactional(readOnly = true)
@@ -93,7 +102,7 @@ public class CmsService {
 
         CmsPageVersion version = versionRepository.findById(translation.getDraftVersionId())
                 .orElseThrow(() -> new IllegalArgumentException("CMS draft version not found"));
-        version.publishSnapshot(version.getContentJson());
+        version.publishSnapshot(buildPublishSnapshot(version.getContentJson()));
         translation.publish(version.getId());
         publishRecordRepository.save(new CmsPublishRecord(pageId, locale, version.getId(), currentUserId(), request == null ? null : request.remark()));
         page.touch();
@@ -133,6 +142,97 @@ public class CmsService {
 
     private CmsPage requirePage(Long pageId) {
         return pageRepository.findById(pageId).orElseThrow(() -> new IllegalArgumentException("CMS page not found"));
+    }
+
+    private Map<String, Object> buildPublishSnapshot(Map<String, Object> contentJson) {
+        Map<String, Object> snapshot = contentJson == null ? new LinkedHashMap<>() : new LinkedHashMap<>(contentJson);
+        Object blocks = snapshot.get("blocks");
+        if (blocks instanceof List<?> blockList) {
+            snapshot.put("blocks", blockList.stream().map(this::enrichBlock).toList());
+        }
+        return snapshot;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object enrichBlock(Object block) {
+        if (!(block instanceof Map<?, ?> rawBlock)) {
+            return block;
+        }
+        Map<String, Object> enrichedBlock = new LinkedHashMap<>((Map<String, Object>) rawBlock);
+        if (!"pricing".equals(enrichedBlock.get("type")) || !(enrichedBlock.get("props") instanceof Map<?, ?> rawProps)) {
+            return enrichedBlock;
+        }
+
+        Map<String, Object> props = new LinkedHashMap<>((Map<String, Object>) rawProps);
+        Object planGroupCodeValue = props.get("planGroupCode");
+        if (!(planGroupCodeValue instanceof String planGroupCode) || planGroupCode.isBlank()) {
+            enrichedBlock.put("props", props);
+            return enrichedBlock;
+        }
+
+        productService.findGroupByCode(planGroupCode)
+                .ifPresentOrElse(
+                        group -> {
+                            props.put("planGroup", toPlanGroupMap(group));
+                            props.put("plans", group.plans().stream().map(this::toPlanMap).toList());
+                            props.put("dataStatus", "ready");
+                            props.remove("dataError");
+                        },
+                        () -> {
+                            props.put("plans", List.of());
+                            props.put("dataStatus", "missing");
+                            props.put("dataError", "Product plan group not found");
+                        }
+                );
+        enrichedBlock.put("props", props);
+        return enrichedBlock;
+    }
+
+    private Map<String, Object> toPlanGroupMap(PlanGroupResponse group) {
+        Map<String, Object> value = new LinkedHashMap<>();
+        value.put("id", group.id());
+        value.put("code", group.code());
+        value.put("name", group.name());
+        value.put("description", group.description());
+        value.put("status", group.status());
+        value.put("sortOrder", group.sortOrder());
+        value.put("plans", group.plans().stream().map(this::toPlanMap).toList());
+        return value;
+    }
+
+    private Map<String, Object> toPlanMap(PlanResponse plan) {
+        Map<String, Object> value = new LinkedHashMap<>();
+        value.put("id", plan.id());
+        value.put("code", plan.code());
+        value.put("name", plan.name());
+        value.put("description", plan.description());
+        value.put("badge", plan.badge());
+        value.put("status", plan.status());
+        value.put("sortOrder", plan.sortOrder());
+        value.put("prices", plan.prices().stream().map(this::toPriceMap).toList());
+        value.put("features", plan.features().stream().map(this::toFeatureMap).toList());
+        return value;
+    }
+
+    private Map<String, Object> toPriceMap(PriceResponse price) {
+        Map<String, Object> value = new LinkedHashMap<>();
+        value.put("id", price.id());
+        value.put("currency", price.currency());
+        value.put("billingCycle", price.billingCycle());
+        value.put("amount", price.amount());
+        value.put("originalAmount", price.originalAmount());
+        value.put("status", price.status());
+        return value;
+    }
+
+    private Map<String, Object> toFeatureMap(FeatureResponse feature) {
+        Map<String, Object> value = new LinkedHashMap<>();
+        value.put("id", feature.id());
+        value.put("featureName", feature.featureName());
+        value.put("featureValue", feature.featureValue());
+        value.put("included", feature.included());
+        value.put("sortOrder", feature.sortOrder());
+        return value;
     }
 
     private PageDetailResponse toDetail(CmsPage page, List<CmsPageTranslation> translations) {

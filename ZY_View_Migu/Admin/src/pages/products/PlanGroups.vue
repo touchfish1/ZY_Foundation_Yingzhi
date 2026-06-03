@@ -5,6 +5,7 @@
       <p>维护真实套餐、价格和权益，供 CMS pricing 区块绑定展示。</p>
     </div>
     <n-space>
+      <n-button @click="load" :loading="loading">刷新</n-button>
       <n-button @click="showPlan = true" :disabled="!selectedGroupId">新增套餐</n-button>
       <n-button type="primary" @click="showGroup = true">新增套餐组</n-button>
     </n-space>
@@ -13,7 +14,8 @@
   <n-grid :cols="24" :x-gap="20">
     <n-grid-item :span="7">
       <n-card title="套餐组">
-        <n-list clickable hoverable>
+        <n-empty v-if="!loading && !groups.length" description="暂无套餐组，请先新增套餐组" />
+        <n-list v-else clickable hoverable>
           <n-list-item v-for="group in groups" :key="group.id" @click="selectedGroupId = group.id">
             <div class="group-item" :class="{ active: selectedGroupId === group.id }">
               <strong>{{ group.name }}</strong>
@@ -27,6 +29,7 @@
     <n-grid-item :span="17">
       <n-card :title="selectedGroup?.name || '请选择套餐组'">
         <div v-if="selectedGroup" class="plans">
+          <n-empty v-if="!selectedGroup.plans.length" description="该套餐组暂无套餐，请点击新增套餐" />
           <article v-for="plan in selectedGroup.plans" :key="plan.id" class="plan-card">
             <div class="plan-top">
               <div>
@@ -47,6 +50,7 @@
             </n-space>
           </article>
         </div>
+        <n-empty v-else description="请选择或新增一个套餐组" />
       </n-card>
     </n-grid-item>
   </n-grid>
@@ -90,11 +94,12 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { NButton, NCard, NForm, NFormItem, NGrid, NGridItem, NInput, NInputNumber, NList, NListItem, NModal, NSpace, NTag, useMessage } from 'naive-ui'
+import { NButton, NCard, NEmpty, NForm, NFormItem, NGrid, NGridItem, NInput, NInputNumber, NList, NListItem, NModal, NSpace, NTag, useMessage } from 'naive-ui'
 import { createFeature, createPlan, createPlanGroup, createPrice, listPlanGroups, type PlanGroup } from '../../api/product'
 
 const message = useMessage()
 const groups = ref<PlanGroup[]>([])
+const loading = ref(false)
 const selectedGroupId = ref<number | null>(null)
 const selectedPlanId = ref<number | null>(null)
 const selectedGroup = computed(() => groups.value.find(group => group.id === selectedGroupId.value))
@@ -110,9 +115,16 @@ const priceForm = reactive({ currency: 'CNY', billingCycle: 'monthly', amount: 2
 const featureForm = reactive({ featureName: '每日 1,000 次调用', featureValue: '', included: true, sortOrder: 10 })
 
 async function load() {
-  groups.value = await listPlanGroups()
-  if (!selectedGroupId.value && groups.value.length) {
-    selectedGroupId.value = groups.value[0].id
+  loading.value = true
+  try {
+    groups.value = await listPlanGroups()
+    if (!groups.value.some(group => group.id === selectedGroupId.value)) {
+      selectedGroupId.value = groups.value[0]?.id || null
+    }
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : '套餐组加载失败')
+  } finally {
+    loading.value = false
   }
 }
 

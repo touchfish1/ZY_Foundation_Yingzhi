@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -47,6 +48,11 @@ public class ProductService {
         return groupRepository.findByCode(code)
                 .map(this::toGroupResponse)
                 .orElseThrow(() -> new IllegalArgumentException("Product plan group not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<PlanGroupResponse> findGroupByCode(String code) {
+        return groupRepository.findByCode(code).map(this::toGroupResponse);
     }
 
     @Transactional

@@ -45,13 +45,14 @@ const locale = ref('zh-CN')
 const title = ref('套餐价格')
 const seoTitle = ref('套餐价格 - ZHANGYUAN')
 const seoDescription = ref('选择适合你的 API 套餐')
-const content = ref(JSON.stringify({
+const defaultContent = {
   layout: 'default',
   blocks: [
     { id: 'hero_001', type: 'hero', props: { title: '选择适合你的套餐', subtitle: '稳定、高性能的 API 服务' } },
     { id: 'pricing_001', type: 'pricing', props: { planGroupCode: 'api_plans', defaultBillingCycle: 'monthly' } }
   ]
-}, null, 2))
+}
+const content = ref(JSON.stringify(defaultContent, null, 2))
 const saving = ref(false)
 const publishing = ref(false)
 
@@ -63,6 +64,7 @@ async function load() {
     title.value = translation.title
     seoTitle.value = translation.seoTitle || title.value
     seoDescription.value = translation.seoDescription || ''
+    content.value = JSON.stringify(translation.content || defaultContent, null, 2)
   }
 }
 
