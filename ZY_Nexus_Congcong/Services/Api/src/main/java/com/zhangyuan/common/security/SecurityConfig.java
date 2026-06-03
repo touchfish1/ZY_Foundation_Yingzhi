@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/auth/login", "/api/system/ping", "/api/cms/pages/render", "/actuator/health", "/actuator/info").permitAll()
+                        .requestMatchers("/admin/auth/login", "/api/system/ping", "/api/system/settings", "/api/cms/pages/render", "/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/api/products/plan-groups/**").permitAll()
                         .requestMatchers("/api/orders/**", "/api/payments/**").permitAll()
                         .anyRequest().authenticated()

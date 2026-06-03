@@ -5,6 +5,17 @@
       <h2>选择适合你的套餐</h2>
     </div>
 
+    <div v-if="showBillingToggle" class="billing-toggle">
+      <button
+        v-for="cycle in allBillingCycles"
+        :key="cycle"
+        :class="{ active: billingCycle === cycle }"
+        @click="billingCycle = cycle"
+      >
+        {{ billingCycleLabel(cycle) }}
+      </button>
+    </div>
+
     <p v-if="loadError" class="notice">{{ loadError }}</p>
     <div class="cards">
       <article v-for="plan in plans" :key="plan.code" class="card" :class="{ featured: plan.badge }">
@@ -13,7 +24,7 @@
         <p class="desc">{{ plan.description }}</p>
         <div class="price">
           <span>{{ formatPrice(firstPrice(plan)?.amount) }}</span>
-          <small>/ {{ firstPrice(plan)?.billingCycle || defaultBillingCycle }}</small>
+          <small>/ {{ cycleUnit(firstPrice(plan)?.billingCycle || billingCycle) }}</small>
         </div>
         <ul>
           <li v-for="feature in plan.features" :key="feature.id">{{ feature.featureName }} {{ feature.featureValue || '' }}</li>
@@ -59,13 +70,14 @@ interface PlanGroup {
 const { props } = defineProps<{ props: Record<string, unknown> }>()
 const config = useRuntimeConfig()
 const code = String(props.planGroupCode || 'api_plans')
-const defaultBillingCycle = String(props.defaultBillingCycle || 'monthly')
 const snapshotGroup = computed(() => normalizePlanGroup(props.planGroup))
 const snapshotPlans = computed(() => normalizePlans(props.plans))
 const shouldFetch = computed(() => !snapshotPlans.value.length && !snapshotGroup.value?.plans?.length)
 const loadError = ref('')
 const checkoutError = ref('')
 const buyingCode = ref('')
+
+const billingCycle = ref(String(props.defaultBillingCycle || 'monthly'))
 
 const { data, error } = await useFetch<{ code: number; message: string; data: PlanGroup }>(
   `${config.public.apiBase}/api/products/plan-groups/${code}`,
@@ -83,6 +95,28 @@ const plans = computed(() => {
   return remoteGroup.value?.plans || []
 })
 
+const allBillingCycles = computed(() => {
+  const cycles = new Set<string>()
+  plans.value.forEach(plan => {
+    plan.prices?.forEach(price => {
+      if (price.billingCycle) cycles.add(price.billingCycle)
+    })
+  })
+  return Array.from(cycles)
+})
+
+const showBillingToggle = computed(() => allBillingCycles.value.length > 1)
+
+function billingCycleLabel(cycle: string): string {
+  const labels: Record<string, string> = { monthly: '月付', yearly: '年付', biennial: '两年付', triennial: '三年付' }
+  return labels[cycle] || cycle
+}
+
+function cycleUnit(cycle: string): string {
+  const units: Record<string, string> = { monthly: '月', yearly: '年', biennial: '两年', triennial: '三年' }
+  return units[cycle] || cycle
+}
+
 function normalizePlanGroup(value: unknown): PlanGroup | null {
   if (!value || typeof value !== 'object') return null
   const group = value as PlanGroup
@@ -94,7 +128,7 @@ function normalizePlans(value: unknown): Plan[] {
 }
 
 function firstPrice(plan: Plan) {
-  return plan.prices?.find(price => price.billingCycle === defaultBillingCycle) || plan.prices?.[0]
+  return plan.prices?.find(price => price.billingCycle === billingCycle.value) || plan.prices?.[0]
 }
 
 function formatPrice(value: unknown) {
@@ -110,7 +144,7 @@ async function buy(plan: Plan) {
     const order = await createCheckoutOrder(config.public.apiBase, {
       planCode: plan.code,
       priceId: price?.id,
-      billingCycle: price?.billingCycle || defaultBillingCycle,
+      billingCycle: price?.billingCycle || billingCycle.value,
       quantity: 1
     })
     const orderId = order.id || order.orderId || order.orderNo
@@ -159,6 +193,37 @@ async function buy(plan: Plan) {
   font-weight: 700;
   letter-spacing: -0.03em;
   color: #0a0a0a;
+}
+
+.billing-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin: 0 0 32px;
+  padding: 4px;
+  border-radius: 999px;
+  background: #f5f5f5;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.billing-toggle button {
+  padding: 8px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #606060;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.billing-toggle button.active {
+  background: #fff;
+  color: #0a0a0a;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
 }
 
 .cards {

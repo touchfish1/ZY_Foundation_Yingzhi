@@ -12,6 +12,7 @@ import com.zhangyuan.modules.order.repository.OrderMainRepository;
 import com.zhangyuan.modules.payment.repository.PaymentTransactionRepository;
 import com.zhangyuan.modules.product.repository.ProductFeatureRepository;
 import com.zhangyuan.modules.product.repository.ProductPlanGroupRepository;
+import com.zhangyuan.modules.system.repository.SystemSettingRepository;
 import com.zhangyuan.modules.product.repository.ProductPlanRepository;
 import com.zhangyuan.modules.product.repository.ProductPriceRepository;
 import org.junit.jupiter.api.Test;
@@ -64,6 +65,9 @@ class ZhangyuanApplicationTests {
 
     @MockBean
     private PaymentTransactionRepository paymentTransactionRepository;
+
+    @MockBean
+    private SystemSettingRepository systemSettingRepository;
 
     @Test
     void contextLoads() {
