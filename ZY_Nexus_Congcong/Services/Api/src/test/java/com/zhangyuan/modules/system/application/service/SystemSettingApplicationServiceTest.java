@@ -8,6 +8,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -55,6 +56,6 @@ class SystemSettingApplicationServiceTest {
         var result = service.batchUpdate(Map.of("k1", "v1", "k2", "v2"));
 
         assertThat(result).isNotNull();
-        verify(repository).save(any());
+        verify(repository, times(2)).save(any());
     }
 }

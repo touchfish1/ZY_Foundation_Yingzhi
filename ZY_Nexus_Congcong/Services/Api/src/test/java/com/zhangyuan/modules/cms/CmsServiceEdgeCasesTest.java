@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -98,7 +99,7 @@ class CmsServiceEdgeCasesTest {
 
         cmsService.saveDraft(1L, "zh-CN", request);
 
-        verify(versionRepository).save(any());
+        verify(versionRepository, times(2)).save(any());
     }
 
     @Test
@@ -107,7 +108,7 @@ class CmsServiceEdgeCasesTest {
         CmsPageTranslation translation = new CmsPageTranslation(1L, "zh-CN", "Test");
         when(translationRepository.findByPageIdAndLocale(1L, "zh-CN")).thenReturn(Optional.of(translation));
 
-        assertThatThrownBy(() -> cmsService.publish(1L, "zh-CN", new PublishPageRequest("publish")))
+        assertThatThrownBy(() -> cmsService.publish(1L, "zh-CN", new PublishPageRequest(null, "publish")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("no draft");
     }

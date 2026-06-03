@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:100.125.148.23}:${DB_PORT:5432}/${DB_NAME:zhangyuan}
+    username: ${DB_USERNAME:zhangyuan}
+    password: ${DB_PASSWORD:zhangyuan}
+  data:
+    redis:
+      host: ${REDIS_HOST:100.125.148.23}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://100.125.148.23:9000}
+  access-key: ${MINIO_ACCESS_KEY:zhangyuan}
+  secret-key: ${MINIO_SECRET_KEY:zhangyuan-minio-secret}
+  bucket: ${MINIO_BUCKET:zhangyuan-assets}

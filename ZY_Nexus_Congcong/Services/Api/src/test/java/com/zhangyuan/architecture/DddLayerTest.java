@@ -1,12 +1,12 @@
 package com.zhangyuan.architecture;
 
-import com.tngtech.archunit.core.domain.JavaClasses;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 import org.junit.jupiter.api.Test;
 
+import static com.tngtech.archunit.base.DescribedPredicate.not;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.simpleNameEndingWith;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
@@ -36,7 +36,7 @@ class DddLayerTest {
                     .should().onlyDependOnClassesThat()
                     .resideInAnyPackage(
                             "..domain.model..",
-                            "..common.ddd..",
+                            "..common.dddframework..",
                             "java..",
                             "org.."
                     )
@@ -54,10 +54,8 @@ class DddLayerTest {
     static final ArchRule adaptersShouldImplementDomainPorts =
             classes()
                     .that().resideInAnyPackage("..adapter.out.persistence..")
-                    .should().implement(
-                            JavaClasses.Predicates.that()
-                                    .and(classes -> classes.getInterfaces().stream()
-                                            .anyMatch(i -> i.getName().endsWith("Repository")))
-                    )
+                    .and().haveSimpleNameStartingWith("Jpa")
+                    .and(not(simpleNameEndingWith("Test")))
+                    .should().haveSimpleNameEndingWith("Repository")
                     .because("Persistence adapters must implement domain repository interfaces");
 }

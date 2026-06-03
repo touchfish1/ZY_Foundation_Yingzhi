@@ -2,7 +2,9 @@ package com.zhangyuan;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.modulith.Modulith;
 
+@Modulith(sharedModules = {"common"})
 @SpringBootApplication
 public class ZhangyuanApplication {
 

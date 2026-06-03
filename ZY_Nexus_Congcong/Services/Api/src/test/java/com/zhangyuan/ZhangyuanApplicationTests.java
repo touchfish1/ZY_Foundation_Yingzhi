@@ -1,5 +1,6 @@
 package com.zhangyuan;
 
+import com.zhangyuan.modules.asset.repository.AssetFileRepository;
 import com.zhangyuan.modules.auth.repository.AdminPermissionRepository;
 import com.zhangyuan.modules.auth.repository.AdminRoleRepository;
 import com.zhangyuan.modules.auth.repository.AdminUserRepository;
@@ -23,6 +24,9 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @ActiveProfiles("test")
 class ZhangyuanApplicationTests {
+
+    @MockBean
+    private AssetFileRepository assetFileRepository;
 
     @MockBean
     private AdminUserRepository adminUserRepository;

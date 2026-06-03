@@ -49,7 +49,7 @@ class CmsServiceTest {
                 "enabled",
                 10,
                 List.of(new PlanResponse(
-                        11L,
+                        11L, 1L,
                         "pro",
                         "Pro",
                         "Pro plan",
@@ -61,7 +61,7 @@ class CmsServiceTest {
                 ))
         )));
 
-        cmsService.publish(100L, "zh-CN", new PublishPageRequest("release"));
+        cmsService.publish(100L, "zh-CN", new PublishPageRequest(null, "release"));
 
         Map<String, Object> props = pricingProps(version);
         assertThat(props).containsEntry("planGroupCode", "vip").containsEntry("defaultBillingCycle", "yearly").containsEntry("dataStatus", "ready");
