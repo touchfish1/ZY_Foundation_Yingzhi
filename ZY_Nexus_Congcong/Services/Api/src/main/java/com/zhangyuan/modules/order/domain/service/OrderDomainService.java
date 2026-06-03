@@ -28,7 +28,7 @@ public class OrderDomainService {
      */
     public Order createOrder(Long planId, Long priceId, BigDecimal amount, String currency, String snapshotJson) {
         OrderNumber orderNo = OrderNumber.generate();
-        log.info("Domain order created: orderNo={}", orderNo.getValue());
+        log.info("Domain order created: orderNo={}", orderNo.value());
         return new Order(orderNo, planId, priceId, amount, currency, snapshotJson);
     }
 
