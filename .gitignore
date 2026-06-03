@@ -12,7 +12,8 @@ Thumbs.db
 # Java / Gradle
 .gradle/
 build/
-/out/
+out/
+bin/
 *.tsbuildinfo
 
 # Node
