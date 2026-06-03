@@ -1,13 +1,13 @@
 <template>
   <section id="plans" class="pricing">
     <div class="section-head">
-      <p>Plans</p>
+      <p class="section-tag">Plans</p>
       <h2>选择适合你的套餐</h2>
     </div>
 
     <p v-if="loadError" class="notice">{{ loadError }}</p>
     <div class="cards">
-      <article v-for="plan in plans" :key="plan.code" class="card">
+      <article v-for="plan in plans" :key="plan.code" class="card" :class="{ featured: plan.badge }">
         <div class="badge" v-if="plan.badge">{{ plan.badge }}</div>
         <h3>{{ plan.name }}</h3>
         <p class="desc">{{ plan.description }}</p>
@@ -137,61 +137,114 @@ async function buy(plan: Plan) {
 
 .section-head {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
-.section-head p {
-  color: #67e8f9;
-  font-weight: 800;
+.section-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #f5f5f5;
+  color: #606060;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
 }
 
 .section-head h2 {
   margin: 0;
-  font-size: clamp(30px, 5vw, 56px);
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #0a0a0a;
 }
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 18px;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .card {
   position: relative;
-  padding: 28px;
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(18px);
+  padding: 32px;
+  border-radius: 0.75rem;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.10);
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.10), 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.card.featured {
+  border-color: #0a0a0a;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.10), 0 0 0 1px #0a0a0a;
 }
 
 .badge {
   display: inline-flex;
   padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(103, 232, 249, 0.16);
-  color: #67e8f9;
+  background: #0a0a0a;
+  color: #fafafa;
   font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 h3 {
-  font-size: 26px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0a0a0a;
+  margin: 0 0 8px;
 }
 
 .desc,
-li,
 small {
-  color: rgba(226, 232, 240, 0.72);
+  color: #606060;
+  font-size: 14px;
+}
+
+.price {
+  margin: 20px 0;
 }
 
 .price span {
   font-size: 42px;
-  font-weight: 900;
+  font-weight: 800;
+  color: #0a0a0a;
+  letter-spacing: -0.03em;
 }
 
 ul {
-  min-height: 110px;
+  min-height: 100px;
   padding-left: 18px;
+  margin: 0 0 24px;
+  flex: 1;
+}
+
+li {
+  color: #606060;
+  font-size: 14px;
+  line-height: 1.8;
 }
 
 .buy {
@@ -200,22 +253,28 @@ ul {
   text-align: center;
   padding: 12px;
   border: 0;
-  border-radius: 16px;
-  background: #fff;
-  color: #07111f;
-  font-weight: 800;
+  border-radius: 0.5rem;
+  background: #070707;
+  color: #fafafa;
+  font-weight: 600;
+  font-size: 15px;
   text-decoration: none;
   cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.buy:hover {
+  opacity: 0.85;
 }
 
 .buy:disabled {
   cursor: not-allowed;
-  opacity: 0.72;
+  opacity: 0.5;
 }
 
 .notice {
   text-align: center;
-  color: #fecaca;
+  color: #dc2626;
   margin: 0 0 18px;
 }
 </style>

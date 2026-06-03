@@ -51,10 +51,7 @@ function resolveBlock(type: CmsBlock['type']) {
 .page-shell {
   min-height: 100vh;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 15% 10%, rgba(56, 189, 248, 0.24), transparent 28%),
-    radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.26), transparent 30%),
-    linear-gradient(135deg, #07111f, #101827 50%, #06151a);
+  background: #fff;
 }
 
 .nav {
@@ -64,11 +61,12 @@ function resolveBlock(type: CmsBlock['type']) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: rgba(248, 250, 252, 0.78);
+  color: #606060;
+  border-bottom: 1px solid #e8e8e8;
 }
 
 .nav strong {
-  color: #fff;
+  color: #0a0a0a;
   letter-spacing: 0.08em;
 }
 </style>

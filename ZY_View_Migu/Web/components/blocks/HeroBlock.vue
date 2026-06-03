@@ -17,53 +17,72 @@ defineProps<{ props: Record<string, unknown> }>()
 <style scoped>
 .hero {
   width: min(1120px, calc(100% - 40px));
-  margin: 68px auto 80px;
+  margin: 0 auto;
+  padding: 96px 0 80px;
   text-align: center;
+  background: linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 50%, #ede9fe 100%);
+  border-radius: 0.75rem;
+  margin-top: 40px;
 }
 
 .eyebrow {
-  color: #67e8f9;
-  font-weight: 800;
+  color: #606060;
+  font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  font-size: 14px;
+  margin-bottom: 16px;
 }
 
 h1 {
-  max-width: 900px;
-  margin: 16px auto;
-  font-size: clamp(44px, 8vw, 92px);
-  line-height: 0.95;
-  letter-spacing: -0.06em;
+  max-width: 800px;
+  margin: 0 auto 20px;
+  font-size: clamp(36px, 6vw, 60px);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  color: #0a0a0a;
 }
 
 .subtitle {
-  max-width: 680px;
+  max-width: 600px;
   margin: 0 auto;
-  color: rgba(226, 232, 240, 0.74);
-  font-size: 20px;
+  color: #606060;
+  font-size: 18px;
+  line-height: 1.6;
 }
 
 .actions {
-  margin-top: 34px;
+  margin-top: 36px;
   display: flex;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 a {
-  padding: 13px 20px;
-  border-radius: 999px;
+  padding: 12px 24px;
+  border-radius: 0.5rem;
   text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.2s;
 }
 
 .primary {
-  color: #07111f;
-  background: #67e8f9;
-  font-weight: 800;
+  color: #fafafa;
+  background: #070707;
+}
+
+.primary:hover {
+  opacity: 0.85;
 }
 
 .secondary {
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid #070707;
+  color: #0a0a0a;
+}
+
+.secondary:hover {
+  background: #f5f5f5;
 }
 </style>
