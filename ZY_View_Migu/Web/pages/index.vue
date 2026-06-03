@@ -1,616 +1,659 @@
 <template>
-  <main class="plans-page">
-    <div class="orb orb-a" />
-    <div class="orb orb-b" />
-    <div class="grid-glow" />
-    <header class="topbar">
+  <main class="kami-page">
+    <header class="nav-pill">
       <NuxtLink to="/" class="brand">
-        <span class="brand-mark">N</span>
-        New API
+        <span class="crest">◇</span>
+        卡米API
       </NuxtLink>
-      <nav class="nav-links" aria-label="Primary navigation">
-        <NuxtLink to="/" class="nav-link active">价格</NuxtLink>
-        <a class="nav-link" href="#faq">FAQ</a>
-        <a class="console-link" href="#">控制台</a>
+      <nav class="links" aria-label="Primary navigation">
+        <NuxtLink to="/" class="link">主页</NuxtLink>
+        <a class="link" href="#">控制台</a>
+        <a class="link" href="#models">模型广场</a>
+        <NuxtLink to="/" class="link active">定价</NuxtLink>
+        <a class="link" href="#ranking">排行榜</a>
+        <a class="link" href="#docs">文档</a>
+        <a class="link" href="#about">关于</a>
       </nav>
+      <div class="nav-actions">
+        <button>文A</button>
+        <button>☼</button>
+        <button class="bell">♧<span>7</span></button>
+        <a href="#" class="login">登录</a>
+      </div>
     </header>
 
-    <section class="headline">
-      <p class="eyebrow">Plans</p>
-      <h1>选择适合你的计划</h1>
-      <p class="subtitle">稳定、快速、简单的 AI API 中转服务，按需选择套餐即可开始使用。</p>
-      <div class="billing-switch">
-        <button :class="{ selected: billing === 'monthly' }" @click="billing = 'monthly'">月付</button>
-        <button :class="{ selected: billing === 'yearly' }" @click="billing = 'yearly'">年付 <span>省 20%</span></button>
-      </div>
-    </section>
-
-    <section class="plans-wrap" aria-label="Pricing plans">
-      <article v-for="plan in currentPlans" :key="plan.name" class="plan-card" :class="{ recommended: plan.recommended }">
-        <div v-if="plan.recommended" class="tag">推荐</div>
-        <h2>{{ plan.name }}</h2>
-        <p class="desc">{{ plan.description }}</p>
-        <div class="price-line">
-          <span class="currency">¥</span>
-          <strong>{{ plan.price }}</strong>
-          <span class="period">/{{ billing === 'monthly' ? '月' : '年' }}</span>
+    <section class="hero section-paper">
+      <div class="rings rings-a" />
+      <div class="rings rings-b" />
+      <div class="rings rings-c" />
+      <div class="hero-copy">
+        <h1>顶级模型<br>即刻接入</h1>
+        <p class="mono">PREMIUM MODELS · ONE ACCESS</p>
+        <div class="chips">
+          <span>Image 2 · 1 毛 / 张</span>
+          <span>Grok · 5 分 / 张起</span>
+          <span>特惠 Codex 周卡 4 / 天</span>
+          <span>特价 Claude 同步接入</span>
         </div>
-        <NuxtLink class="buy-button" :class="{ primary: plan.recommended }" to="/plans">
-          {{ plan.action }}
-          <span>→</span>
-        </NuxtLink>
-        <ul>
-          <li v-for="item in plan.features" :key="item">{{ item }}</li>
-        </ul>
-      </article>
-    </section>
-
-    <section class="notice">
-      <div>
-        <h2>所有套餐均包含</h2>
-        <p>统一 API 入口、余额管理、调用统计、密钥管理、基础安全策略和在线支持。</p>
-      </div>
-      <NuxtLink to="/plans" class="notice-button">立即开始</NuxtLink>
-    </section>
-
-    <section id="faq" class="faq">
-      <h2>常见问题</h2>
-      <div class="faq-list">
-        <details v-for="item in faqs" :key="item.q" class="faq-item">
-          <summary>{{ item.q }}</summary>
-          <p>{{ item.a }}</p>
-        </details>
       </div>
     </section>
+
+    <section id="models" class="model-brief section-paper">
+      <div class="burst burst-main" />
+      <div class="burst burst-price" />
+      <div class="float-squares" />
+      <div class="brief-left">
+        <p class="mono">GPT SERIES · FLAGSHIP POOL</p>
+        <h2>GPT<br>旗舰模型</h2>
+        <p class="lead">支持 5.5 / 5.4，官网同步接入。</p>
+        <div class="mini-tags">
+          <span>官网同价</span>
+          <span>缓存命中率 90%+</span>
+          <span>不掺水</span>
+          <span>价格真实</span>
+        </div>
+      </div>
+      <div class="brief-right">
+        <div>
+          <h3>Pro+Plus</h3>
+          <p>旗舰号池</p>
+        </div>
+        <div>
+          <strong>0.16</strong>
+          <span>元 / 万</span>
+        </div>
+        <div>
+          <h3>Free+Plus</h3>
+          <p>特惠分组</p>
+        </div>
+        <div>
+          <strong>0.04</strong>
+          <span>元 / 万</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="price-paper">
+      <div class="pin pin-left" />
+      <div class="pin pin-right" />
+      <p class="mono">06 · TRANSPARENCY · WANTED FILE</p>
+      <h2>别被「1元=100万」骗，透明<br>真正便宜看 <em>实际消耗。</em></h2>
+      <p class="paper-desc">不做虚高面额，不做套路分组。Plus+Pro 号池 0.16x 起步，周卡余额四分特惠，缓存命中率按真实消耗计算。</p>
+      <div class="feature-row">
+        <article>
+          <span>01</span>
+          <h3>透明额度</h3>
+          <p>账面、倍率、消耗关系都写清楚。</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>Plus+Pro</h3>
+          <p>旗舰号池 0.16x 起步，不缩水模型。</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>缓存不掺水</h3>
+          <p>缓存命中率 90%+，按真实命中结算。</p>
+        </article>
+        <article>
+          <span>04</span>
+          <h3>周卡余额</h3>
+          <p>四分特惠，账单变化可追踪。</p>
+        </article>
+      </div>
+      <h3 class="saving">价格<em>透明</em>，才是真的省钱</h3>
+      <div class="compare">
+        <div>
+          <p class="mono">同类常见做法</p>
+          <p>× 用夸张额度制造便宜感，实际成本不低。</p>
+          <p>× 缓存、上下文、工具调用分散计费。</p>
+          <p>× 低价分组混入缩水能力，体验不可预期。</p>
+        </div>
+        <div>
+          <p class="mono">KAMIAPI 的做法</p>
+          <p>✓ Plus+Pro 0.16x 起步，倍率明示。</p>
+          <p>✓ 缓存命中不掺水，真实省下的才算优惠。</p>
+          <p>✓ 周卡余额四分特惠，适合高频试用。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="ranking" class="forest section-paper">
+      <div class="forest-lines" />
+      <div class="forest-copy">
+        <p class="mono">MODEL BRIEF</p>
+        <h2>模型森林</h2>
+        <p>主流强力大模型优选渠道，随时接入，欢迎随时体验。</p>
+      </div>
+      <div class="model-cloud">
+        <span class="m1">GPT 5.5<small>FLAGSHIP</small></span>
+        <span class="m2">GPT 5.4<small>STABLE</small></span>
+        <span class="m3">Claude<small>SYNC</small></span>
+        <span class="m4">Grok<small>IMAGINE</small></span>
+        <span class="m5">Image 2<small>AGENTIC</small></span>
+        <span class="m6">Gemini<small>VISION</small></span>
+        <span class="m7">Codex<small>WEEKLY</small></span>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span>MODEL PLAZA · ACT I · KMSOFT STUDIO © 2026</span>
+      <span>Actual pricing is subject to recharge rate & group ratio.</span>
+    </footer>
   </main>
 </template>
 
-<script setup lang="ts">
-const billing = ref<'monthly' | 'yearly'>('monthly')
-
-const plans = {
-  monthly: [
-    {
-      name: '基础版',
-      description: '适合个人开发者和轻量测试场景。',
-      price: '19',
-      action: '选择基础版',
-      recommended: false,
-      features: ['每日 5,000 次请求', '3 个 API Key', '基础用量统计', '社区支持', '标准模型通道']
-    },
-    {
-      name: '专业版',
-      description: '适合高频调用、团队协作和正式业务。',
-      price: '49',
-      action: '选择专业版',
-      recommended: true,
-      features: ['每日 50,000 次请求', '不限 API Key 数量', '高级调用统计', '优先技术支持', '自定义限流策略']
-    },
-    {
-      name: '企业版',
-      description: '适合定制接入、专属容量和私有化需求。',
-      price: '199',
-      action: '联系购买',
-      recommended: false,
-      features: ['专属请求额度', '专属模型通道', '定制集成支持', '7x24 小时支持', 'SLA 服务保障']
-    }
-  ],
-  yearly: [
-    {
-      name: '基础版',
-      description: '适合个人开发者和轻量测试场景。',
-      price: '182',
-      action: '选择基础版',
-      recommended: false,
-      features: ['每日 5,000 次请求', '3 个 API Key', '基础用量统计', '社区支持', '标准模型通道']
-    },
-    {
-      name: '专业版',
-      description: '适合高频调用、团队协作和正式业务。',
-      price: '470',
-      action: '选择专业版',
-      recommended: true,
-      features: ['每日 50,000 次请求', '不限 API Key 数量', '高级调用统计', '优先技术支持', '自定义限流策略']
-    },
-    {
-      name: '企业版',
-      description: '适合定制接入、专属容量和私有化需求。',
-      price: '1900',
-      action: '联系购买',
-      recommended: false,
-      features: ['专属请求额度', '专属模型通道', '定制集成支持', '7x24 小时支持', 'SLA 服务保障']
-    }
-  ]
-}
-
-const currentPlans = computed(() => plans[billing.value])
-
-const faqs = [
-  { q: '套餐可以随时升级吗？', a: '可以。升级后会立即使用新的额度和功能。' },
-  { q: '是否支持多个模型供应商？', a: '支持。系统可以统一接入多个模型供应商并通过同一 API 调用。' },
-  { q: '余额和套餐额度如何查看？', a: '登录控制台后可以查看实时余额、调用次数、请求日志和密钥状态。' },
-  { q: '企业版是否支持私有化？', a: '支持。企业版可根据需求提供专属部署、定制集成和 SLA。' }
-]
-</script>
-
 <style scoped>
-.plans-page {
-  position: relative;
-  overflow: hidden;
+.kami-page {
   min-height: 100vh;
-  padding: 0 20px 64px;
-  color: #172033;
-  background:
-    radial-gradient(circle at 50% -160px, rgba(82, 142, 255, 0.22), transparent 420px),
-    linear-gradient(180deg, #f7fbff 0%, #fff 46%, #f8fbff 100%);
+  color: #050505;
+  background: #f4f0e8;
+  font-family: Georgia, "Times New Roman", "Noto Serif SC", SimSun, serif;
 }
 
-.orb,
-.grid-glow {
-  position: absolute;
-  pointer-events: none;
-}
-
-.orb {
-  width: 300px;
-  height: 300px;
-  border-radius: 999px;
-  filter: blur(60px);
-  opacity: 0.22;
-  animation: float-orb 8s ease-in-out infinite;
-}
-
-.orb-a {
-  top: 120px;
-  left: -130px;
-  background: #60a5fa;
-}
-
-.orb-b {
-  top: 90px;
-  right: -120px;
-  background: #93c5fd;
-  animation-delay: -3s;
-}
-
-.grid-glow {
-  inset: 0;
-  opacity: 0.28;
-  background-image:
-    linear-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
-  background-size: 54px 54px;
-  mask-image: linear-gradient(to bottom, #000 0%, transparent 58%);
-}
-
-.topbar {
-  position: relative;
-  z-index: 2;
-  width: min(1120px, 100%);
-  height: 72px;
-  margin: 0 auto;
-  padding: 0 18px;
+.nav-pill {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  z-index: 50;
+  width: min(810px, calc(100% - 32px));
+  height: 48px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  gap: 26px;
+  padding: 0 10px 0 18px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(18px);
+  transform: translateX(-50%);
 }
 
 .brand,
-.nav-link,
-.console-link,
-.buy-button,
-.notice-button {
+.link,
+.login {
+  color: inherit;
   text-decoration: none;
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  color: #172033;
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-}
-
-.brand-mark {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  border-radius: 12px;
-  background: linear-gradient(135deg, #3b82f6, #60a5fa);
-  box-shadow: 0 10px 22px rgba(59, 130, 246, 0.22);
+  gap: 8px;
+  flex: 0 0 auto;
+  font-family: ui-sans-serif, system-ui, sans-serif;
   font-size: 15px;
+  font-weight: 900;
 }
 
-.nav-links {
+.crest {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.links {
   display: flex;
   align-items: center;
-  gap: 20px;
-  color: #64748b;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.nav-link.active,
-.nav-link:hover {
-  color: #2563eb;
-}
-
-.console-link {
-  padding: 9px 16px;
-  color: #fff;
-  border-radius: 999px;
-  background: #2563eb;
-  border: 1px solid #2563eb;
-  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
-}
-
-.headline {
-  position: relative;
-  z-index: 2;
-  width: min(850px, 100%);
-  margin: 56px auto 34px;
-  text-align: center;
-  animation: fade-up 0.7s cubic-bezier(.16, 1, .3, 1) both;
-}
-
-.eyebrow {
-  width: fit-content;
-  margin: 0 auto 14px;
-  padding: 7px 14px;
-  color: #2563eb;
-  border: 1px solid #dbeafe;
-  border-radius: 999px;
-  background: #eff6ff;
+  justify-content: center;
+  gap: 22px;
+  flex: 1;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  color: #555;
   font-size: 13px;
   font-weight: 700;
 }
 
-.headline h1 {
-  margin: 0;
-  font-size: clamp(36px, 6vw, 64px);
-  line-height: 1.08;
-  letter-spacing: -0.06em;
-  color: #101828;
+.link.active,
+.link:hover {
+  color: #000;
 }
 
-.subtitle {
-  width: min(640px, 100%);
-  margin: 18px auto 0;
-  color: #667085;
-  font-size: 17px;
-  line-height: 1.8;
-}
-
-.billing-switch {
-  width: fit-content;
-  margin: 28px auto 0;
-  padding: 5px;
+.nav-actions {
   display: flex;
-  gap: 4px;
-  border: 1px solid #dbeafe;
-  border-radius: 999px;
-  background: #fff;
-  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.1);
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
 }
 
-.billing-switch button {
-  min-width: 82px;
+.nav-actions button {
+  position: relative;
   border: 0;
-  border-radius: 999px;
-  padding: 10px 18px;
-  color: #64748b;
+  padding: 0;
+  color: #050505;
   background: transparent;
-  cursor: pointer;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 800;
 }
 
-.billing-switch button.selected {
-  color: #fff;
-  background: #2563eb;
-  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.22);
-}
-
-.billing-switch span {
-  color: #22c55e;
-  font-size: 12px;
-}
-
-.plans-wrap {
-  position: relative;
-  z-index: 2;
-  width: min(1120px, 100%);
-  margin: 0 auto;
+.bell span {
+  position: absolute;
+  top: -10px;
+  right: -8px;
+  min-width: 18px;
+  height: 18px;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-  align-items: stretch;
+  place-items: center;
+  color: #d92323;
+  border-radius: 999px;
+  background: #ffdede;
+  font: 11px/1 ui-sans-serif, system-ui, sans-serif;
 }
 
-.plan-card {
+.login {
+  padding: 9px 18px;
+  color: #fff;
+  border-radius: 999px;
+  background: #050505;
+  font: 800 13px/1 ui-sans-serif, system-ui, sans-serif;
+}
+
+.section-paper {
   position: relative;
+  min-height: 100vh;
   overflow: hidden;
-  padding: 28px;
-  color: #0f172a;
-  border: 1px solid #e5eaf3;
-  border-radius: 22px;
-  background: #fff;
-  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.07);
-  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
-  animation: card-rise 0.7s cubic-bezier(.16, 1, .3, 1) both;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: #f4f0e8;
 }
 
-.plan-card::before {
+.hero {
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.hero::after,
+.model-brief::after,
+.forest::after {
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(180deg, rgba(239, 246, 255, 0.75), transparent 45%);
-  opacity: 0;
-  transition: opacity .22s ease;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.035) 1px, transparent 1px);
+  background-size: 72px 72px;
 }
 
-.plan-card > * {
-  position: relative;
-  z-index: 1;
-}
-
-.plan-card:hover {
-  transform: translateY(-5px);
-  border-color: #bfdbfe;
-  box-shadow: 0 22px 54px rgba(37, 99, 235, 0.12);
-}
-
-.plan-card:hover::before {
-  opacity: 1;
-}
-
-.plan-card.recommended {
-  color: #0f172a;
-  border-color: #2563eb;
-  background: linear-gradient(180deg, #f8fbff, #fff);
-  transform: translateY(-8px);
-  box-shadow: 0 24px 64px rgba(37, 99, 235, 0.16);
-}
-
-.plan-card.recommended:hover {
-  transform: translateY(-12px);
-  box-shadow: 0 30px 74px rgba(37, 99, 235, 0.2);
-}
-
-.tag {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  padding: 5px 10px;
-  color: #fff;
-  border-radius: 999px;
-  background: #2563eb;
-  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.22);
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.plan-card h2 {
-  margin: 0;
-  font-size: 25px;
-  letter-spacing: -0.04em;
-}
-
-.desc {
-  min-height: 54px;
-  margin: 12px 0 28px;
-  color: #64748b;
-  line-height: 1.7;
-}
-
-.price-line {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  margin-bottom: 24px;
-}
-
-.currency {
-  font-size: 24px;
-  font-weight: 800;
-}
-
-.price-line strong {
-  font-size: 52px;
-  line-height: 1;
-  letter-spacing: -0.06em;
-  background: linear-gradient(135deg, #101828, #2563eb);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.period {
-  color: #64748b;
-  font-weight: 700;
-}
-
-.buy-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 46px;
-  color: #2563eb;
-  border: 1px solid #bfdbfe;
-  border-radius: 12px;
-  background: #eff6ff;
-  font-weight: 800;
-  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
-}
-
-.buy-button span {
-  margin-left: 8px;
-  transition: transform .18s ease;
-}
-
-.buy-button:hover {
-  transform: translateY(-2px);
-  background: #dbeafe;
-  box-shadow: 0 14px 26px rgba(37, 99, 235, 0.18);
-}
-
-.buy-button:hover span {
-  transform: translateX(3px);
-}
-
-.buy-button.primary {
-  color: #fff;
-  border-color: #2563eb;
-  background: #2563eb;
-  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.24);
-}
-
-.plan-card ul {
-  margin: 26px 0 0;
-  padding: 0;
-  display: grid;
-  gap: 14px;
-  list-style: none;
-  color: #334155;
-  font-size: 14px;
-}
-
-.plan-card li::before {
-  content: '✓';
-  margin-right: 10px;
-  color: #2563eb;
-  font-weight: 900;
-}
-
-.notice,
-.faq {
+.hero-copy {
   position: relative;
   z-index: 2;
-  width: min(1120px, 100%);
-  margin: 42px auto 0;
+  margin-top: 42px;
 }
 
-.notice {
+.hero h1 {
+  margin: 0;
+  font-size: clamp(82px, 8vw, 148px);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+}
+
+.mono {
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.42em;
+  color: rgba(0, 0, 0, 0.58);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.chips {
   display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 32px;
+  font-family: "Courier New", monospace;
+  color: rgba(0, 0, 0, 0.72);
+  font-size: 12px;
+}
+
+.chips span,
+.mini-tags span {
+  min-width: 180px;
+  padding: 13px 18px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: rgba(244, 240, 232, 0.62);
+}
+
+.rings {
+  position: absolute;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 50%;
+  transform: rotate(-2deg);
+}
+
+.rings::before,
+.rings::after {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: inherit;
+}
+
+.rings::after {
+  inset: 25px;
+}
+
+.rings-a {
+  width: 880px;
+  height: 126px;
+  left: 26%;
+  top: 42%;
+}
+
+.rings-b {
+  width: 520px;
+  height: 92px;
+  right: 7%;
+  top: 38%;
+  opacity: 0.45;
+}
+
+.rings-c {
+  width: 660px;
+  height: 114px;
+  right: 18%;
+  top: 55%;
+  opacity: 0.28;
+}
+
+.model-brief {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 28px 30px;
-  border: 1px solid #dbeafe;
-  border-radius: 22px;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: #fff;
-  box-shadow: 0 20px 50px rgba(37, 99, 235, 0.18);
+  padding: 120px 12vw 80px;
 }
 
-.notice h2 {
-  margin: 0 0 8px;
-  font-size: 24px;
+.brief-left,
+.brief-right {
+  position: relative;
+  z-index: 2;
+}
+
+.brief-left h2 {
+  margin: 30px 0 20px;
+  font-size: clamp(72px, 6vw, 116px);
+  font-weight: 500;
+  line-height: 0.86;
+}
+
+.lead {
+  color: rgba(0, 0, 0, 0.48);
+  font-size: 20px;
+}
+
+.mini-tags {
+  display: flex;
+  gap: 8px;
+  margin-top: 34px;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+}
+
+.mini-tags span {
+  min-width: auto;
+  padding: 10px 14px;
+}
+
+.brief-right {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px 110px;
+  align-items: center;
+}
+
+.brief-right h3 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.brief-right p,
+.brief-right span {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.brief-right strong {
+  display: block;
+  font-size: 54px;
+  font-weight: 500;
+}
+
+.burst {
+  position: absolute;
+  z-index: 1;
+  width: 420px;
+  height: 420px;
+  background: repeating-conic-gradient(from 12deg, rgba(0,0,0,.46) 0 1deg, transparent 1deg 8deg);
+  clip-path: circle(50%);
+  opacity: 0.55;
+  mask-image: radial-gradient(circle, transparent 0 18px, #000 19px, transparent 52%);
+}
+
+.burst-main {
+  left: 43%;
+  top: 25%;
+}
+
+.burst-price {
+  right: 10%;
+  top: 47%;
+  width: 220px;
+  height: 220px;
+}
+
+.float-squares {
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  background:
+    linear-gradient(25deg, transparent 30%, rgba(0,0,0,.16) 31% 36%, transparent 37%) 0 0 / 210px 180px,
+    linear-gradient(-20deg, transparent 42%, rgba(0,0,0,.14) 43% 50%, transparent 51%) 30px 20px / 260px 220px;
+}
+
+.price-paper {
+  position: relative;
+  width: min(1180px, calc(100% - 80px));
+  margin: 80px auto;
+  padding: 48px 58px 54px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  outline: 12px solid rgba(0, 0, 0, 0.035);
+  background:
+    radial-gradient(circle, rgba(0,0,0,.055) 1px, transparent 1px) 0 0 / 7px 7px,
+    #e8e4dc;
+  box-shadow: 0 35px 100px rgba(0, 0, 0, 0.28);
+}
+
+.price-paper h2 {
+  margin: 12px 0 16px;
+  max-width: 980px;
+  font-size: clamp(58px, 5vw, 92px);
+  font-weight: 700;
+  line-height: 0.98;
   letter-spacing: -0.04em;
 }
 
-.notice p {
-  margin: 0;
-  color: #cbd5e1;
-  line-height: 1.7;
+.price-paper em,
+.saving em {
+  color: #a8322b;
+  font-style: normal;
 }
 
-.notice-button {
-  flex: 0 0 auto;
-  padding: 12px 18px;
-  color: #0f172a;
-  border-radius: 999px;
-  background: #fff;
-  font-weight: 800;
-}
-
-.faq {
-  padding-top: 18px;
-}
-
-.faq h2 {
-  margin: 0 0 18px;
-  text-align: center;
-  color: #0f172a;
-  font-size: 32px;
-  letter-spacing: -0.04em;
-}
-
-.faq-list {
-  overflow: hidden;
-  border: 1px solid rgba(226, 232, 240, 0.86);
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.06);
-}
-
-.faq-item + .faq-item {
-  border-top: 1px solid #e5e7eb;
-}
-
-.faq-item summary {
-  padding: 20px 24px;
-  cursor: pointer;
-  font-weight: 800;
-}
-
-.faq-item p {
-  margin: 0;
-  padding: 0 24px 20px;
-  color: #64748b;
+.paper-desc {
+  max-width: 920px;
+  color: rgba(0, 0, 0, 0.52);
+  font-size: 18px;
   line-height: 1.8;
 }
 
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
+.feature-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 34px;
+  border-top: 1px solid rgba(0,0,0,.18);
+  border-bottom: 1px solid rgba(0,0,0,.18);
 }
 
-@keyframes card-rise {
-  from { opacity: 0; transform: translateY(34px) scale(.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+.feature-row article {
+  min-height: 112px;
+  padding: 24px;
+  border-right: 1px solid rgba(0,0,0,.14);
 }
 
-@keyframes float-orb {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50% { transform: translate3d(24px, 18px, 0) scale(1.08); }
+.feature-row article:last-child {
+  border-right: 0;
 }
 
-@media (max-width: 900px) {
-  .plans-wrap {
+.feature-row span {
+  font-family: "Courier New", monospace;
+  color: rgba(0,0,0,.35);
+  font-size: 11px;
+}
+
+.feature-row h3 {
+  margin: 12px 0 8px;
+  font-size: 22px;
+}
+
+.feature-row p,
+.compare p {
+  color: rgba(0,0,0,.5);
+  line-height: 1.7;
+}
+
+.saving {
+  margin: 42px 0 24px;
+  text-align: center;
+  font-size: clamp(44px, 4vw, 70px);
+  line-height: 1;
+}
+
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid rgba(0,0,0,.16);
+}
+
+.compare > div {
+  padding: 24px 30px;
+}
+
+.compare > div + div {
+  border-left: 1px solid rgba(0,0,0,.16);
+}
+
+.pin {
+  position: absolute;
+  top: 22px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 35%, #d36b62, #7e1712);
+  box-shadow: 0 5px 8px rgba(0,0,0,.35);
+}
+
+.pin-left { left: 28px; }
+.pin-right { right: 28px; }
+
+.forest {
+  display: grid;
+  grid-template-columns: 44% 56%;
+  align-items: center;
+  padding: 120px 12vw 80px;
+}
+
+.forest-copy,
+.model-cloud {
+  position: relative;
+  z-index: 2;
+}
+
+.forest-copy h2 {
+  margin: 20px 0;
+  font-size: clamp(72px, 6vw, 108px);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.forest-copy p:not(.mono) {
+  max-width: 520px;
+  color: rgba(0,0,0,.45);
+  font-size: 20px;
+}
+
+.forest-lines {
+  position: absolute;
+  inset: 0;
+  opacity: .36;
+  background: repeating-linear-gradient(82deg, transparent 0 70px, rgba(0,0,0,.28) 71px 72px, transparent 73px 130px);
+  mask-image: linear-gradient(to top, #000 0 58%, transparent 92%);
+}
+
+.model-cloud {
+  min-height: 520px;
+}
+
+.model-cloud span {
+  position: absolute;
+  color: rgba(0,0,0,.55);
+  font-size: 48px;
+  line-height: .9;
+}
+
+.model-cloud small {
+  display: block;
+  margin-top: 14px;
+  font-family: "Courier New", monospace;
+  font-size: 9px;
+  letter-spacing: .42em;
+}
+
+.m1 { left: 8%; top: 8%; }
+.m2 { right: 12%; top: 5%; }
+.m3 { left: 28%; top: 28%; }
+.m4 { right: 8%; top: 38%; }
+.m5 { left: 9%; top: 46%; }
+.m6 { right: 22%; top: 56%; }
+.m7 { left: 34%; top: 72%; }
+
+.footer {
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  padding: 0 9vw;
+  color: #b9b9b9;
+  background: #050505;
+  font-family: "Courier New", monospace;
+  letter-spacing: .32em;
+  font-size: 12px;
+}
+
+@media (max-width: 1000px) {
+  .links { display: none; }
+  .nav-pill { justify-content: space-between; }
+  .hero h1 { font-size: 72px; }
+  .chips, .mini-tags { flex-wrap: wrap; }
+  .model-brief,
+  .forest {
     grid-template-columns: 1fr;
+    padding: 110px 28px 70px;
   }
-
-  .plan-card.recommended {
-    transform: none;
-  }
-
-  .notice {
-    align-items: flex-start;
-    flex-direction: column;
-  }
+  .brief-right { margin-top: 80px; }
+  .feature-row,
+  .compare { grid-template-columns: 1fr; }
+  .feature-row article,
+  .compare > div + div { border-left: 0; border-right: 0; border-top: 1px solid rgba(0,0,0,.16); }
 }
 
 @media (max-width: 640px) {
-  .nav-links {
-    gap: 12px;
-  }
-
-  .nav-link {
-    display: none;
-  }
-
-  .headline {
-    margin-top: 34px;
-  }
-
-  .plan-card {
-    padding: 24px;
-  }
+  .nav-actions button { display: none; }
+  .hero h1 { font-size: 54px; }
+  .chips span { min-width: 100%; }
+  .price-paper { width: calc(100% - 32px); padding: 34px 22px; }
+  .price-paper h2 { font-size: 42px; }
+  .footer { flex-direction: column; align-items: flex-start; justify-content: center; }
 }
 </style>
