@@ -1,0 +1,66 @@
+replicaCount: 2
+
+image:
+  registry: ""
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+api:
+  image: zhangyuan-api
+  port: 8080
+  resources:
+    requests:
+      cpu: 256m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 768Mi
+
+web:
+  image: zhangyuan-web
+  port: 3000
+  resources:
+    requests:
+      cpu: 128m
+      memory: 256Mi
+    limits:
+      cpu: 512m
+      memory: 512Mi
+
+admin:
+  image: zhangyuan-admin
+  port: 80
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 64m
+      memory: 64Mi
+    limits:
+      cpu: 256m
+      memory: 128Mi
+
+config:
+  db:
+    host: postgres-service
+    port: 5432
+    name: zhangyuan
+  redis:
+    host: redis-service
+    port: 6379
+  minio:
+    endpoint: http://minio-service:9000
+  apiBase: http://api-service:8080
+
+secrets:
+  dbPassword: "change-me"
+  jwtSecret: "change-me-to-strong-random-value"
+  minioAccessKey: "zhangyuan"
+  minioSecretKey: "change-me"
+
+ingress:
+  enabled: true
+  className: nginx
+  host: zhangyuan.example.com
+  adminHost: admin.zhangyuan.example.com
+
+namespace: zhangyuan

@@ -63,4 +63,8 @@ public class AdminRole {
     public Set<AdminPermission> getPermissions() {
         return permissions;
     }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
 }

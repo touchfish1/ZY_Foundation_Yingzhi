@@ -13,10 +13,18 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
+
+// 功能特性网格展示区块组件
 const props = defineProps<{ props: Record<string, unknown> }>()
+// 从 props 中提取特性列表，保证返回数组
 const items = computed(() => {
   const raw = props.props.items
   return Array.isArray(raw) ? raw : []
+})
+
+onMounted(() => {
+  console.log('[Block] FeatureGridBlock mounted')
 })
 </script>
 

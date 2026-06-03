@@ -73,6 +73,14 @@ public class CmsPage {
         return updatedAt;
     }
 
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+
+    public void setDefaultLocale(String defaultLocale) {
+        this.defaultLocale = defaultLocale;
+    }
+
     public void touch() {
         this.updatedAt = Instant.now();
     }

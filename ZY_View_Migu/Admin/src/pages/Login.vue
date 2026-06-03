@@ -1,7 +1,7 @@
 <template>
   <main class="login-page">
     <section class="panel">
-      <div>
+      <div class="brand-section">
         <p class="eyebrow">Project ZHANGYUAN</p>
         <h1>运营内容管理中心</h1>
         <p class="sub">管理多语言页面、区块内容、套餐展示和发布版本。</p>
@@ -12,9 +12,11 @@
             <n-input v-model:value="username" placeholder="admin" />
           </n-form-item>
           <n-form-item label="密码">
-            <n-input v-model:value="password" type="password" placeholder="admin123" />
+            <n-input v-model:value="password" type="password" placeholder="admin123" @keyup.enter="submit" />
           </n-form-item>
-          <n-button type="primary" block :loading="loading" @click="submit">登录</n-button>
+          <n-button type="primary" block :loading="loading" @click="submit">
+            {{ loading ? '登录中...' : '登录' }}
+          </n-button>
         </n-form>
       </n-card>
     </section>
@@ -22,6 +24,7 @@
 </template>
 
 <script setup lang="ts">
+// 登录页面：管理员通过用户名和密码登录后台
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { NButton, NCard, NForm, NFormItem, NInput, useMessage } from 'naive-ui'
@@ -33,10 +36,17 @@ const username = ref('admin')
 const password = ref('admin123')
 const loading = ref(false)
 
+// 提交登录请求：校验输入 -> 调用 API -> 跳转主页
 async function submit() {
+  console.log('[Login] submit')
+  if (!username.value || !password.value) {
+    message.warning('请输入账号和密码')
+    return
+  }
   loading.value = true
   try {
     await login(username.value, password.value)
+    console.log('[Login] login success')
     message.success('登录成功')
     router.push('/')
   } catch (error) {
@@ -53,11 +63,8 @@ async function submit() {
   display: grid;
   place-items: center;
   padding: 32px;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(37, 99, 235, 0.2), transparent 32%),
-    linear-gradient(135deg, #eef4ff, #f8fafc 45%, #eefdf8);
+  background: radial-gradient(circle at 20% 20%, rgba(37, 99, 235, 0.2), transparent 32%), linear-gradient(135deg, #eef4ff, #f8fafc 45%, #eefdf8);
 }
-
 .panel {
   width: min(980px, 100%);
   display: grid;
@@ -65,29 +72,28 @@ async function submit() {
   gap: 48px;
   align-items: center;
 }
-
+.brand-section {
+  max-width: 520px;
+}
 .eyebrow {
   color: #2563eb;
   font-weight: 800;
   letter-spacing: 0.08em;
+  margin: 0 0 16px;
 }
-
 h1 {
-  margin: 0;
+  margin: 0 0 16px;
   font-size: clamp(38px, 6vw, 72px);
   line-height: 1;
 }
-
 .sub {
-  max-width: 520px;
   color: #64748b;
   font-size: 18px;
+  line-height: 1.6;
 }
-
 .card {
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
 }
-
 @media (max-width: 760px) {
   .panel {
     grid-template-columns: 1fr;

@@ -11,7 +11,14 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
+
+// 首页英雄横幅区块组件，包含大标题、副标题和操作按钮
 defineProps<{ props: Record<string, unknown> }>()
+
+onMounted(() => {
+  console.log('[Block] HeroBlock mounted')
+})
 </script>
 
 <style scoped>
@@ -84,5 +91,15 @@ a {
 
 .secondary:hover {
   background: #f5f5f5;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 48px 20px 40px;
+    margin-top: 20px;
+  }
+  .hero h1 {
+    font-size: 28px !important;
+  }
 }
 </style>

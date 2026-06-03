@@ -1,0 +1,123 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ZY_Nexus_Congcong/Services/Api
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: 21
+        distribution: temurin
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Run tests
+      run: gradle test
+
+  lint-admin:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ZY_View_Migu/Admin
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: npm
+        cache-dependency-path: ZY_View_Migu/Admin/package-lock.json
+    - name: Install dependencies
+      run: npm ci
+    - name: Type check
+      run: npx vue-tsc -b --noEmit
+
+  lint-web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ZY_View_Migu/Web
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: npm
+        cache-dependency-path: ZY_View_Migu/Web/package-lock.json
+    - name: Install dependencies
+      run: npm ci
+    - name: Type check
+      run: npx nuxt typecheck
+
+  build:
+    needs: [test-api, lint-admin, lint-web]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: 21
+        distribution: temurin
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Build API
+      run: gradle build -x test
+      working-directory: ZY_Nexus_Congcong/Services/Api
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+    - name: Build Admin
+      run: |
+        npm ci
+        npm run build
+      working-directory: ZY_View_Migu/Admin
+    - name: Build Web
+      run: |
+        npm ci
+        npm run build
+      working-directory: ZY_View_Migu/Web
+
+  docker:
+    needs: [build]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Build and push API
+      uses: docker/build-push-action@v6
+      with:
+        context: ZY_Nexus_Congcong/Services/Api
+        push: true
+        tags: ${{ secrets.REGISTRY }}/zhangyuan-api:${{ github.sha }}
+    - name: Build and push Admin
+      uses: docker/build-push-action@v6
+      with:
+        context: ZY_View_Migu/Admin
+        push: true
+        tags: ${{ secrets.REGISTRY }}/zhangyuan-admin:${{ github.sha }}
+    - name: Build and push Web
+      uses: docker/build-push-action@v6
+      with:
+        context: ZY_View_Migu/Web
+        push: true
+        tags: ${{ secrets.REGISTRY }}/zhangyuan-web:${{ github.sha }}

@@ -655,5 +655,28 @@
   .price-paper { width: calc(100% - 32px); padding: 34px 22px; }
   .price-paper h2 { font-size: 42px; }
   .footer { flex-direction: column; align-items: flex-start; justify-content: center; }
+
+}
+
+@media (max-width: 768px) {
+  .nav-pill {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 16px;
+  }
+  .nav-pill .links {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    gap: 12px;
+    padding: 8px 0;
+  }
+  .hero-copy h1 {
+    font-size: 32px !important;
+  }
+  .chips {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 </style>

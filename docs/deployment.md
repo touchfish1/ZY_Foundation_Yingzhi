@@ -55,15 +55,15 @@ gradle bootRun --args='--spring.profiles.active=wsl'
 当前约定 WSL 中间件地址：
 
 ```text
-172.23.161.5
+100.125.148.23
 ```
 
 对应服务：
 
 ```text
-PostgreSQL: 172.23.161.5:5432
-Redis: 172.23.161.5:6379
-MinIO: http://172.23.161.5:9000
+PostgreSQL: 100.125.148.23:5432
+Redis: 100.125.148.23:6379
+MinIO: http://100.125.148.23:9000
 ```
 
 如果 Windows 侧无法连接该 IP 的端口，说明容器端口没有从 WSL 暴露到 Windows，或被防火墙拦截。此时可以优先尝试 `localhost`，WSL2 通常会将发布端口转发到 Windows localhost。

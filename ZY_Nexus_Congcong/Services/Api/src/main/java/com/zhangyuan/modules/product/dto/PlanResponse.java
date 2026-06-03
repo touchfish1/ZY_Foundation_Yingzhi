@@ -4,6 +4,7 @@ import java.util.List;
 
 public record PlanResponse(
         Long id,
+        Long groupId,
         String code,
         String name,
         String description,

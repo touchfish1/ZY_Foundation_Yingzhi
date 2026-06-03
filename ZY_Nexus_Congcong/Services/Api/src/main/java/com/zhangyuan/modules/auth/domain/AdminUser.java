@@ -63,6 +63,13 @@ public class AdminUser {
         this.nickname = nickname;
     }
 
+    public AdminUser(String username, String passwordHash, String nickname, String email) {
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.nickname = nickname;
+        this.email = email;
+    }
+
     public Long getId() {
         return id;
     }
@@ -87,11 +94,27 @@ public class AdminUser {
         return status;
     }
 
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public Set<AdminRole> getRoles() {
         return roles;
     }
 
     public boolean isEnabled() {
         return STATUS_ENABLED.equals(status);
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 }

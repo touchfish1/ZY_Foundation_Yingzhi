@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "zhangyuan.name" . }}-admin
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: admin
+    {{- include "zhangyuan.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.admin.replicaCount }}
+  selector:
+    matchLabels:
+      app: admin
+  template:
+    metadata:
+      labels:
+        app: admin
+    spec:
+      containers:
+      - name: admin
+        image: "{{ .Values.image.registry }}{{ .Values.admin.image }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.admin.port }}
+        resources:
+          {{- toYaml .Values.admin.resources | nindent 10 }}

@@ -39,7 +39,10 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { createCheckoutOrder, createCheckoutPayment } from '~/utils/checkoutApi'
+
+// 套餐定价展示与购买区块组件
 
 interface PlanPrice {
   id?: number | string
@@ -67,27 +70,41 @@ interface PlanGroup {
   plans?: Plan[]
 }
 
+// 解析 props 获取套餐分组编码和配置
 const { props } = defineProps<{ props: Record<string, unknown> }>()
 const config = useRuntimeConfig()
 const code = String(props.planGroupCode || 'api_plans')
 const snapshotGroup = computed(() => normalizePlanGroup(props.planGroup))
 const snapshotPlans = computed(() => normalizePlans(props.plans))
+// 仅当 props 未提供套餐数据时才发起远程请求
 const shouldFetch = computed(() => !snapshotPlans.value.length && !snapshotGroup.value?.plans?.length)
 const loadError = ref('')
 const checkoutError = ref('')
 const buyingCode = ref('')
 
+// 当前选中的计费周期（月/年/两年/三年）
 const billingCycle = ref(String(props.defaultBillingCycle || 'monthly'))
 
+onMounted(() => {
+  console.log('[Block] PricingBlock mounted')
+})
+
+// 远程获取套餐分组数据
+const apiUrl = `${config.public.apiBase}/api/products/plan-groups/${code}`
+console.log(`[PricingBlock] GET ${apiUrl}`)
 const { data, error } = await useFetch<{ code: number; message: string; data: PlanGroup }>(
-  `${config.public.apiBase}/api/products/plan-groups/${code}`,
+  apiUrl,
   { immediate: shouldFetch.value }
 )
 
 if (error.value) {
+  console.error(`[PricingBlock] Failed: code=${code}`, error.value)
   loadError.value = '套餐加载失败，请稍后重试'
+} else {
+  console.log(`[PricingBlock] Success: code=${code}`)
 }
 
+// 合并最终套餐列表：优先使用 snapshot，其次远程数据
 const remoteGroup = computed(() => data.value?.data)
 const plans = computed(() => {
   if (snapshotPlans.value.length) return snapshotPlans.value
@@ -95,6 +112,7 @@ const plans = computed(() => {
   return remoteGroup.value?.plans || []
 })
 
+// 收集所有套餐中出现的计费周期，用于切换按钮展示
 const allBillingCycles = computed(() => {
   const cycles = new Set<string>()
   plans.value.forEach(plan => {
@@ -107,38 +125,46 @@ const allBillingCycles = computed(() => {
 
 const showBillingToggle = computed(() => allBillingCycles.value.length > 1)
 
+// 计费周期标签映射：月付 / 年付 / 两年付 / 三年付
 function billingCycleLabel(cycle: string): string {
   const labels: Record<string, string> = { monthly: '月付', yearly: '年付', biennial: '两年付', triennial: '三年付' }
   return labels[cycle] || cycle
 }
 
+// 计费周期单位映射（用于价格展示后缀）
 function cycleUnit(cycle: string): string {
   const units: Record<string, string> = { monthly: '月', yearly: '年', biennial: '两年', triennial: '三年' }
   return units[cycle] || cycle
 }
 
+// 标准化套餐分组数据（类型安全转换）
 function normalizePlanGroup(value: unknown): PlanGroup | null {
   if (!value || typeof value !== 'object') return null
   const group = value as PlanGroup
   return { ...group, plans: normalizePlans(group.plans) }
 }
 
+// 标准化套餐列表数据（类型安全转换）
 function normalizePlans(value: unknown): Plan[] {
   return Array.isArray(value) ? value as Plan[] : []
 }
 
+// 获取当前计费周期下第一个匹配的价格，无匹配则返回第一个价格
 function firstPrice(plan: Plan) {
   return plan.prices?.find(price => price.billingCycle === billingCycle.value) || plan.prices?.[0]
 }
 
+// 格式化价格展示：数字前加 ¥，无价格显示"联系销售"
 function formatPrice(value: unknown) {
   if (value === undefined || value === null) return '联系销售'
   return `￥${value}`
 }
 
+// 购买流程：创建订单 → 发起支付 → 跳转支付地址
 async function buy(plan: Plan) {
   checkoutError.value = ''
   buyingCode.value = plan.code
+  console.log(`[PricingBlock] Buying plan: code=${plan.code}`)
   try {
     const price = firstPrice(plan)
     const order = await createCheckoutOrder(config.public.apiBase, {
@@ -149,14 +175,18 @@ async function buy(plan: Plan) {
     })
     const orderId = order.id || order.orderId || order.orderNo
     if (!orderId) throw new Error('订单创建成功，但未返回订单编号')
+    console.log(`[PricingBlock] Order created: orderId=${orderId}`)
 
     const payment = await createCheckoutPayment(config.public.apiBase, { orderId })
     const checkoutUrl = payment.checkoutUrl || payment.payUrl || payment.paymentUrl
     if (!checkoutUrl) throw new Error('支付接口未返回 checkout 地址')
+    console.log(`[PricingBlock] Payment ready, redirecting to checkoutUrl`)
 
     window.location.href = checkoutUrl
   } catch (error) {
-    checkoutError.value = error instanceof Error ? error.message : '创建订单失败，请稍后重试'
+    const message = error instanceof Error ? error.message : '创建订单失败，请稍后重试'
+    console.error(`[PricingBlock] Buy failed: ${message}`)
+    checkoutError.value = message
   } finally {
     buyingCode.value = ''
   }
@@ -341,5 +371,11 @@ li {
   text-align: center;
   color: #dc2626;
   margin: 0 0 18px;
+}
+
+@media (max-width: 768px) {
+  .cards {
+    grid-template-columns: 1fr !important;
+  }
 }
 </style>

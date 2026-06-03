@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "zhangyuan.name" . }}-config
+  namespace: {{ .Values.namespace }}
+data:
+  DB_HOST: {{ .Values.config.db.host }}
+  DB_PORT: {{ .Values.config.db.port | quote }}
+  DB_NAME: {{ .Values.config.db.name }}
+  REDIS_HOST: {{ .Values.config.redis.host }}
+  REDIS_PORT: {{ .Values.config.redis.port | quote }}
+  MINIO_ENDPOINT: {{ .Values.config.minio.endpoint }}
+  NUXT_PUBLIC_API_BASE: {{ .Values.config.apiBase }}
+  JAVA_OPTS: "-Xms256m -Xmx768m"

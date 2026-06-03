@@ -10,4 +10,6 @@ public interface CmsPageVersionRepository extends JpaRepository<CmsPageVersion, 
 
     Optional<CmsPageVersion> findFirstByPageIdAndLocaleOrderByVersionNoDesc(Long pageId, String locale);
     List<CmsPageVersion> findByPageIdAndLocaleOrderByVersionNoDesc(Long pageId, String locale);
+
+    void deleteByPageIdAndLocale(Long pageId, String locale);
 }

@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "zhangyuan.name" . }}-web
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: web
+    {{- include "zhangyuan.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: web
+        image: "{{ .Values.image.registry }}{{ .Values.web.image }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.web.port }}
+        envFrom:
+        - configMapRef:
+            name: {{ include "zhangyuan.name" . }}-config
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.web.port }}
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        resources:
+          {{- toYaml .Values.web.resources | nindent 10 }}

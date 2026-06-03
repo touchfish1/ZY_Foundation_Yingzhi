@@ -1,4 +1,4 @@
 package com.zhangyuan.modules.cms.dto;
 
-public record PublishPageRequest(String remark) {
+public record PublishPageRequest(Long versionId, String remark) {
 }

@@ -1,6 +1,4 @@
-html,
-body,
-#__nuxt {
+html, body, #__nuxt {
   min-height: 100%;
   margin: 0;
 }
@@ -10,12 +8,42 @@ body {
   background: #fff;
   color: #0a0a0a;
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
   color: inherit;
+  text-decoration: none;
 }
 
 * {
   box-sizing: border-box;
+}
+
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+}
+
+.section-paper {
+  width: min(1120px, calc(100% - 40px));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 640px) {
+  button, a {
+    min-height: 44px;
+  }
 }

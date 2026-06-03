@@ -1,0 +1,64 @@
+services:
+  api:
+    build:
+      context: ../../ZY_Nexus_Congcong/Services/Api
+      dockerfile: Dockerfile
+    container_name: zhangyuan-api
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+      MINIO_ENDPOINT: http://minio:9000
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-admin123}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - zhangyuan-dev
+
+  web:
+    build:
+      context: ../../ZY_View_Migu/Web
+      dockerfile: Dockerfile
+    container_name: zhangyuan-web
+    environment:
+      NUXT_PUBLIC_API_BASE: http://localhost:8080
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - zhangyuan-dev
+
+  admin:
+    build:
+      context: ../../ZY_View_Migu/Admin
+      dockerfile: Dockerfile
+    container_name: zhangyuan-admin
+    ports:
+      - "81:80"
+    restart: unless-stopped
+    networks:
+      - zhangyuan-dev
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: zhangyuan-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api
+      - web
+    restart: unless-stopped
+    networks:
+      - zhangyuan-dev
+
+networks:
+  zhangyuan-dev:
+    external: true

@@ -3,7 +3,14 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
+
+// 富文本内容区块组件（直接渲染 HTML）
 defineProps<{ props: Record<string, unknown> }>()
+
+onMounted(() => {
+  console.log('[Block] RichTextBlock mounted')
+})
 </script>
 
 <style scoped>

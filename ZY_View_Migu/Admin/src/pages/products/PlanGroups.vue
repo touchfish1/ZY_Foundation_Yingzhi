@@ -93,6 +93,7 @@
 </template>
 
 <script setup lang="ts">
+// 套餐管理页面：左侧套餐组列表 + 右侧套餐详情，支持创建套餐组/套餐/价格/权益
 import { computed, onMounted, reactive, ref } from 'vue'
 import { NButton, NCard, NEmpty, NForm, NFormItem, NGrid, NGridItem, NInput, NInputNumber, NList, NListItem, NModal, NSpace, NTag, useMessage } from 'naive-ui'
 import { createFeature, createPlan, createPlanGroup, createPrice, listPlanGroups, type PlanGroup } from '../../api/product'
@@ -114,13 +115,16 @@ const planForm = reactive({ code: 'starter', name: '入门版', description: '�
 const priceForm = reactive({ currency: 'CNY', billingCycle: 'monthly', amount: 29 })
 const featureForm = reactive({ featureName: '每日 1,000 次调用', featureValue: '', included: true, sortOrder: 10 })
 
+// 加载套餐组列表，保持当前选中组不变
 async function load() {
+  console.log('[PlanGroups] load')
   loading.value = true
   try {
     groups.value = await listPlanGroups()
     if (!groups.value.some(group => group.id === selectedGroupId.value)) {
       selectedGroupId.value = groups.value[0]?.id || null
     }
+    console.log('[PlanGroups] loaded', groups.value.length, 'groups')
   } catch (error) {
     message.error(error instanceof Error ? error.message : '套餐组加载失败')
   } finally {
@@ -128,7 +132,13 @@ async function load() {
   }
 }
 
+// 新增套餐组：校验 -> 调用 API -> 刷新列表
 async function submitGroup() {
+  console.log('[PlanGroups] submitGroup', groupForm)
+  if (!groupForm.code || !groupForm.name) {
+    message.warning('请填写编码和名称')
+    return
+  }
   try {
     await createPlanGroup(groupForm)
     message.success('套餐组已创建')
@@ -139,8 +149,17 @@ async function submitGroup() {
   }
 }
 
+// 新增套餐：校验 -> 调用 API -> 刷新列表
 async function submitPlan() {
-  if (!selectedGroupId.value) return
+  console.log('[PlanGroups] submitPlan', planForm)
+  if (!selectedGroupId.value) {
+    message.warning('请先选择套餐组')
+    return
+  }
+  if (!planForm.code || !planForm.name) {
+    message.warning('请填写编码和名称')
+    return
+  }
   try {
     await createPlan({ ...planForm, groupId: selectedGroupId.value })
     message.success('套餐已创建')
@@ -151,33 +170,55 @@ async function submitPlan() {
   }
 }
 
+// 打开添加价格模态框
 function openPrice(planId: number) {
+  console.log('[PlanGroups] openPrice', { planId })
   selectedPlanId.value = planId
   showPrice.value = true
 }
 
+// 打开添加权益模态框
 function openFeature(planId: number) {
+  console.log('[PlanGroups] openFeature', { planId })
   selectedPlanId.value = planId
   showFeature.value = true
 }
 
+// 添加价格：校验 -> 调用 API -> 刷新列表
 async function submitPrice() {
-  if (!selectedPlanId.value) return
+  console.log('[PlanGroups] submitPrice', priceForm)
+  if (!selectedPlanId.value) {
+    message.warning('请先选择套餐')
+    return
+  }
+  if (!priceForm.amount || priceForm.amount <= 0) {
+    message.warning('请输入有效金额')
+    return
+  }
   await createPrice({ ...priceForm, planId: selectedPlanId.value })
   message.success('价格已添加')
   showPrice.value = false
   await load()
 }
 
+// 添加权益：校验 -> 调用 API -> 刷新列表
 async function submitFeature() {
-  if (!selectedPlanId.value) return
+  console.log('[PlanGroups] submitFeature', featureForm)
+  if (!selectedPlanId.value) {
+    message.warning('请先选择套餐')
+    return
+  }
+  if (!featureForm.featureName) {
+    message.warning('请填写权益名称')
+    return
+  }
   await createFeature({ ...featureForm, planId: selectedPlanId.value })
   message.success('权益已添加')
   showFeature.value = false
   await load()
 }
 
-onMounted(load)
+onMounted(() => { console.log('[PlanGroups] mounted'); load() })
 </script>
 
 <style scoped>

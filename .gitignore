@@ -7,6 +7,7 @@ Thumbs.db
 
 # Logs
 *.log
+*.err
 
 # Java / Gradle
 .gradle/
@@ -33,3 +34,6 @@ ZY_Foundation_Yingzhi/Docker/data/minio/
 
 # Generated reports
 **/build/reports/
+
+# Test output
+gradle_test_output.txt

@@ -9,7 +9,14 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
+
+// 行动号召（CTA）区块组件，包含标题、副标题和按钮
 defineProps<{ props: Record<string, unknown> }>()
+
+onMounted(() => {
+  console.log('[Block] CtaBlock mounted')
+})
 </script>
 
 <style scoped>

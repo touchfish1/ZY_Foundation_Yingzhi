@@ -125,7 +125,13 @@ gradle test
 docker compose -f ../../../ZY_Foundation_Yingzhi/Docker/docker-compose.yml up -d
 ```
 
-再启动 API：
+需要全容器化运行：
+
+```bash
+docker compose -f ../../../ZY_Foundation_Yingzhi/Docker/docker-compose.yml -f ../../../ZY_Foundation_Yingzhi/Docker/docker-compose.app.yml up -d
+```
+
+再启动 API（本地开发）：
 
 ```bash
 gradle bootRun
@@ -140,17 +146,17 @@ gradle bootRun --args='--spring.profiles.active=wsl'
 默认 WSL 中间件地址：
 
 ```text
-PostgreSQL: 172.23.161.5:5432
-Redis: 172.23.161.5:6379
-MinIO: http://172.23.161.5:9000
+PostgreSQL: 100.125.148.23:5432
+Redis: 100.125.148.23:6379
+MinIO: http://100.125.148.23:9000
 ```
 
 也可以通过环境变量覆盖：
 
 ```bash
-$env:DB_HOST='172.23.161.5'
-$env:REDIS_HOST='172.23.161.5'
-$env:MINIO_ENDPOINT='http://172.23.161.5:9000'
+$env:DB_HOST='100.125.148.23'
+$env:REDIS_HOST='100.125.148.23'
+$env:MINIO_ENDPOINT='http://100.125.148.23:9000'
 gradle bootRun
 ```
 
@@ -166,9 +172,9 @@ GET http://localhost:8080/actuator/health
 如果 Windows 侧无法访问 WSL 中的 Docker Compose 服务，先检查端口：
 
 ```powershell
-Test-NetConnection -ComputerName 172.23.161.5 -Port 5432
-Test-NetConnection -ComputerName 172.23.161.5 -Port 6379
-Test-NetConnection -ComputerName 172.23.161.5 -Port 9000
+Test-NetConnection -ComputerName 100.125.148.23 -Port 5432
+Test-NetConnection -ComputerName 100.125.148.23 -Port 6379
+Test-NetConnection -ComputerName 100.125.148.23 -Port 9000
 ```
 
 如果 `TcpTestSucceeded` 为 `False`，优先确认：

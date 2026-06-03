@@ -29,6 +29,11 @@ zhangyuan:
       username: ${DEFAULT_ADMIN_USERNAME:admin}
       password: ${DEFAULT_ADMIN_PASSWORD:admin123}
       nickname: ${DEFAULT_ADMIN_NICKNAME:Super Admin}
+  minio:
+    endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+    access-key: ${MINIO_ACCESS_KEY:zhangyuan}
+    secret-key: ${MINIO_SECRET_KEY:zhangyuan-minio-secret}
+    bucket: ${MINIO_BUCKET:zhangyuan-assets}
 
 management:
   endpoints:

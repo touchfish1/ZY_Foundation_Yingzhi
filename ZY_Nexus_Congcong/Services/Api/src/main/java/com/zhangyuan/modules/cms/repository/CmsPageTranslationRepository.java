@@ -11,4 +11,6 @@ public interface CmsPageTranslationRepository extends JpaRepository<CmsPageTrans
     Optional<CmsPageTranslation> findByPageIdAndLocale(Long pageId, String locale);
 
     List<CmsPageTranslation> findByPageId(Long pageId);
+
+    void deleteByPageId(Long pageId);
 }
