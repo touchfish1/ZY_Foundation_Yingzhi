@@ -1,71 +1,69 @@
 # 工程结构落地方案
 
-Project ZHANGYUAN 已经采用 `ZY_<Function>_<MythName>` 命名体系，因此 CMS 子系统不再额外引入 `apps/`、`services/` 这类平行目录。所有新代码应落入现有模块边界中。
+所有代码应落入以下模块边界中。
 
 ## 顶层模块职责
 
 | 目录 | 职责 | CMS 相关内容 |
 | --- | --- | --- |
-| `ZY_View_Migu` | 前端页面、UI、交互 | Nuxt 前台、Vue 管理后台、共享 UI 类型 |
-| `ZY_Nexus_Congcong` | 后端服务、网络层、接口 | Spring Boot API、Admin API、Public API、网关适配 |
-| `ZY_Source_Origin` | 核心源码、领域逻辑、公共能力 | CMS 领域模型、发布逻辑、套餐领域规则、订单领域规则 |
-| `ZY_Archive_Shirou` | 数据库、迁移、备份、存储 | PostgreSQL migration、seed、备份脚本 |
-| `ZY_Guard_Bo` | 认证、授权、安全 | JWT、RBAC、权限码、安全策略 |
-| `ZY_Foundation_Yingzhi` | 基础设施、DevOps | Docker Compose、K8s、Helm、CI/CD |
+| `frontend` | 前端页面、UI、交互 | Nuxt 前台、Vue 管理后台、共享 UI 类型 |
+| `backend` | 后端服务、网络层、接口 | Spring Boot API、Admin API、Public API、网关适配 |
+| `domain` | 核心源码、领域逻辑、公共能力 | CMS 领域模型、发布逻辑、套餐领域规则、订单领域规则 |
+| `database` | 数据库、迁移、备份、存储 | PostgreSQL migration、seed、备份脚本 |
+| `security` | 认证、授权、安全 | JWT、RBAC、权限码、安全策略 |
+| `infrastructure` | 基础设施、DevOps | Docker Compose、K8s、Helm、CI/CD |
 | `docs` | 文档 | 架构、数据库、接口、部署、路线图 |
 
 ## 推荐目录结构
 
 ```text
 Project_ZHANGYUAN/
-  ZY_View_Migu/
-    Admin/
+  frontend/
+    admin/
       package.json
       src/
-    Web/
+    web/
       package.json
       pages/
       components/
-    Shared/
+    shared/
       types/
       api-client/
 
-  ZY_Nexus_Congcong/
-    Services/
-      Api/
-        build.gradle
-        src/main/java/com/zhangyuan/
-    Gateway/
+  backend/
+    api/
+      build.gradle
+      src/main/java/com/zhangyuan/
+    gateway/
 
-  ZY_Source_Origin/
-    Domain/
-      Cms/
-      Product/
-      Order/
-      Payment/
+  domain/
+    Cms/
+    Product/
+    Order/
+    Payment/
     SharedKernel/
 
-  ZY_Archive_Shirou/
-    Migrations/
+  database/
+    migrations/
       V001__init_auth.sql
       V002__init_cms.sql
       V003__init_product.sql
       V004__init_order_payment.sql
-    Seeds/
-    Backup/
+    seeds/
+    backup/
 
-  ZY_Guard_Bo/
-    Auth/
-    Rbac/
-    Crypto/
+  security/
+    auth/
+    rbac/
+    crypto/
 
-  ZY_Foundation_Yingzhi/
-    Docker/
+  infrastructure/
+    docker/
       docker-compose.yml
       nginx/
-    Kubernetes/
-    Helm/
-    Ci/
+    kubernetes/
+    helm/
+    ci/
 
   docs/
 ```
@@ -77,7 +75,7 @@ Project_ZHANGYUAN/
 管理后台放在：
 
 ```text
-ZY_View_Migu/Admin
+frontend/admin
 ```
 
 技术栈：
@@ -112,7 +110,7 @@ src/store
 前台站点放在：
 
 ```text
-ZY_View_Migu/Web
+frontend/web
 ```
 
 技术栈：
@@ -138,7 +136,7 @@ composables/useCmsPage.ts
 Spring Boot API 放在：
 
 ```text
-ZY_Nexus_Congcong/Services/Api
+backend/api
 ```
 
 推荐 Java 包结构：
@@ -164,7 +162,7 @@ com.zhangyuan
 第一阶段为了降低复杂度，领域逻辑可以先在 API 工程内按模块组织。等业务稳定后，再将通用领域模型下沉到：
 
 ```text
-ZY_Source_Origin/Domain
+domain/
 ```
 
 ## 数据库落点
@@ -172,7 +170,7 @@ ZY_Source_Origin/Domain
 数据库 migration 放在：
 
 ```text
-ZY_Archive_Shirou/Migrations
+database/migrations
 ```
 
 建议使用 Flyway。版本规划：
@@ -189,7 +187,7 @@ V006__init_audit_log.sql
 Seed 数据放在：
 
 ```text
-ZY_Archive_Shirou/Seeds
+database/seeds
 ```
 
 包括：
@@ -205,10 +203,10 @@ ZY_Archive_Shirou/Seeds
 安全相关设计和可复用实现放在：
 
 ```text
-ZY_Guard_Bo
+security
 ```
 
-第一阶段 API 工程内可以直接实现 JWT 和 RBAC，避免过早拆包。稳定后再沉淀到 `ZY_Guard_Bo`。
+第一阶段 API 工程内可以直接实现 JWT 和 RBAC，避免过早拆包。稳定后再沉淀到 `security`。
 
 权限码示例：
 
@@ -230,25 +228,25 @@ system:role:manage
 Docker、Kubernetes、CI/CD 放在：
 
 ```text
-ZY_Foundation_Yingzhi
+infrastructure
 ```
 
 推荐结构：
 
 ```text
-ZY_Foundation_Yingzhi/
-  Docker/
+infrastructure/
+  docker/
     docker-compose.yml
     nginx/
       nginx.conf
-  Kubernetes/
+  kubernetes/
     api-deployment.yaml
     web-deployment.yaml
     admin-deployment.yaml
     ingress.yaml
-  Helm/
+  helm/
     zhangyuan/
-  Ci/
+  ci/
     github-actions.yml
 ```
 

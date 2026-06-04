@@ -1,4 +1,4 @@
-# ZY_Foundation_Yingzhi/Kubernetes
+# infrastructure/kubernetes
 
 Origin: ZHANGYUAN - Module: YINGZHI (Kubernetes)
 

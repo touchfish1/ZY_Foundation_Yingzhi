@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ZY_Nexus_Congcong/Services/Api
+        working-directory: backend/api
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 21
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ZY_View_Migu/Admin
+        working-directory: frontend/admin
     steps:
     - uses: actions/checkout@v4
     - name: Setup Node
@@ -36,7 +36,7 @@ jobs:
       with:
         node-version: 22
         cache: npm
-        cache-dependency-path: ZY_View_Migu/Admin/package-lock.json
+        cache-dependency-path: frontend/admin/package-lock.json
     - name: Install dependencies
       run: npm ci
     - name: Type check
@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ZY_View_Migu/Web
+        working-directory: frontend/web
     steps:
     - uses: actions/checkout@v4
     - name: Setup Node
@@ -54,7 +54,7 @@ jobs:
       with:
         node-version: 22
         cache: npm
-        cache-dependency-path: ZY_View_Migu/Web/package-lock.json
+        cache-dependency-path: frontend/web/package-lock.json
     - name: Install dependencies
       run: npm ci
     - name: Type check
@@ -74,7 +74,7 @@ jobs:
       uses: gradle/actions/setup-gradle@v4
     - name: Build API
       run: gradle build -x test
-      working-directory: ZY_Nexus_Congcong/Services/Api
+      working-directory: backend/api
     - name: Setup Node
       uses: actions/setup-node@v4
       with:
@@ -83,12 +83,12 @@ jobs:
       run: |
         npm ci
         npm run build
-      working-directory: ZY_View_Migu/Admin
+      working-directory: frontend/admin
     - name: Build Web
       run: |
         npm ci
         npm run build
-      working-directory: ZY_View_Migu/Web
+      working-directory: frontend/web
 
   docker:
     needs: [build]
@@ -106,7 +106,7 @@ jobs:
     - name: Build and push API
       uses: docker/build-push-action@v6
       with:
-        context: ZY_Nexus_Congcong/Services/Api
+        context: backend/api
         push: true
         tags: ${{ secrets.REGISTRY }}/zhangyuan-api:${{ github.sha }}
     - name: Build and push Admin

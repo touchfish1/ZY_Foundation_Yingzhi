@@ -32,37 +32,36 @@
 
 ```text
 Project_ZHANGYUAN/
-  ZY_View_Migu/
-    Admin/
-    Web/
-    Shared/
-  ZY_Nexus_Congcong/
-    Services/
-      Api/
-    Gateway/
-  ZY_Source_Origin/
+  frontend/
+    admin/
+    web/
+    shared/
+  backend/
+    api/
+    gateway/
+  domain/
     Domain/
     SharedKernel/
-  ZY_Archive_Shirou/
-    Migrations/
-    Seeds/
-    Backup/
-  ZY_Guard_Bo/
-    Auth/
-    Rbac/
-    Crypto/
-  ZY_Foundation_Yingzhi/
-    Docker/
-    Kubernetes/
-    Helm/
-    Ci/
+  database/
+    migrations/
+    seeds/
+    backup/
+  security/
+    auth/
+    rbac/
+    crypto/
+  infrastructure/
+    docker/
+    kubernetes/
+    helm/
+    ci/
   docs/
 ```
 
 ## 后端目录结构
 
 ```text
-ZY_Nexus_Congcong/Services/Api/src/main/java/com/zhangyuan/
+backend/api/src/main/java/com/zhangyuan/
   ZhangyuanApplication.java
   modules/
     auth/

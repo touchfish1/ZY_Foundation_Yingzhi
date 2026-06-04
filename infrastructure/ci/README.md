@@ -1,4 +1,4 @@
-# ZY_Foundation_Yingzhi/Ci
+# infrastructure/ci
 
 Origin: ZHANGYUAN - Module: YINGZHI (CI/CD)
 

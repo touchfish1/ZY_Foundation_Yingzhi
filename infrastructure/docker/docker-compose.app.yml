@@ -1,7 +1,7 @@
 services:
   api:
     build:
-      context: ../../ZY_Nexus_Congcong/Services/Api
+      context: ../../backend/api
       dockerfile: Dockerfile
     container_name: zhangyuan-api
     environment:
@@ -23,7 +23,7 @@ services:
 
   web:
     build:
-      context: ../../ZY_View_Migu/Web
+      context: ../../frontend/web
       dockerfile: Dockerfile
     container_name: zhangyuan-web
     environment:
@@ -36,7 +36,7 @@ services:
 
   admin:
     build:
-      context: ../../ZY_View_Migu/Admin
+      context: ../../frontend/admin
       dockerfile: Dockerfile
     container_name: zhangyuan-admin
     ports:

@@ -27,6 +27,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 常用命令
 
 ### 基础设施（中间件）
+
+中间件（PostgreSQL、Redis、MinIO）已通过 Docker 在 WSL 中常驻运行，无需每次启动。
+如需重启或从零启动：
+
 ```bash
 # 启动 PostgreSQL + Redis + MinIO
 docker compose -f infrastructure/docker/docker-compose.yml up -d

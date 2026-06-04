@@ -1,61 +1,23 @@
-# ZY_View_Migu/Admin
+# frontend/admin — 管理后台
 
-Origin: ZHANGYUAN - Module: MIGU (Admin Console)
+Vue 3 + TypeScript + Vite + Naive UI + Pinia 管理后台。
 
-该目录用于承载 CMS 管理后台。
-
-## Target Stack
-
-- Vue 3
-- TypeScript
-- Vite
-- Naive UI
-- Pinia
-- Vue Router
-
-## Planned Structure
-
-```text
-src/
-  api/
-  components/
-    page-editor/
-  layouts/
-  pages/
-    login/
-    dashboard/
-    cms/
-    assets/
-    products/
-    orders/
-    system/
-  router/
-  store/
-  styles/
-  types/
-```
-
-## Local Run
+## 开发
 
 ```bash
 npm install
 npm run dev
 ```
 
-默认访问：
+默认 `http://localhost:5173`，Vite 代理 `/admin`、`/api`、`/actuator` 到 `http://localhost:8080`。
 
-```text
-http://localhost:5173
-```
+## 页面模块
 
-开发服务器会将 `/admin`、`/api`、`/actuator` 代理到：
-
-```text
-http://localhost:8080
-```
-
-默认登录账号：
-
-```text
-admin / admin123
-```
+- `login` — 登录
+- `dashboard` — 仪表盘
+- `cms` — 页面管理、区块定义
+- `assets` — 素材管理
+- `products` — 套餐与定价
+- `orders` — 订单管理
+- `payments` — 支付管理
+- `system` — 系统设置、用户管理、角色管理

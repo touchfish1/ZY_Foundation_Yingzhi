@@ -88,13 +88,13 @@
         </div>
       </n-layout-header>
 
-      <n-layout-content class="content" :native-scrollbar="false" content-style="padding: 24px;">
+      <div class="content" style="padding: 24px;">
         <router-view v-slot="{ Component }">
           <transition name="fade-slide" mode="out-in">
             <component :is="Component" />
           </transition>
         </router-view>
-      </n-layout-content>
+      </div>
     </n-layout>
   </n-layout>
 </template>
@@ -104,7 +104,7 @@ import { computed, ref, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   NAvatar, NBreadcrumb, NBreadcrumbItem, NButton, NDropdown, NIcon, NInput,
-  NLayout, NLayoutContent, NLayoutHeader, NLayoutSider, NMenu, NTooltip
+  NLayout, NLayoutHeader, NLayoutSider, NMenu, NTooltip
 } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
 import { useThemeStore } from '../stores/theme'
@@ -203,6 +203,7 @@ function handleUserMenu(key: string) {
 <style scoped>
 .shell {
   height: 100vh;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -284,13 +285,17 @@ function handleUserMenu(key: string) {
 
 .main-area {
   display: flex;
+  flex: 1;
+  min-width: 0;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .content {
   flex: 1;
-  overflow: auto;
-  min-height: calc(100vh - 56px);
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .fade-slide-enter-active,

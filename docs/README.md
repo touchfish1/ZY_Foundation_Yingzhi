@@ -22,4 +22,4 @@ CMS 的定位不是独立建站工具，而是 Project ZHANGYUAN 后续业务系
 - 缓存使用 Redis。
 - 文件存储使用 MinIO，后续可切换到 S3、OSS、COS。
 - 第一阶段采用模块化单体，后续按业务边界拆分为分布式服务。
-- 工程目录沿用现有 `ZY_<Function>_<MythName>` 命名体系，不额外引入 `apps/`、`services/` 平行结构。
+- 工程目录按用途命名（`frontend`、`backend`、`database`、`infrastructure` 等），不额外引入 `apps/`、`services/` 平行结构。

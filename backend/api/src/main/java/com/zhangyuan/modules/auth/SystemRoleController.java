@@ -1,5 +1,6 @@
 package com.zhangyuan.modules.auth;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.modules.auth.domain.AdminRole;
 import com.zhangyuan.modules.auth.dto.CreateRoleRequest;
@@ -17,6 +18,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/admin/system/roles")
+@SaCheckPermission("system:role:list")
 public class SystemRoleController {
 
     private static final Logger log = LoggerFactory.getLogger(SystemRoleController.class);

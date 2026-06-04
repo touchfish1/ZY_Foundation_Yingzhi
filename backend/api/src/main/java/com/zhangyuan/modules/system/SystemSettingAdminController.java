@@ -1,5 +1,6 @@
 package com.zhangyuan.modules.system;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.modules.system.dto.BatchUpdateRequest;
 import com.zhangyuan.modules.system.dto.SettingResponse;
 import com.zhangyuan.modules.system.dto.UpdateSettingRequest;
@@ -19,6 +20,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/admin/system/settings")
+@SaCheckPermission("system:settings")
 public class SystemSettingAdminController {
 
     private static final Logger log = LoggerFactory.getLogger(SystemSettingAdminController.class);

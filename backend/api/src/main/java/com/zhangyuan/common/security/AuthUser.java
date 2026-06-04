@@ -1,16 +1,10 @@
 package com.zhangyuan.common.security;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
 import java.util.List;
 
-public class AuthUser implements UserDetails {
+public class AuthUser {
 
     private final Long id;
-
     private final String username;
     private final String password;
     private final String nickname;
@@ -38,22 +32,14 @@ public class AuthUser implements UserDetails {
         return permissions;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return permissions.stream().map(SimpleGrantedAuthority::new).toList();
-    }
-
-    @Override
     public String getPassword() {
         return password;
     }
 
-    @Override
     public String getUsername() {
         return username;
     }
 
-    @Override
     public boolean isEnabled() {
         return enabled;
     }

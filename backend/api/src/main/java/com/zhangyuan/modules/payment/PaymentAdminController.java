@@ -1,5 +1,6 @@
 package com.zhangyuan.modules.payment;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.modules.payment.dto.PaymentResponse;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/admin/payments")
+@SaCheckPermission("payment:list")
 public class PaymentAdminController {
 
     private static final Logger log = LoggerFactory.getLogger(PaymentAdminController.class);

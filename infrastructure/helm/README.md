@@ -1,4 +1,4 @@
-# ZY_Foundation_Yingzhi/Helm
+# infrastructure/helm
 
 Origin: ZHANGYUAN - Module: YINGZHI (Helm)
 

@@ -1,4 +1,4 @@
-# ZY_Nexus_Congcong/Gateway
+# backend/gateway
 
 Origin: ZHANGYUAN - Module: CONGCONG (Gateway)
 

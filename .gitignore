@@ -21,7 +21,7 @@ node_modules/
 .nuxt/
 .output/
 dist/
-ZY_View_Migu/Admin/src/**/*.js
+frontend/admin/src/**/*.js
 
 # Environment
 .env
@@ -29,9 +29,9 @@ ZY_View_Migu/Admin/src/**/*.js
 !.env.example
 
 # Docker local persistent data
-ZY_Foundation_Yingzhi/Docker/data/postgres/
-ZY_Foundation_Yingzhi/Docker/data/redis/
-ZY_Foundation_Yingzhi/Docker/data/minio/
+infrastructure/docker/data/postgres/
+infrastructure/docker/data/redis/
+infrastructure/docker/data/minio/
 
 # Generated reports
 **/build/reports/

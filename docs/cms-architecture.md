@@ -44,12 +44,12 @@ CI/CD：GitHub Actions 或 GitLab CI
 第一阶段采用模块化单体：
 
 ```text
-ZY_View_Migu          前台站点和管理后台
-ZY_Nexus_Congcong     后端 API、网关、服务适配
-ZY_Source_Origin      领域模型、领域服务、公共能力
-ZY_Archive_Shirou     数据库迁移、存储、备份
-ZY_Guard_Bo           认证、授权、安全策略
-ZY_Foundation_Yingzhi DevOps、Docker、Kubernetes、CI/CD
+frontend              前台站点和管理后台
+backend               后端 API、网关、服务适配
+domain                领域模型、领域服务、公共能力
+database              数据库迁移、存储、备份
+security              认证、授权、安全策略
+infrastructure        DevOps、Docker、Kubernetes、CI/CD
 docs                  项目文档
 ```
 

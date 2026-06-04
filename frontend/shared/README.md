@@ -1,4 +1,4 @@
-# ZY_View_Migu/Shared
+# frontend/shared
 
 Origin: ZHANGYUAN - Module: MIGU (Shared Front-end Types)
 

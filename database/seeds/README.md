@@ -1,4 +1,4 @@
-# ZY_Archive_Shirou/Seeds
+# database/seeds
 
 Origin: ZHANGYUAN - Module: SHIROU (Seed Data)
 

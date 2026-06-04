@@ -1,5 +1,6 @@
 package com.zhangyuan.modules.asset;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.common.security.AuthUser;
 import com.zhangyuan.modules.asset.dto.AssetFileInfo;
@@ -21,6 +22,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/admin/assets")
+@SaCheckPermission("asset:list")
 public class AssetController {
 
     private static final Logger log = LoggerFactory.getLogger(AssetController.class);

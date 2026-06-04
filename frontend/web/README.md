@@ -1,57 +1,20 @@
-# ZY_View_Migu/Web
+# frontend/web — 前台站点
 
-Origin: ZHANGYUAN - Module: MIGU (Public Web)
+Nuxt 3 前台站点，包含独立手写首页和 CMS 动态页渲染。
 
-该目录用于承载 Nuxt 3 前台站点。
-
-## Target Stack
-
-- Nuxt 3
-- TypeScript
-
-## Planned Structure
-
-```text
-pages/
-  [...slug].vue
-components/
-  blocks/
-composables/
-types/
-```
-
-前台页面通过 CMS 渲染接口读取已发布页面快照，并根据区块类型映射到 Vue 组件。
-
-## Local Run
+## 开发
 
 ```bash
 npm install
 npm run dev
 ```
 
-默认访问：
+默认 `http://localhost:3000`，通过 `NUXT_PUBLIC_API_BASE` 连接后端（默认 `http://localhost:8080`）。
 
-```text
-http://localhost:3000/plans
-```
+## 结构
 
-默认后端地址：
-
-```text
-http://localhost:8080
-```
-
-可以通过环境变量覆盖：
-
-```bash
-NUXT_PUBLIC_API_BASE=http://localhost:8080 npm run dev
-```
-
-已实现区块：
-
-- `hero`
-- `pricing`
-- `feature-grid`
-- `faq`
-- `cta`
-- `rich-text`
+- `pages/index.vue` — 独立手写首页（不走 CMS）
+- `pages/[...slug].vue` — CMS 动态页渲染
+- `components/blocks/` — CMS 区块组件（hero、pricing、feature-grid、faq、cta、rich-text）
+- `composables/` — `useCmsPage`、`useSiteSettings` 等
+- 动画组件：`AnimReveal`、`AnimParticles`、`AnimWaves`、`AnimTrail` 等
