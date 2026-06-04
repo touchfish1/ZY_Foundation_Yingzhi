@@ -84,6 +84,11 @@ spring:
           uri: lb://zhangyuan-api
           predicates:
             - Path=/admin/**
+        # User auth
+        - id: user-auth
+          uri: lb://system-service
+          predicates:
+            - Path=/api/auth/**
         # Main API — public routes
         - id: api-public
           uri: lb://zhangyuan-api

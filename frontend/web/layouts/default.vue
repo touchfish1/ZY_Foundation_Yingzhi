@@ -23,7 +23,30 @@
         </nav>
 
         <div class="navbar-right">
-          <NuxtLink to="/console" class="cta-btn">控制台</NuxtLink>
+          <template v-if="auth.isLoggedIn.value">
+            <NuxtLink to="/dashboard" class="nav-link">控制台</NuxtLink>
+            <div class="user-menu" @click.stop="userMenuOpen = !userMenuOpen">
+              <button class="user-avatar-btn" :title="auth.user.value?.nickname || auth.user.value?.email || '用户'">
+                <span class="user-avatar-text">{{ (auth.user.value?.nickname || auth.user.value?.email || 'U').charAt(0).toUpperCase() }}</span>
+              </button>
+              <Transition name="menu-drop">
+                <div v-if="userMenuOpen" class="user-dropdown">
+                  <div class="dropdown-header">
+                    <span class="dropdown-name">{{ auth.user.value?.nickname || '用户' }}</span>
+                    <span class="dropdown-email">{{ auth.user.value?.email }}</span>
+                  </div>
+                  <NuxtLink to="/dashboard" class="dropdown-item" @click="userMenuOpen = false">控制台</NuxtLink>
+                  <NuxtLink to="/dashboard/settings" class="dropdown-item" @click="userMenuOpen = false">设置</NuxtLink>
+                  <hr class="dropdown-divider" />
+                  <button class="dropdown-item dropdown-logout" @click="handleLogout">退出登录</button>
+                </div>
+              </Transition>
+            </div>
+          </template>
+          <template v-else>
+            <NuxtLink to="/login" class="nav-link nav-login">登录</NuxtLink>
+            <NuxtLink to="/register" class="cta-btn">注册</NuxtLink>
+          </template>
           <button
             class="hamburger"
             :class="{ open: mobileOpen }"
@@ -47,7 +70,14 @@
             <NuxtLink to="/#pricing" class="mobile-link" @click="mobileOpen = false">定价</NuxtLink>
             <NuxtLink to="/docs" class="mobile-link" @click="mobileOpen = false">文档</NuxtLink>
             <NuxtLink to="/about" class="mobile-link" @click="mobileOpen = false">关于</NuxtLink>
-            <NuxtLink to="/console" class="mobile-cta" @click="mobileOpen = false">控制台</NuxtLink>
+            <template v-if="auth.isLoggedIn.value">
+              <NuxtLink to="/dashboard" class="mobile-cta" @click="mobileOpen = false">控制台</NuxtLink>
+              <button class="mobile-link mobile-logout" @click="handleLogout">退出登录</button>
+            </template>
+            <template v-else>
+              <NuxtLink to="/login" class="mobile-link" @click="mobileOpen = false">登录</NuxtLink>
+              <NuxtLink to="/register" class="mobile-cta" @click="mobileOpen = false">注册</NuxtLink>
+            </template>
           </div>
         </div>
       </Transition>
@@ -103,9 +133,11 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 
 const site = await useSiteSettings()
+const auth = useSaasAuth()
 
 const mobileOpen = ref(false)
 const isScrolled = ref(false)
+const userMenuOpen = ref(false)
 
 let scrollTicking = false
 function onScroll() {
@@ -118,13 +150,32 @@ function onScroll() {
   }
 }
 
+function handleLogout() {
+  userMenuOpen.value = false
+  mobileOpen.value = false
+  auth.logout()
+}
+
+// Close user menu on Escape key
+function onKeyDown(e: KeyboardEvent) {
+  if (e.key === 'Escape') userMenuOpen.value = false
+}
+
+function onDocClick() {
+  userMenuOpen.value = false
+}
+
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
+  window.addEventListener('keydown', onKeyDown)
+  document.addEventListener('click', onDocClick)
   onScroll()
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
+  window.removeEventListener('keydown', onKeyDown)
+  document.removeEventListener('click', onDocClick)
 })
 </script>
 
@@ -289,6 +340,130 @@ html {
   transform: translateY(-1px);
 }
 
+/* ===== Login Link in Nav ===== */
+
+.nav-login {
+  padding: 6px 16px !important;
+  font-size: 14px !important;
+}
+
+/* ===== User Menu ===== */
+
+.user-menu {
+  position: relative;
+}
+
+.user-avatar-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  padding: 0;
+  font-family: inherit;
+}
+
+.user-avatar-btn:hover {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  transform: scale(1.05);
+}
+
+.user-avatar-text {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  z-index: 60;
+}
+
+.dropdown-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.dropdown-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.dropdown-email {
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #334155;
+  text-decoration: none;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.dropdown-item:hover {
+  background: #f8fafc;
+  color: #6366f1;
+}
+
+.dropdown-divider {
+  margin: 4px 0;
+  border: none;
+  border-top: 1px solid #f1f5f9;
+}
+
+.dropdown-logout {
+  color: #ef4444;
+}
+
+.dropdown-logout:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* ===== User Menu Dropdown Transition ===== */
+
+.menu-drop-enter-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.menu-drop-leave-active {
+  transition: opacity 0.1s ease, transform 0.1s ease;
+}
+
+.menu-drop-enter-from,
+.menu-drop-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
 /* ===== Hamburger ===== */
 
 .hamburger {
@@ -408,6 +583,21 @@ html {
   box-shadow: 0 4px 24px rgba(99, 102, 241, 0.5);
 }
 
+.mobile-logout {
+  font-size: 16px !important;
+  color: rgba(239, 68, 68, 0.8) !important;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 14px 40px;
+}
+
+.mobile-logout:hover {
+  color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+}
+
 /* ===== Main Content ===== */
 
 .main-content {
@@ -505,6 +695,14 @@ html {
   }
 
   .cta-btn {
+    display: none;
+  }
+
+  .nav-login {
+    display: none;
+  }
+
+  .user-menu {
     display: none;
   }
 
