@@ -3,6 +3,7 @@ package com.zhangyuan.auth.adapter.in.rest;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.auth.application.service.PermissionApplicationService;
 import com.zhangyuan.auth.common.ApiResponse;
+import com.zhangyuan.auth.common.PageResponse;
 import com.zhangyuan.auth.dto.PermissionRequest;
 import com.zhangyuan.auth.dto.PermissionResponse;
 import jakarta.validation.Valid;
@@ -37,10 +38,13 @@ public class AdminPermissionController {
     }
 
     @GetMapping
-    public ApiResponse<List<PermissionResponse>> listPermissions(
-            @RequestParam(required = false) String module) {
-        log.info("Listing permissions, module filter={}", module);
-        return ApiResponse.ok(permissionApplicationService.listPermissions(module));
+    public ApiResponse<PageResponse<PermissionResponse>> listPermissions(
+            @RequestParam(required = false) List<String> modules,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int pageSize) {
+        log.info("Listing permissions, modules={}, keyword={}, page={}, pageSize={}", modules, keyword, page, pageSize);
+        return ApiResponse.ok(permissionApplicationService.listPermissionsPaginated(modules, keyword, page, pageSize));
     }
 
     @GetMapping("/modules")
