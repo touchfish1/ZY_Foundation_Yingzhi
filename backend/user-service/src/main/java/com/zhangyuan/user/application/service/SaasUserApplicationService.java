@@ -33,7 +33,7 @@ public class SaasUserApplicationService {
         );
         user.setApiKey("sk-" + UUID.randomUUID().toString().replace("-", ""));
         user = userRepository.save(user);
-        StpUtil.login("saas_" + user.getId());
+        StpUtil.login(user.getId());
         return new LoginResponse(StpUtil.getTokenValue(), toResponse(user));
     }
 
@@ -43,7 +43,7 @@ public class SaasUserApplicationService {
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new IllegalArgumentException("Invalid email or password");
         }
-        StpUtil.login("saas_" + user.getId());
+        StpUtil.login(user.getId());
         return new LoginResponse(StpUtil.getTokenValue(), toResponse(user));
     }
 
