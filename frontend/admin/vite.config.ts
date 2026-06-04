@@ -11,9 +11,9 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/admin': 'http://localhost:8080',
-      '/api': 'http://localhost:8080',
-      '/actuator': 'http://localhost:8080'
+      '/admin': 'http://localhost:8088',
+      '/api': 'http://localhost:8088',
+      '/actuator': 'http://localhost:8088'
     }
   }
 })

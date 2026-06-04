@@ -51,3 +51,26 @@ export function createRole(payload: { code: string; name: string }) {
   console.log('[API] createRole', payload)
   return request<RoleInfo>('/admin/system/roles', { method: 'POST', body: JSON.stringify(payload) })
 }
+
+// 更新角色
+export function updateRole(id: number, payload: { code?: string; name?: string }) {
+  console.log('[API] updateRole', { id, ...payload })
+  return request<RoleInfo>(`/admin/system/roles/${id}`, { method: 'PUT', body: JSON.stringify(payload) })
+}
+
+// 删除角色
+export function deleteRole(id: number) {
+  console.log('[API] deleteRole', { id })
+  return request<void>(`/admin/system/roles/${id}`, { method: 'DELETE' })
+}
+
+export interface MonitorStats {
+  jvm: { maxMemory: number; totalMemory: number; freeMemory: number; usedMemory: number; usagePercent: number }
+  system: { osName: string; osArch: string; javaVersion: string; availableProcessors: number }
+  uptime: string; startTime: string
+  settings: { totalCount: number }
+}
+
+export function getMonitorStats() {
+  return request<MonitorStats>('/admin/system/monitor/stats')
+}

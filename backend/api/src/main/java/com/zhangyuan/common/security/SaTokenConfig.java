@@ -3,7 +3,7 @@ package com.zhangyuan.common.security;
 import cn.dev33.satoken.interceptor.SaInterceptor;
 import cn.dev33.satoken.router.SaRouter;
 import cn.dev33.satoken.stp.StpUtil;
-import com.zhangyuan.modules.auth.SaTokenSecurityContextBridge;
+import com.zhangyuan.common.security.SaTokenSecurityContextBridge;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

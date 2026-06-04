@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT:8088}
 
 spring:
   application:
@@ -7,11 +7,11 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: ${NACOS_HOST:localhost}:${NACOS_PORT:8848}
+        server-addr: ${NACOS_HOST:100.125.148.23}:${NACOS_PORT:8848}
         username: ${NACOS_USERNAME:nacos}
         password: ${NACOS_PASSWORD:chengccn}
       config:
-        server-addr: ${NACOS_HOST:localhost}:${NACOS_PORT:8848}
+        server-addr: ${NACOS_HOST:100.125.148.23}:${NACOS_PORT:8848}
         username: ${NACOS_USERNAME:nacos}
         password: ${NACOS_PASSWORD:chengccn}
         file-extension: yaml

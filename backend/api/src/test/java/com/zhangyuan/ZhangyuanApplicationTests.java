@@ -1,9 +1,6 @@
 package com.zhangyuan;
 
 import com.zhangyuan.modules.asset.repository.AssetFileRepository;
-import com.zhangyuan.modules.auth.repository.AdminPermissionRepository;
-import com.zhangyuan.modules.auth.repository.AdminRoleRepository;
-import com.zhangyuan.modules.auth.repository.AdminUserRepository;
 import com.zhangyuan.modules.cms.repository.CmsBlockDefinitionRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageTranslationRepository;
@@ -37,15 +34,6 @@ class ZhangyuanApplicationTests {
 
     @MockBean
     private AssetFileRepository assetFileRepository;
-
-    @MockBean
-    private AdminUserRepository adminUserRepository;
-
-    @MockBean
-    private AdminRoleRepository adminRoleRepository;
-
-    @MockBean
-    private AdminPermissionRepository adminPermissionRepository;
 
     @MockBean
     private CmsPageRepository cmsPageRepository;

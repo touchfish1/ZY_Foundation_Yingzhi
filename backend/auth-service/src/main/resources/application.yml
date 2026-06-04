@@ -1,0 +1,61 @@
+server:
+  port: ${SERVER_PORT:8082}
+
+spring:
+  application:
+    name: auth-service
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_HOST:100.125.148.23}:${NACOS_PORT:8848}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:chengccn}
+      config:
+        server-addr: ${NACOS_HOST:100.125.148.23}:${NACOS_PORT:8848}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:chengccn}
+        file-extension: yaml
+        import-check:
+          enabled: false
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:100.125.148.23}:${DB_PORT:5432}/${DB_NAME:zhangyuan}
+    username: ${DB_USERNAME:zhangyuan}
+    password: ${DB_PASSWORD:zhangyuan}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  flyway:
+    enabled: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST:100.125.148.23}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+zhangyuan:
+  security:
+    jwt-secret: ${JWT_SECRET:change-this-development-secret-change-before-production}
+    jwt-expires-seconds: ${JWT_EXPIRES_SECONDS:7200}
+    default-admin:
+      username: ${DEFAULT_ADMIN_USERNAME:admin}
+      password: ${DEFAULT_ADMIN_PASSWORD:admin123}
+      nickname: ${DEFAULT_ADMIN_NICKNAME:Super Admin}
+
+sa-token:
+  token-name: Authorization
+  timeout: 7200
+  active-timeout: -1
+  is-concurrent: true
+  is-share: false
+  token-style: uuid
+  is-log: false
+
+logging:
+  level:
+    root: INFO

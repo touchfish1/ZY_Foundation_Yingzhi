@@ -19,6 +19,21 @@ export async function listSettings(): Promise<Setting[]> {
   return payload
 }
 
+// 批量更新系统设置
+export async function batchUpdateSettings(settings: Record<string, string>): Promise<void> {
+  console.log('[API] batchUpdateSettings', settings)
+  const token = getToken()
+  const response = await fetch('/admin/system/settings', {
+    method: 'PUT',
+    headers: { 'Authorization': token ? `Bearer ${token}` : '', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ settings })
+  })
+  const payload = await response.json()
+  if (!response.ok) throw new Error(payload?.message || `Request failed: ${response.status}`)
+  console.log('[API] batchUpdateSettings success:', payload)
+  return payload
+}
+
 // 更新指定系统设置项的值
 export async function updateSetting(key: string, value: string): Promise<Setting> {
   console.log('[API] updateSetting', { key, value })

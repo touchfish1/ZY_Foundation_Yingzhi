@@ -1,0 +1,48 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: auth-admin
+          uri: lb://auth-service
+          predicates:
+            - Path=/admin/auth/**
+        - id: auth-users
+          uri: lb://auth-service
+          predicates:
+            - Path=/admin/system/users/**
+        - id: auth-roles
+          uri: lb://auth-service
+          predicates:
+            - Path=/admin/system/roles/**
+        - id: auth-ddd
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/ddd/auth/**
+        - id: system-admin
+          uri: lb://system-service
+          predicates:
+            - Path=/admin/system/**
+        - id: system-api
+          uri: lb://system-service
+          predicates:
+            - Path=/api/system/**
+        - id: system-ddd
+          uri: lb://system-service
+          predicates:
+            - Path=/api/ddd/settings/**
+        - id: api-admin
+          uri: lb://zhangyuan-api
+          predicates:
+            - Path=/admin/**
+        - id: api-public
+          uri: lb://zhangyuan-api
+          predicates:
+            - Path=/api/**
+        - id: api-actuator
+          uri: lb://zhangyuan-api
+          predicates:
+            - Path=/actuator/**
+        - id: web
+          uri: http://web:3000
+          predicates:
+            - Path=/**

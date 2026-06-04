@@ -64,7 +64,8 @@ public class NacosConfigPublisher {
             String content = Files.readString(file);
             System.out.print("Publishing " + dataId + " ... ");
 
-            boolean success = configService.publishConfig(dataId, GROUP, content);
+            String type = dataId.endsWith(".yaml") ? "yaml" : "text";
+            boolean success = configService.publishConfig(dataId, GROUP, content, type);
             if (success) {
                 System.out.println("OK");
             } else {

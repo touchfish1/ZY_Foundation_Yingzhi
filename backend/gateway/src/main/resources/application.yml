@@ -1,0 +1,80 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_HOST:100.125.148.23}:${NACOS_PORT:8848}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:chengccn}
+      config:
+        server-addr: ${NACOS_HOST:100.125.148.23}:${NACOS_PORT:8848}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:chengccn}
+        file-extension: yaml
+        import-check:
+          enabled: false
+    gateway:
+      routes:
+        # Auth service - login and current user
+        - id: auth-admin
+          uri: lb://auth-service
+          predicates:
+            - Path=/admin/auth/**
+        # Auth service - user management
+        - id: auth-users
+          uri: lb://auth-service
+          predicates:
+            - Path=/admin/system/users/**
+        # Auth service - role management
+        - id: auth-roles
+          uri: lb://auth-service
+          predicates:
+            - Path=/admin/system/roles/**
+        # Auth service - DDD auth APIs
+        - id: auth-ddd
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/ddd/auth/**
+        # System service admin API
+        - id: system-admin
+          uri: lb://system-service
+          predicates:
+            - Path=/admin/system/**
+        # System service public API
+        - id: system-api
+          uri: lb://system-service
+          predicates:
+            - Path=/api/system/**
+        # System service DDD settings (CMS seed data)
+        - id: system-ddd
+          uri: lb://system-service
+          predicates:
+            - Path=/api/ddd/settings/**
+        # Main API — admin routes
+        - id: api-admin
+          uri: lb://zhangyuan-api
+          predicates:
+            - Path=/admin/**
+        # Main API — public routes
+        - id: api-public
+          uri: lb://zhangyuan-api
+          predicates:
+            - Path=/api/**
+        # Main API — actuator
+        - id: api-actuator
+          uri: lb://zhangyuan-api
+          predicates:
+            - Path=/actuator/**
+        # Web frontend (Nuxt, direct URI — not registered with Nacos)
+        - id: web
+          uri: http://web:3000
+          predicates:
+            - Path=/**
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO

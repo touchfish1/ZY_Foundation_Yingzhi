@@ -7,6 +7,7 @@ import CmsPages from '../pages/cms/CmsPages.vue'
 import CmsVersions from '../pages/cms/CmsVersions.vue'
 import Dashboard from '../pages/Dashboard.vue'
 import Login from '../pages/Login.vue'
+import Monitor from '../pages/system/Monitor.vue'
 import Orders from '../pages/orders/Orders.vue'
 import PlanGroups from '../pages/products/PlanGroups.vue'
 import Roles from '../pages/system/Roles.vue'
@@ -33,6 +34,7 @@ export const router = createRouter({
         { path: 'products/plans', component: Plans },
         { path: 'payments/transactions', component: Transactions },
         { path: 'system/users', component: Users },
+        { path: 'system/monitor', component: Monitor },
         { path: 'system/roles', component: Roles },
         { path: 'system/settings', component: Settings }
       ]

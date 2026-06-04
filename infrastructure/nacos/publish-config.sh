@@ -2,7 +2,7 @@
 # Publish configurations to Nacos config center
 # Usage: ./publish-config.sh <nacos-host> <nacos-port> <username> <password>
 
-NACOS_HOST=${1:-100.125.148.23}
+NACOS_HOST=${1:-localhost}
 NACOS_PORT=${2:-8080}
 NACOS_USER=${3:-nacos}
 NACOS_PASS=${4:-chengccn}
