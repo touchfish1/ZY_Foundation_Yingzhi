@@ -2,12 +2,18 @@ package com.zhangyuan.auth.application.service;
 
 import com.zhangyuan.auth.adapter.out.persistence.AdminPermission;
 import com.zhangyuan.auth.adapter.out.persistence.AdminRole;
+import com.zhangyuan.auth.common.PageResponse;
 import com.zhangyuan.auth.domain.model.Permission;
 import com.zhangyuan.auth.domain.repository.PermissionRepository;
 import com.zhangyuan.auth.dto.PermissionRequest;
 import com.zhangyuan.auth.dto.PermissionResponse;
 import com.zhangyuan.auth.repository.AdminPermissionRepository;
 import com.zhangyuan.auth.repository.AdminRoleRepository;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,5 +95,33 @@ public class PermissionApplicationService {
         role.getPermissions().clear();
         role.getPermissions().addAll(permissions);
         adminRoleRepository.save(role);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<PermissionResponse> listPermissionsPaginated(
+            List<String> modules, String keyword, int page, int pageSize) {
+
+        PageRequest pageable = PageRequest.of(page - 1, pageSize, Sort.by("module", "code"));
+
+        Specification<AdminPermission> spec = Specification.where(null);
+        if (modules != null && !modules.isEmpty()) {
+            spec = spec.and((root, query, cb) -> root.get("module").in(modules));
+        }
+        if (keyword != null && !keyword.isBlank()) {
+            String pattern = "%" + keyword.toLowerCase() + "%";
+            spec = spec.and((root, query, cb) ->
+                cb.or(
+                    cb.like(cb.lower(root.get("code")), pattern),
+                    cb.like(cb.lower(root.get("name")), pattern)
+                )
+            );
+        }
+
+        Page<AdminPermission> pageResult = adminPermissionRepository.findAll(spec, pageable);
+        List<PermissionResponse> items = pageResult.getContent().stream()
+                .map(p -> new PermissionResponse(p.getId(), p.getCode(), p.getName(), p.getModule()))
+                .toList();
+
+        return PageResponse.from(pageResult, items);
     }
 }

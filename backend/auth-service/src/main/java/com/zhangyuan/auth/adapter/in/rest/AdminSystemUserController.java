@@ -3,6 +3,8 @@ package com.zhangyuan.auth.adapter.in.rest;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.auth.application.service.AuthApplicationService;
 import com.zhangyuan.auth.common.ApiResponse;
+import com.zhangyuan.auth.repository.AdminUserRepository;
+import com.zhangyuan.auth.common.PageResponse;
 import com.zhangyuan.auth.domain.model.User;
 import com.zhangyuan.auth.dto.CreateUserRequest;
 import com.zhangyuan.auth.dto.SetRoleRequest;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -33,18 +36,22 @@ public class AdminSystemUserController {
     private static final Logger log = LoggerFactory.getLogger(AdminSystemUserController.class);
 
     private final AuthApplicationService authApplicationService;
+    @SuppressWarnings("unused")
+    private final AdminUserRepository adminUserRepository;
 
-    public AdminSystemUserController(AuthApplicationService authApplicationService) {
+    public AdminSystemUserController(AuthApplicationService authApplicationService,
+                                     AdminUserRepository adminUserRepository) {
         this.authApplicationService = authApplicationService;
+        this.adminUserRepository = adminUserRepository;
     }
 
     @GetMapping
-    public ApiResponse<List<UserResponse>> listUsers() {
-        log.info("Listing system users");
-        return ApiResponse.ok(authApplicationService.listAll().stream()
-                .map(u -> new UserResponse(u.getId(), u.getUsername(), u.getNickname(), u.getEmail(),
-                        u.getStatus().name().toLowerCase(), u.getCreatedAt()))
-                .toList());
+    public ApiResponse<PageResponse<UserResponse>> listUsers(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int pageSize) {
+        log.info("Listing system users, keyword={}, page={}, pageSize={}", keyword, page, pageSize);
+        return ApiResponse.ok(authApplicationService.listUsersPaginated(keyword, page, pageSize));
     }
 
     @PostMapping

@@ -13,7 +13,7 @@
       </template>
       <CommonTable
         :columns="columns"
-        :data="paginatedUsers"
+        :data="users"
         :loading="loading"
         :pagination="paginationReactive"
       />
@@ -87,31 +87,27 @@ const users = ref<UserInfo[]>([])
 const loading = ref(false)
 const searchQuery = ref('')
 
-const filteredUsers = computed(() => {
-  if (!searchQuery.value) return users.value
-  const q = searchQuery.value.toLowerCase()
-  return users.value.filter(u => u.username.toLowerCase().includes(q) || (u.nickname && u.nickname.toLowerCase().includes(q)))
-})
-
 const paginationReactive = reactive({
   page: 1,
   pageSize: 20,
+  itemCount: 0,
   showSizePicker: true,
   pageSizes: [10, 20, 50, 100],
-  onChange: (page: number) => { paginationReactive.page = page },
+  onChange: (page: number) => {
+    paginationReactive.page = page
+    loadData()
+  },
   onUpdatePageSize: (size: number) => {
     paginationReactive.pageSize = size
     paginationReactive.page = 1
+    loadData()
   }
 })
 
-const paginatedUsers = computed(() => {
-  const start = (paginationReactive.page - 1) * paginationReactive.pageSize
-  const end = start + paginationReactive.pageSize
-  return filteredUsers.value.slice(start, end)
+watch(searchQuery, () => {
+  paginationReactive.page = 1
+  loadData()
 })
-
-watch(searchQuery, () => { paginationReactive.page = 1 })
 
 const showCreate = ref(false)
 const showEdit = ref(false)
@@ -168,10 +164,16 @@ const columns: DataTableColumns<UserInfo> = [
   }
 ]
 
-async function load() {
+async function loadData() {
   loading.value = true
   try {
-    users.value = await listUsers()
+    const resp = await listUsers(
+      paginationReactive.page,
+      paginationReactive.pageSize,
+      searchQuery.value || undefined
+    )
+    users.value = resp.items
+    paginationReactive.itemCount = resp.total
   } catch (error) {
     message.error(error instanceof Error ? error.message : '加载失败')
   } finally {
@@ -184,7 +186,7 @@ async function openCreate() {
   createSelectedRoleIds.value = []
   showCreate.value = true
   try {
-    allRoles.value = await listRoles()
+    allRoles.value = (await listRoles(1, 99999)).items
   } catch (error) {
     message.error(error instanceof Error ? error.message : '加载角色列表失败')
   }
@@ -199,7 +201,7 @@ async function submitCreate() {
     }
     message.success('用户已创建')
     showCreate.value = false
-    await load()
+    await loadData()
   } catch (error) {
     message.error(error instanceof Error ? error.message : '创建失败')
   } finally {
@@ -215,11 +217,11 @@ async function openEdit(user: UserInfo) {
   editSelectedRoleIds.value = []
   showEdit.value = true
   try {
-    const [roles, userRoleIds] = await Promise.all([
-      listRoles(),
+    const [roleResp, userRoleIds] = await Promise.all([
+      listRoles(1, 99999),
       getUserRoles(user.id)
     ])
-    allRoles.value = roles
+    allRoles.value = roleResp.items
     editSelectedRoleIds.value = userRoleIds
   } catch (error) {
     message.error(error instanceof Error ? error.message : '加载角色信息失败')
@@ -234,7 +236,7 @@ async function submitEdit() {
     await setUserRoles(editingId.value, editSelectedRoleIds.value)
     message.success('用户已更新')
     showEdit.value = false
-    await load()
+    await loadData()
   } catch (error) {
     message.error(error instanceof Error ? error.message : '更新失败')
   } finally {
@@ -248,11 +250,11 @@ async function handleDelete(id: number) {
   try {
     await deleteUser(id)
     message.success('用户已删除')
-    await load()
+    await loadData()
   } catch (error) {
     message.error(error instanceof Error ? error.message : '删除失败')
   }
 }
 
-onMounted(() => { load() })
+onMounted(() => { loadData() })
 </script>

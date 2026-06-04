@@ -1,4 +1,5 @@
 import { request } from './http'
+import type { PageResponse } from '../types/common'
 
 export interface UserInfo {
   id: number
@@ -17,9 +18,18 @@ export interface RoleInfo {
 }
 
 // 获取系统用户列表
-export function listUsers() {
-  console.log('[API] listUsers')
-  return request<UserInfo[]>('/admin/system/users')
+export function listUsers(
+  page = 1,
+  pageSize = 20,
+  keyword?: string
+): Promise<PageResponse<UserInfo>> {
+  const params = new URLSearchParams()
+  params.set('page', String(page))
+  params.set('pageSize', String(pageSize))
+  if (keyword) {
+    params.set('keyword', keyword)
+  }
+  return request<PageResponse<UserInfo>>(`/admin/system/users?${params}`)
 }
 
 // 创建新系统用户
@@ -54,9 +64,11 @@ export function setUserRoles(userId: number, roleIds: number[]) {
 }
 
 // 获取角色列表
-export function listRoles() {
-  console.log('[API] listRoles')
-  return request<RoleInfo[]>('/admin/system/roles')
+export function listRoles(
+  page = 1,
+  pageSize = 20
+): Promise<PageResponse<RoleInfo>> {
+  return request<PageResponse<RoleInfo>>(`/admin/system/roles?page=${page}&pageSize=${pageSize}`)
 }
 
 // 创建新角色

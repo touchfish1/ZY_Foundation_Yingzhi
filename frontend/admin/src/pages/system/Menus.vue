@@ -585,12 +585,12 @@ async function handleDelete(item: MenuItem) {
 async function loadData() {
   loading.value = true
   try {
-    const [menus, permissions] = await Promise.all([
+    const [menus, permResp] = await Promise.all([
       fetchAllMenus(),
-      listPermissions()
+      listPermissions(1, 99999)
     ])
     menuData.value = menus
-    allPermissions.value = permissions
+    allPermissions.value = permResp.items
 
     // Restore selection after reload
     if (selectedNode.value) {

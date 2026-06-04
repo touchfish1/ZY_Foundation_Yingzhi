@@ -3,14 +3,17 @@ package com.zhangyuan.auth.adapter.in.rest;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.auth.application.service.PermissionApplicationService;
 import com.zhangyuan.auth.common.ApiResponse;
+import com.zhangyuan.auth.common.PageResponse;
 import com.zhangyuan.auth.domain.model.Role;
 import com.zhangyuan.auth.domain.repository.RoleRepository;
 import com.zhangyuan.auth.dto.CreateRoleRequest;
 import com.zhangyuan.auth.dto.RoleResponse;
 import com.zhangyuan.auth.dto.SetPermissionRequest;
+import com.zhangyuan.auth.repository.AdminRoleRepository;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -34,19 +38,27 @@ public class AdminSystemRoleController {
 
     private final RoleRepository roleRepository;
     private final PermissionApplicationService permissionApplicationService;
+    private final AdminRoleRepository adminRoleRepository;
 
     public AdminSystemRoleController(RoleRepository roleRepository,
-                                     PermissionApplicationService permissionApplicationService) {
+                                     PermissionApplicationService permissionApplicationService,
+                                     AdminRoleRepository adminRoleRepository) {
         this.roleRepository = roleRepository;
         this.permissionApplicationService = permissionApplicationService;
+        this.adminRoleRepository = adminRoleRepository;
     }
 
     @GetMapping
-    public ApiResponse<List<RoleResponse>> listRoles() {
-        log.info("Listing system roles");
-        return ApiResponse.ok(roleRepository.findAll().stream()
+    public ApiResponse<PageResponse<RoleResponse>> listRoles(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int pageSize) {
+        log.info("Listing system roles, page={}, pageSize={}", page, pageSize);
+        var pageable = PageRequest.of(page - 1, pageSize);
+        var pageResult = adminRoleRepository.findAll(pageable);
+        List<RoleResponse> items = pageResult.getContent().stream()
                 .map(r -> new RoleResponse(r.getId(), r.getCode(), r.getName(), r.getCreatedAt()))
-                .toList());
+                .toList();
+        return ApiResponse.ok(PageResponse.from(pageResult, items));
     }
 
     @PostMapping

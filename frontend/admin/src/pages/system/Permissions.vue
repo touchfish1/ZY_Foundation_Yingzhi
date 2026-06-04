@@ -21,7 +21,7 @@
       </template>
       <CommonTable
         :columns="columns"
-        :data="paginatedPermissions"
+        :data="permissions"
         :loading="loading"
         :pagination="paginationReactive"
       />
@@ -111,38 +111,27 @@ const moduleOptions = computed<SelectOption[]>(() =>
   modules.value.map(m => ({ label: m, value: m }))
 )
 
-const filteredPermissions = computed(() => {
-  let list = permissions.value
-  if (moduleFilter.value.length > 0) {
-    list = list.filter(p => moduleFilter.value.includes(p.module))
-  }
-  if (searchQuery.value) {
-    const q = searchQuery.value.toLowerCase()
-    list = list.filter(p => p.code.toLowerCase().includes(q) || p.name.toLowerCase().includes(q))
-  }
-  return list
-})
-
 const paginationReactive = reactive({
   page: 1,
   pageSize: 20,
+  itemCount: 0,
   showSizePicker: true,
   pageSizes: [10, 20, 50, 100],
-  onChange: (page: number) => { paginationReactive.page = page },
+  onChange: (page: number) => {
+    paginationReactive.page = page
+    loadData()
+  },
   onUpdatePageSize: (size: number) => {
     paginationReactive.pageSize = size
     paginationReactive.page = 1
+    loadData()
   }
 })
 
-const paginatedPermissions = computed(() => {
-  const start = (paginationReactive.page - 1) * paginationReactive.pageSize
-  const end = start + paginationReactive.pageSize
-  return filteredPermissions.value.slice(start, end)
+watch([searchQuery, moduleFilter], () => {
+  paginationReactive.page = 1
+  loadData()
 })
-
-watch(searchQuery, () => { paginationReactive.page = 1 })
-watch(moduleFilter, () => { paginationReactive.page = 1 })
 
 const showCreate = ref(false)
 const showEdit = ref(false)
@@ -197,11 +186,17 @@ async function loadModules() {
   }
 }
 
-async function load() {
-  paginationReactive.page = 1
+async function loadData() {
   loading.value = true
   try {
-    permissions.value = await listPermissions()
+    const resp = await listPermissions(
+      paginationReactive.page,
+      paginationReactive.pageSize,
+      moduleFilter.value.length > 0 ? moduleFilter.value : undefined,
+      searchQuery.value || undefined
+    )
+    permissions.value = resp.items
+    paginationReactive.itemCount = resp.total
   } catch (error) {
     message.error(error instanceof Error ? error.message : '加载失败')
   } finally {
@@ -233,7 +228,7 @@ async function submitCreate() {
     await createPermission({ ...createForm })
     message.success('权限已创建')
     showCreate.value = false
-    await load()
+    await loadData()
     await loadModules()
   } catch (error) {
     message.error(error instanceof Error ? error.message : '创建失败')
@@ -259,7 +254,7 @@ async function submitEdit() {
     await updatePermission(editingId.value, { ...editForm })
     message.success('权限已更新')
     showEdit.value = false
-    await load()
+    await loadData()
     await loadModules()
   } catch (error) {
     message.error(error instanceof Error ? error.message : '更新失败')
@@ -274,7 +269,7 @@ async function handleDelete(id: number) {
   try {
     await deletePermission(id)
     message.success('权限已删除')
-    await load()
+    await loadData()
     await loadModules()
   } catch (error) {
     message.error(error instanceof Error ? error.message : '删除失败')
@@ -282,7 +277,7 @@ async function handleDelete(id: number) {
 }
 
 onMounted(() => {
-  load()
+  loadData()
   loadModules()
 })
 </script>

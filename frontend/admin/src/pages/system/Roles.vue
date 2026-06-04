@@ -3,17 +3,12 @@
     <n-card title="角色管理" :bordered="true" class="table-card" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
       <template #header-extra>
         <n-space align="center" size="small">
-          <n-input v-model:value="searchQuery" placeholder="搜索编码/名称..." clearable style="width: 200px">
-            <template #prefix>
-              <n-icon size="14"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></n-icon>
-            </template>
-          </n-input>
           <n-button type="primary" @click="openCreate">新建角色</n-button>
         </n-space>
       </template>
       <CommonTable
         :columns="columns"
-        :data="paginatedRoles"
+        :data="roles"
         :loading="loading"
         :pagination="paginationReactive"
       />
@@ -65,8 +60,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, reactive, ref, watch } from 'vue'
-import { NButton, NCard, NDivider, NEmpty, NForm, NFormItem, NIcon, NInput, NModal, NSpace, NSpin, NTag, NTransfer, useMessage } from 'naive-ui'
+import { computed, h, onMounted, reactive, ref } from 'vue'
+import { NButton, NCard, NDivider, NEmpty, NForm, NFormItem, NModal, NSpace, NSpin, NTag, NTransfer, useMessage } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import CommonTable from '../../components/CommonTable.vue'
 import { listRoles, createRole, updateRole, deleteRole, getRolePermissions, setRolePermissions, type RoleInfo } from '../../api/system'
@@ -78,33 +73,23 @@ const message = useMessage()
 const { confirm } = useConfirm()
 const roles = ref<RoleInfo[]>([])
 const loading = ref(false)
-const searchQuery = ref('')
-
-const filteredRoles = computed(() => {
-  if (!searchQuery.value) return roles.value
-  const q = searchQuery.value.toLowerCase()
-  return roles.value.filter(r => r.code.toLowerCase().includes(q) || r.name.toLowerCase().includes(q))
-})
 
 const paginationReactive = reactive({
   page: 1,
   pageSize: 20,
+  itemCount: 0,
   showSizePicker: true,
   pageSizes: [10, 20, 50, 100],
-  onChange: (page: number) => { paginationReactive.page = page },
+  onChange: (page: number) => {
+    paginationReactive.page = page
+    loadData()
+  },
   onUpdatePageSize: (size: number) => {
     paginationReactive.pageSize = size
     paginationReactive.page = 1
+    loadData()
   }
 })
-
-const paginatedRoles = computed(() => {
-  const start = (paginationReactive.page - 1) * paginationReactive.pageSize
-  const end = start + paginationReactive.pageSize
-  return filteredRoles.value.slice(start, end)
-})
-
-watch(searchQuery, () => { paginationReactive.page = 1 })
 
 const showCreate = ref(false)
 const showEdit = ref(false)
@@ -158,10 +143,12 @@ const columns: DataTableColumns<RoleInfo> = [
   }
 ]
 
-async function load() {
+async function loadData() {
   loading.value = true
   try {
-    roles.value = await listRoles()
+    const resp = await listRoles(paginationReactive.page, paginationReactive.pageSize)
+    roles.value = resp.items
+    paginationReactive.itemCount = resp.total
   } catch (error) {
     message.error(error instanceof Error ? error.message : '加载失败')
   } finally {
@@ -180,7 +167,7 @@ async function submitCreate() {
     await createRole(form)
     message.success('角色已创建')
     showCreate.value = false
-    await load()
+    await loadData()
   } catch (error) {
     message.error(error instanceof Error ? error.message : '创建失败')
   } finally {
@@ -197,11 +184,11 @@ async function openEdit(role: RoleInfo) {
 
   permissionsLoading.value = true
   try {
-    const [permissions, rolePermissionIds] = await Promise.all([
-      listPermissions(),
+    const [permResp, rolePermissionIds] = await Promise.all([
+      listPermissions(1, 99999),
       getRolePermissions(role.id)
     ])
-    allPermissions.value = permissions
+    allPermissions.value = permResp.items
     selectedPermissionIds.value = rolePermissionIds
   } catch (error) {
     message.error(error instanceof Error ? error.message : '加载权限失败')
@@ -218,7 +205,7 @@ async function submitEdit() {
     await setRolePermissions(editingId.value, selectedPermissionIds.value)
     message.success('角色已更新')
     showEdit.value = false
-    await load()
+    await loadData()
   } catch (error) {
     message.error(error instanceof Error ? error.message : '更新失败')
   } finally {
@@ -232,11 +219,11 @@ async function handleDelete(id: number) {
   try {
     await deleteRole(id)
     message.success('角色已删除')
-    await load()
+    await loadData()
   } catch (error) {
     message.error(error instanceof Error ? error.message : '删除失败')
   }
 }
 
-onMounted(() => { load() })
+onMounted(() => { loadData() })
 </script>

@@ -4,6 +4,7 @@ import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.StpUtil;
 import com.zhangyuan.auth.adapter.out.persistence.AdminRole;
 import com.zhangyuan.auth.adapter.out.persistence.AdminUser;
+import com.zhangyuan.auth.common.PageResponse;
 import com.zhangyuan.auth.common.security.AuthUser;
 import com.zhangyuan.auth.common.security.AuthUserService;
 import com.zhangyuan.auth.domain.model.LoginResult;
@@ -13,10 +14,13 @@ import com.zhangyuan.auth.domain.repository.UserRepository;
 import com.zhangyuan.auth.domain.service.AuthDomainService;
 import com.zhangyuan.auth.dto.AdminUserResponse;
 import com.zhangyuan.auth.dto.LoginResponse;
+import com.zhangyuan.auth.dto.UserResponse;
 import com.zhangyuan.auth.repository.AdminRoleRepository;
 import com.zhangyuan.auth.repository.AdminUserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -154,6 +158,22 @@ public class AuthApplicationService {
     @Transactional(readOnly = true)
     public List<User> listAll() {
         return userRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<UserResponse> listUsersPaginated(String keyword, int page, int pageSize) {
+        var pageable = PageRequest.of(page - 1, pageSize);
+        Page<AdminUser> pageResult;
+        if (keyword != null && !keyword.isBlank()) {
+            pageResult = adminUserRepository.searchByKeyword(keyword, pageable);
+        } else {
+            pageResult = adminUserRepository.findAll(pageable);
+        }
+        List<UserResponse> items = pageResult.getContent().stream()
+                .map(u -> new UserResponse(u.getId(), u.getUsername(), u.getNickname(),
+                        u.getEmail(), u.getStatus(), u.getCreatedAt()))
+                .toList();
+        return PageResponse.from(pageResult, items);
     }
 
     /**
