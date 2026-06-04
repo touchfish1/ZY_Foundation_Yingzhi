@@ -204,4 +204,14 @@ class AuthApplicationServiceTest {
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessageContaining("disabled");
     }
+
+    @Test
+    void listAll_returnsUsers() {
+        when(userRepository.findAll()).thenReturn(List.of(
+            new com.zhangyuan.auth.domain.model.User("user1", "hash", "nick1", "user1@test.com"),
+            new com.zhangyuan.auth.domain.model.User("user2", "hash", "nick2", "user2@test.com")
+        ));
+        var result = service.listAll();
+        assertThat(result).hasSize(2);
+    }
 }

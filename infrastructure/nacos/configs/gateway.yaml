@@ -56,9 +56,21 @@ spring:
           predicates:
             - Path=/admin/**
         - id: user-auth
-          uri: lb://system-service
+          uri: lb://user-service
           predicates:
             - Path=/api/auth/**
+        - id: user-balance
+          uri: lb://user-service
+          predicates:
+            - Path=/api/balance/**
+        - id: user-logs
+          uri: lb://user-service
+          predicates:
+            - Path=/api/logs/**
+        - id: user-admin
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
         - id: api-public
           uri: lb://zhangyuan-api
           predicates:

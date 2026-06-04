@@ -129,4 +129,21 @@ class PermissionApplicationServiceTest {
 
         assertThat(result.items()).isEmpty();
     }
+
+    @Test
+    void listPermissionsPaginated_withAllFiltersApplied() {
+        // Combined module filter + keyword search
+        var matched = List.of(
+            new AdminPermission("system:user:list", "用户列表", "system")
+        );
+        var pageable = PageRequest.of(0, 20);
+        Page<AdminPermission> page = new PageImpl<>(matched, pageable, 1);
+        when(adminPermissionRepository.findAll(any(Specification.class), any(PageRequest.class)))
+            .thenReturn(page);
+
+        var result = service.listPermissionsPaginated(List.of("system"), "user", 1, 20);
+
+        assertThat(result.total()).isEqualTo(1);
+        assertThat(result.items().get(0).code()).contains("user");
+    }
 }
