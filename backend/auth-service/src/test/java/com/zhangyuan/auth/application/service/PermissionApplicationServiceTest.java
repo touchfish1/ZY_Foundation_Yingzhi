@@ -7,6 +7,8 @@ import com.zhangyuan.auth.repository.AdminRoleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -98,5 +100,33 @@ class PermissionApplicationServiceTest {
 
         assertThat(result.items()).isEmpty();
         assertThat(result.total()).isZero();
+    }
+
+    @Test
+    void listPermissionsPaginated_withEmptyModuleList_returnsAll() {
+        var allPerms = List.of(
+            new AdminPermission("cms:read", "读取CMS", "cms"),
+            new AdminPermission("sys:read", "读取系统", "system")
+        );
+        var pageable = PageRequest.of(0, 20);
+        Page<AdminPermission> page = new PageImpl<>(allPerms, pageable, 2);
+        when(adminPermissionRepository.findAll(any(Specification.class), any(PageRequest.class)))
+            .thenReturn(page);
+
+        var result = service.listPermissionsPaginated(List.of(), null, 1, 20);
+
+        assertThat(result.total()).isEqualTo(2);
+    }
+
+    @Test
+    void listPermissionsPaginated_withLargePage_returnsEmpty() {
+        var pageable = PageRequest.of(100, 20);
+        Page<AdminPermission> page = new PageImpl<>(List.of(), pageable, 28);
+        when(adminPermissionRepository.findAll(any(Specification.class), any(PageRequest.class)))
+            .thenReturn(page);
+
+        var result = service.listPermissionsPaginated(null, null, 101, 20);
+
+        assertThat(result.items()).isEmpty();
     }
 }

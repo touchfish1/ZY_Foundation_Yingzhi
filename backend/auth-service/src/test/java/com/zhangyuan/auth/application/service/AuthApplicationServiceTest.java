@@ -22,6 +22,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+import cn.dev33.satoken.session.SaSession;
+import cn.dev33.satoken.stp.StpUtil;
+import com.zhangyuan.auth.common.security.AuthUser;
+import com.zhangyuan.auth.dto.LoginResponse;
+import org.springframework.security.authentication.BadCredentialsException;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 class AuthApplicationServiceTest {
 
     private final UserRepository userRepository = mock(UserRepository.class);
@@ -141,5 +149,59 @@ class AuthApplicationServiceTest {
         // PageResponse.from converts 0-based back to 1-based, so it should be 2
         assertThat(result.page()).isEqualTo(2);
         assertThat(result.pageSize()).isEqualTo(10);
+    }
+
+    @Test
+    void login_validCredentials_returnsLoginResponse() {
+        var authUser = new AuthUser(1L, "admin", "encodedPassword", "Admin",
+                List.of("cms:read", "cms:write"), true);
+        when(authUserService.loadUserByUsername("admin")).thenReturn(authUser);
+        when(passwordEncoder.matches("admin123", "encodedPassword")).thenReturn(true);
+        when(authUserService.findRoleCodes("admin")).thenReturn(List.of("admin", "editor"));
+
+        try (var stpUtilMock = mockStatic(StpUtil.class)) {
+            stpUtilMock.when(() -> StpUtil.login(1L)).thenAnswer(invocation -> null);
+            stpUtilMock.when(StpUtil::getTokenValue).thenReturn("mock-token-value");
+            stpUtilMock.when(StpUtil::getTokenTimeout).thenReturn(7200L);
+
+            var session = mock(SaSession.class);
+            stpUtilMock.when(StpUtil::getSession).thenReturn(session);
+
+            var result = service.login("admin", "admin123");
+
+            assertThat(result.accessToken()).isEqualTo("mock-token-value");
+            assertThat(result.expiresIn()).isEqualTo(7200L);
+            assertThat(result.user().id()).isEqualTo(1L);
+            assertThat(result.user().username()).isEqualTo("admin");
+            assertThat(result.user().nickname()).isEqualTo("Admin");
+            assertThat(result.permissions()).containsExactly("cms:read", "cms:write");
+
+            verify(session).set("username", "admin");
+            verify(session).set("nickname", "Admin");
+            verify(session).set(SaSession.PERMISSION_LIST, List.of("cms:read", "cms:write"));
+            verify(session).set(SaSession.ROLE_LIST, List.of("admin", "editor"));
+        }
+    }
+
+    @Test
+    void login_invalidPassword_throwsBadCredentialsException() {
+        var authUser = new AuthUser(1L, "admin", "encodedPassword", "Admin", List.of(), true);
+        when(authUserService.loadUserByUsername("admin")).thenReturn(authUser);
+        when(passwordEncoder.matches("wrong", "encodedPassword")).thenReturn(false);
+
+        assertThatThrownBy(() -> service.login("admin", "wrong"))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessageContaining("Invalid username or password");
+    }
+
+    @Test
+    void login_disabledUser_throwsBadCredentialsException() {
+        var authUser = new AuthUser(1L, "disabled", "encodedPassword", "Disabled", List.of(), false);
+        when(authUserService.loadUserByUsername("disabled")).thenReturn(authUser);
+        when(passwordEncoder.matches("password", "encodedPassword")).thenReturn(true);
+
+        assertThatThrownBy(() -> service.login("disabled", "password"))
+                .isInstanceOf(BadCredentialsException.class)
+                .hasMessageContaining("disabled");
     }
 }

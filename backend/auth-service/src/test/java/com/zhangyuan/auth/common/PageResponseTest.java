@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import java.util.ArrayList;
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,5 +38,20 @@ class PageResponseTest {
         var resp = PageResponse.from(springPage, springPage.getContent());
         assertThat(resp.items()).isEmpty();
         assertThat(resp.total()).isZero();
+    }
+
+    @Test
+    void pageResponseWithNegativePage() {
+        var resp = PageResponse.of(List.of(), -1, 20, 0);
+        assertThat(resp.items()).isEmpty();
+        assertThat(resp.total()).isZero();
+    }
+
+    @Test
+    void pageResponseWithMaxPageSize() {
+        var items = new ArrayList<String>();
+        for (int i = 0; i < 1000; i++) items.add("item" + i);
+        var resp = PageResponse.of(items, 1, 1000, 10000);
+        assertThat(resp.items()).hasSize(1000);
     }
 }

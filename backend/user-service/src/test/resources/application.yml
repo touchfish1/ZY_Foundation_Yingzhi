@@ -1,0 +1,8 @@
+spring:
+  autoconfigure:
+    exclude:
+      - DataSourceAutoConfiguration
+      - HibernateJpaAutoConfiguration
+      - JpaRepositoriesAutoConfiguration
+      - FlywayAutoConfiguration
+      - RedisAutoConfiguration
