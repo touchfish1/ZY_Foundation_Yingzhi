@@ -1,0 +1,15 @@
+spring:
+  autoconfigure:
+    exclude:
+      - DataSourceAutoConfiguration
+      - HibernateJpaAutoConfiguration
+      - JpaRepositoriesAutoConfiguration
+      - FlywayAutoConfiguration
+      - RedisAutoConfiguration
+
+cloud:
+  nacos:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
