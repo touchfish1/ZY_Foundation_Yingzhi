@@ -14,7 +14,7 @@
       </div>
     </div>
 
-    <n-card :bordered="false" class="table-card" style="margin-bottom: 20px;">
+    <n-card :bordered="true" class="table-card" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px;">
       <n-upload
         :default-upload="false"
         @change="handleUpload"
@@ -32,17 +32,24 @@
       </n-upload>
     </n-card>
 
-    <n-card :bordered="false" class="table-card" title="已上传文件">
+    <n-card :bordered="true" class="table-card" title="已上传文件" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
       <n-empty v-if="!loading && !files.length" description="暂无文件" />
-      <n-data-table v-else :columns="columns" :data="files" :loading="loading" :bordered="false" size="small" />
+      <CommonTable
+        v-else
+        :columns="columns"
+        :data="files"
+        :loading="loading"
+        :pagination="paginationReactive"
+      />
     </n-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { h, onMounted, ref } from 'vue'
-import { NButton, NCard, NDataTable, NEmpty, NIcon, NUpload, NUploadDragger, useMessage } from 'naive-ui'
-import type { UploadFileInfo } from 'naive-ui'
+import { h, onMounted, reactive, ref } from 'vue'
+import { NButton, NCard, NEmpty, NIcon, NSpace, NTag, NUpload, NUploadDragger, useMessage } from 'naive-ui'
+import CommonTable from '../../components/CommonTable.vue'
+import type { DataTableColumns, UploadFileInfo } from 'naive-ui'
 import { uploadFile, listFiles, type AssetFile } from '../../api/asset'
 
 function formatSize(bytes: number): string {
@@ -51,27 +58,60 @@ function formatSize(bytes: number): string {
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
 }
 
+const paginationReactive = reactive({
+  page: 1,
+  pageSize: 20,
+  showSizePicker: true,
+  pageSizes: [10, 20, 50, 100],
+  onChange: (page: number) => { paginationReactive.page = page },
+  onUpdatePageSize: (size: number) => {
+    paginationReactive.pageSize = size
+    paginationReactive.page = 1
+  }
+})
+
 const message = useMessage()
 const files = ref<AssetFile[]>([])
 const loading = ref(false)
 
-const columns = [
-  { title: 'ID', key: 'id', width: 70 },
-  { title: '文件名', key: 'originalName' },
-  { title: '类型', key: 'contentType', width: 130 },
-  { title: '大小', key: 'sizeBytes', width: 90, render(row: AssetFile) {
+const columns: DataTableColumns<AssetFile> = [
+  {
+    title: 'ID', key: 'id', width: 80,
+    render(row: AssetFile) {
+      return h(NTag, { size: 'small', bordered: false }, { default: () => String(row.id) })
+    }
+  },
+  { title: '文件名', key: 'originalName', ellipsis: { tooltip: true } },
+  {
+    title: '类型', key: 'contentType', width: 130,
+    render(row: AssetFile) {
+      const isImage = row.contentType?.startsWith('image/')
+      return h(NTag, {
+        type: isImage ? 'success' : 'info',
+        size: 'small',
+        bordered: false
+      }, { default: () => row.contentType })
+    }
+  },
+  {
+    title: '大小', key: 'sizeBytes', width: 100,
+    render(row: AssetFile) {
       return formatSize(row.sizeBytes)
     }
   },
   {
-    title: '操作', key: 'actions', width: 110,
+    title: '操作', key: 'actions', width: 130, fixed: 'right' as const,
     render(row: AssetFile) {
-      return h(NButton, {
-        size: 'small', quaternary: true, type: 'primary', onClick: () => {
-          navigator.clipboard.writeText(row.url)
-          message.success('链接已复制')
-        }
-      }, { default: () => '复制链接' })
+      return h(NSpace, null, {
+        default: () => [
+          h(NButton, {
+            size: 'small', type: 'primary', ghost: true, onClick: () => {
+              navigator.clipboard.writeText(row.url)
+              message.success('链接已复制')
+            }
+          }, { default: () => '复制链接' })
+        ]
+      })
     }
   }
 ]

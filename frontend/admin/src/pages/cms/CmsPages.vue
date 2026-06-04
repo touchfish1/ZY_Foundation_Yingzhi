@@ -15,13 +15,19 @@
       </div>
     </div>
 
-    <n-card :bordered="false" class="table-card">
+    <n-card :bordered="true" class="table-card" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
       <n-empty v-if="!loading && !pages.length" description="暂无页面">
         <template #extra>
           <n-button size="small" @click="showCreate = true">新建第一个页面</n-button>
         </template>
       </n-empty>
-      <n-data-table v-else :columns="columns" :data="pages" :loading="loading" :bordered="false" :striped="true" size="small" />
+      <CommonTable
+        v-else
+        :columns="columns"
+        :data="pages"
+        :loading="loading"
+        :pagination="paginationReactive"
+      />
     </n-card>
 
     <n-modal v-model:show="showCreate" preset="card" title="新建页面" class="modal-card" :mask-closable="false">
@@ -47,10 +53,12 @@
 <script setup lang="ts">
 import { h, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NCard, NDataTable, NEmpty, NForm, NFormItem, NIcon, NInput, NModal, NSelect, NSpace, NTag, useMessage } from 'naive-ui'
+import { NButton, NCard, NEmpty, NForm, NFormItem, NIcon, NInput, NModal, NSelect, NSpace, NTag, useMessage } from 'naive-ui'
+import CommonTable from '../../components/CommonTable.vue'
 import type { DataTableColumns, SelectOption } from 'naive-ui'
 import { createPage, deletePage, listPages, type CmsPageListItem } from '../../api/cms'
 import { useConfirm } from '../../composables/useConfirm'
+import { formatDate } from '../../utils/format'
 
 const router = useRouter()
 const message = useMessage()
@@ -66,9 +74,26 @@ const localeOptions: SelectOption[] = [
   { label: '日文 (ja-JP)', value: 'ja-JP' }
 ]
 
+const paginationReactive = reactive({
+  page: 1,
+  pageSize: 20,
+  showSizePicker: true,
+  pageSizes: [10, 20, 50, 100],
+  onChange: (page: number) => { paginationReactive.page = page },
+  onUpdatePageSize: (size: number) => {
+    paginationReactive.pageSize = size
+    paginationReactive.page = 1
+  }
+})
+
 const columns: DataTableColumns<CmsPageListItem> = [
-  { title: 'ID', key: 'id', width: 70 },
-  { title: '路径', key: 'slug' },
+  {
+    title: 'ID', key: 'id', width: 80,
+    render(row) {
+      return h(NTag, { size: 'small', bordered: false }, { default: () => String(row.id) })
+    }
+  },
+  { title: '路径', key: 'slug', ellipsis: { tooltip: true } },
   { title: '默认语言', key: 'defaultLocale', width: 110 },
   {
     title: '状态', key: 'status', width: 90,
@@ -81,13 +106,19 @@ const columns: DataTableColumns<CmsPageListItem> = [
     }
   },
   {
-    title: '操作', key: 'actions', width: 260,
+    title: '更新时间', key: 'updatedAt', width: 170,
+    render(row) {
+      return h('span', { style: 'color: #64748b; font-size: 13px;' }, formatDate(row.updatedAt))
+    }
+  },
+  {
+    title: '操作', key: 'actions', width: 280, fixed: 'right' as const,
     render(row) {
       return h(NSpace, null, {
         default: () => [
           h(NButton, { size: 'small', type: 'primary', ghost: true, onClick: () => router.push(`/cms/pages/${row.id}/edit`) }, { default: () => '编辑' }),
-          h(NButton, { size: 'small', quaternary: true, onClick: () => router.push(`/cms/pages/${row.id}/versions`) }, { default: () => '版本' }),
-          h(NButton, { size: 'small', quaternary: true, type: 'error', onClick: () => handleDelete(row) }, { default: () => '删除' })
+          h(NButton, { size: 'small', tertiary: true, onClick: () => router.push(`/cms/pages/${row.id}/versions`) }, { default: () => '版本' }),
+          h(NButton, { size: 'small', type: 'error', ghost: true, onClick: () => handleDelete(row) }, { default: () => '删除' })
         ]
       })
     }

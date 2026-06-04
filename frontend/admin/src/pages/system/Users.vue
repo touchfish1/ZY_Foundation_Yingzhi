@@ -1,24 +1,22 @@
 <template>
   <div>
-    <div class="page-head">
-      <div class="page-head-inner">
-        <div>
-          <h2>用户管理</h2>
-          <p>管理系统管理员账号。</p>
-        </div>
-        <div class="page-head-actions">
+    <n-card title="用户管理" :bordered="true" class="table-card" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+      <template #header-extra>
+        <n-space align="center" size="small">
           <n-input v-model:value="searchQuery" placeholder="搜索用户名..." clearable style="width: 200px">
             <template #prefix>
               <n-icon size="14"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></n-icon>
             </template>
           </n-input>
           <n-button type="primary" @click="openCreate">新建用户</n-button>
-        </div>
-      </div>
-    </div>
-
-    <n-card :bordered="false" class="table-card">
-      <n-data-table :columns="columns" :data="filteredUsers" :loading="loading" :bordered="false" :striped="true" size="small" />
+        </n-space>
+      </template>
+      <CommonTable
+        :columns="columns"
+        :data="paginatedUsers"
+        :loading="loading"
+        :pagination="paginationReactive"
+      />
     </n-card>
 
     <n-modal v-model:show="showCreate" preset="card" title="新建用户" class="modal-card" :mask-closable="false">
@@ -75,11 +73,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, reactive, ref } from 'vue'
-import { NButton, NCard, NCheckbox, NCheckboxGroup, NDataTable, NForm, NFormItem, NIcon, NInput, NModal, NSelect, NSpace, NTag, useMessage } from 'naive-ui'
+import { computed, h, onMounted, reactive, ref, watch } from 'vue'
+import { NButton, NCard, NCheckbox, NCheckboxGroup, NForm, NFormItem, NIcon, NInput, NModal, NSelect, NSpace, NTag, useMessage } from 'naive-ui'
 import type { DataTableColumns, SelectOption } from 'naive-ui'
+import CommonTable from '../../components/CommonTable.vue'
 import { listUsers, createUser, updateUser, deleteUser, listRoles, getUserRoles, setUserRoles, type UserInfo, type RoleInfo } from '../../api/system'
 import { useConfirm } from '../../composables/useConfirm'
+import { formatDate } from '../../utils/format'
 
 const message = useMessage()
 const { confirm } = useConfirm()
@@ -92,6 +92,26 @@ const filteredUsers = computed(() => {
   const q = searchQuery.value.toLowerCase()
   return users.value.filter(u => u.username.toLowerCase().includes(q) || (u.nickname && u.nickname.toLowerCase().includes(q)))
 })
+
+const paginationReactive = reactive({
+  page: 1,
+  pageSize: 20,
+  showSizePicker: true,
+  pageSizes: [10, 20, 50, 100],
+  onChange: (page: number) => { paginationReactive.page = page },
+  onUpdatePageSize: (size: number) => {
+    paginationReactive.pageSize = size
+    paginationReactive.page = 1
+  }
+})
+
+const paginatedUsers = computed(() => {
+  const start = (paginationReactive.page - 1) * paginationReactive.pageSize
+  const end = start + paginationReactive.pageSize
+  return filteredUsers.value.slice(start, end)
+})
+
+watch(searchQuery, () => { paginationReactive.page = 1 })
 
 const showCreate = ref(false)
 const showEdit = ref(false)
@@ -122,22 +142,26 @@ function toggleSelectAllCreateRoles() {
 }
 
 const columns: DataTableColumns<UserInfo> = [
-  { title: 'ID', key: 'id', width: 70 },
+  { title: 'ID', key: 'id', width: 70, render(row) { return h(NTag, { size: 'tiny', bordered: false }, { default: () => row.id }) } },
   { title: '用户名', key: 'username' },
   { title: '昵称', key: 'nickname' },
   { title: '邮箱', key: 'email' },
   { title: '状态', key: 'status', width: 90, render(row) {
-      return h(NTag, { type: row.status === 'enabled' ? 'success' : 'default', size: 'small', bordered: false }, { default: () => row.status === 'enabled' ? '启用' : '禁用' })
+      return h(NTag, { type: row.status === 'enabled' ? 'success' : 'warning', size: 'small', bordered: false }, { default: () => row.status === 'enabled' ? '启用' : '禁用' })
     }
   },
-  { title: '创建时间', key: 'createdAt', width: 180 },
+  { title: '创建时间', key: 'createdAt', width: 170,
+    render(row) {
+      return h('span', { style: 'color: #64748b; font-size: 13px;' }, formatDate(row.createdAt))
+    }
+  },
   {
     title: '操作', key: 'actions', width: 150,
     render(row) {
       return h(NSpace, null, {
         default: () => [
-          h(NButton, { size: 'small', quaternary: true, onClick: () => openEdit(row) }, { default: () => '编辑' }),
-          h(NButton, { size: 'small', quaternary: true, type: 'error', onClick: () => handleDelete(row.id) }, { default: () => '删除' })
+          h(NButton, { size: 'small', type: 'primary', quaternary: true, onClick: () => openEdit(row) }, { default: () => '编辑' }),
+          h(NButton, { size: 'small', type: 'error', quaternary: true, onClick: () => handleDelete(row.id) }, { default: () => '删除' })
         ]
       })
     }

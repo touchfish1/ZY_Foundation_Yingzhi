@@ -1,12 +1,8 @@
 <template>
   <div>
-    <div class="page-head">
-      <div class="page-head-inner">
-        <div>
-          <h2>权限管理</h2>
-          <p>管理系统权限编码。</p>
-        </div>
-        <div class="page-head-actions">
+    <n-card title="权限管理" :bordered="true" class="table-card" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+      <template #header-extra>
+        <n-space align="center" size="small">
           <n-select
             v-model:value="moduleFilter"
             :options="moduleOptions"
@@ -21,18 +17,13 @@
             </template>
           </n-input>
           <n-button type="primary" v-permission="'system:permission:create'" @click="openCreate">新建权限</n-button>
-        </div>
-      </div>
-    </div>
-
-    <n-card :bordered="false" class="table-card">
-      <n-data-table
+        </n-space>
+      </template>
+      <CommonTable
         :columns="columns"
-        :data="filteredPermissions"
+        :data="paginatedPermissions"
         :loading="loading"
-        :bordered="false"
-        :striped="true"
-        size="small"
+        :pagination="paginationReactive"
       />
     </n-card>
 
@@ -87,11 +78,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, reactive, ref } from 'vue'
+import { computed, h, onMounted, reactive, ref, watch } from 'vue'
 import {
-  NButton, NCard, NDataTable, NForm, NFormItem, NIcon, NInput, NModal, NSelect, NSpace, NTag, useMessage
+  NButton, NCard, NForm, NFormItem, NIcon, NInput, NModal, NSelect, NSpace, NTag, useMessage
 } from 'naive-ui'
 import type { DataTableColumns, SelectOption } from 'naive-ui'
+import CommonTable from '../../components/CommonTable.vue'
 import {
   listPermissions,
   listPermissionModules,
@@ -101,6 +93,7 @@ import {
   type PermissionInfo
 } from '../../api/permission'
 import { useConfirm } from '../../composables/useConfirm'
+import { formatDate } from '../../utils/format'
 
 const CODE_REGEX = /^[a-z]+:[a-z:]+$/
 
@@ -127,6 +120,26 @@ const filteredPermissions = computed(() => {
   return list
 })
 
+const paginationReactive = reactive({
+  page: 1,
+  pageSize: 20,
+  showSizePicker: true,
+  pageSizes: [10, 20, 50, 100],
+  onChange: (page: number) => { paginationReactive.page = page },
+  onUpdatePageSize: (size: number) => {
+    paginationReactive.pageSize = size
+    paginationReactive.page = 1
+  }
+})
+
+const paginatedPermissions = computed(() => {
+  const start = (paginationReactive.page - 1) * paginationReactive.pageSize
+  const end = start + paginationReactive.pageSize
+  return filteredPermissions.value.slice(start, end)
+})
+
+watch(searchQuery, () => { paginationReactive.page = 1 })
+
 const showCreate = ref(false)
 const showEdit = ref(false)
 const creating = ref(false)
@@ -137,7 +150,7 @@ const createForm = reactive({ code: '', name: '', module: '' })
 const editForm = reactive({ code: '', name: '', module: '' })
 
 const columns: DataTableColumns<PermissionInfo> = [
-  { title: 'ID', key: 'id', width: 70 },
+  { title: 'ID', key: 'id', width: 70, render(row) { return h(NTag, { size: 'tiny', bordered: false }, { default: () => row.id }) } },
   { title: '权限编码', key: 'code' },
   { title: '权限名称', key: 'name' },
   {
@@ -146,18 +159,22 @@ const columns: DataTableColumns<PermissionInfo> = [
       return h(NTag, { size: 'small', bordered: false, type: 'info' }, { default: () => row.module })
     }
   },
-  { title: '创建时间', key: 'createdAt', width: 180 },
+  { title: '创建时间', key: 'createdAt', width: 170,
+    render(row) {
+      return h('span', { style: 'color: #64748b; font-size: 13px;' }, formatDate(row.createdAt))
+    }
+  },
   {
     title: '操作', key: 'actions', width: 150,
     render(row) {
       return h(NSpace, null, {
         default: () => [
           h(NButton, {
-            size: 'small', quaternary: true,
+            size: 'small', type: 'primary', quaternary: true,
             onClick: () => openEdit(row)
           }, { default: () => '编辑' }),
           h(NButton, {
-            size: 'small', quaternary: true, type: 'error',
+            size: 'small', type: 'error', quaternary: true,
             vPermission: "'system:permission:delete'",
             onClick: () => handleDelete(row.id)
           }, { default: () => '删除' })
@@ -177,6 +194,7 @@ async function loadModules() {
 }
 
 async function load() {
+  paginationReactive.page = 1
   loading.value = true
   try {
     permissions.value = await listPermissions(moduleFilter.value ?? undefined)

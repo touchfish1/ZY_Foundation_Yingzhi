@@ -15,8 +15,13 @@
       </div>
     </div>
 
-    <n-card :bordered="false" class="table-card">
-      <n-data-table :columns="columns" :data="plans" :loading="loading" :pagination="pagination" :bordered="false" :striped="true" size="small" />
+    <n-card bordered class="table-card" >
+      <CommonTable
+        :columns="columns"
+        :data="plans"
+        :loading="loading"
+        :pagination="pagination"
+      />
     </n-card>
 
     <n-modal v-model:show="showPlan" preset="card" title="新增套餐" class="modal-card" :mask-closable="false">
@@ -63,7 +68,8 @@
 
 <script setup lang="ts">
 import { computed, h, onMounted, reactive, ref } from 'vue'
-import { NButton, NCard, NDataTable, NForm, NFormItem, NIcon, NInput, NInputNumber, NModal, NSelect, NSpace, NTag, useMessage } from 'naive-ui'
+import { NButton, NCard, NForm, NFormItem, NIcon, NInput, NInputNumber, NModal, NSelect, NSpace, NTag, useMessage } from 'naive-ui'
+import CommonTable from '../../components/CommonTable.vue'
 import { createFeature, createPlan, createPrice, listPlanGroups, listPlans, type PlanGroup } from '../../api/product'
 
 interface PlanRow {
@@ -95,7 +101,17 @@ const featureForm = reactive({ featureName: '', featureValue: '', included: true
 
 const groupOptions = computed(() => planGroups.value.map(g => ({ label: g.name, value: g.id })))
 
-const pagination = reactive({ pageSize: 20 })
+const pagination = reactive({
+  page: 1,
+  pageSize: 20,
+  showSizePicker: true,
+  pageSizes: [10, 20, 50, 100],
+  onChange: (page: number) => { pagination.page = page },
+  onUpdatePageSize: (size: number) => {
+    pagination.pageSize = size
+    pagination.page = 1
+  }
+})
 
 const columns = [
   { title: '编码', key: 'code', width: 110 },

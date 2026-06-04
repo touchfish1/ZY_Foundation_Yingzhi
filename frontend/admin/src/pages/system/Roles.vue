@@ -1,24 +1,22 @@
 <template>
   <div>
-    <div class="page-head">
-      <div class="page-head-inner">
-        <div>
-          <h2>角色管理</h2>
-          <p>管理系统角色。</p>
-        </div>
-        <div class="page-head-actions">
+    <n-card title="角色管理" :bordered="true" class="table-card" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+      <template #header-extra>
+        <n-space align="center" size="small">
           <n-input v-model:value="searchQuery" placeholder="搜索编码/名称..." clearable style="width: 200px">
             <template #prefix>
               <n-icon size="14"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></n-icon>
             </template>
           </n-input>
           <n-button type="primary" @click="openCreate">新建角色</n-button>
-        </div>
-      </div>
-    </div>
-
-    <n-card :bordered="false" class="table-card">
-      <n-data-table :columns="columns" :data="filteredRoles" :loading="loading" :bordered="false" :striped="true" size="small" />
+        </n-space>
+      </template>
+      <CommonTable
+        :columns="columns"
+        :data="paginatedRoles"
+        :loading="loading"
+        :pagination="paginationReactive"
+      />
     </n-card>
 
     <n-modal v-model:show="showCreate" preset="card" title="新建角色" class="modal-card" :mask-closable="false">
@@ -67,12 +65,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, reactive, ref } from 'vue'
-import { NButton, NCard, NDataTable, NDivider, NEmpty, NForm, NFormItem, NIcon, NInput, NModal, NSpace, NSpin, NTransfer, useMessage } from 'naive-ui'
+import { computed, h, onMounted, reactive, ref, watch } from 'vue'
+import { NButton, NCard, NDivider, NEmpty, NForm, NFormItem, NIcon, NInput, NModal, NSpace, NSpin, NTag, NTransfer, useMessage } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
+import CommonTable from '../../components/CommonTable.vue'
 import { listRoles, createRole, updateRole, deleteRole, getRolePermissions, setRolePermissions, type RoleInfo } from '../../api/system'
 import { listPermissions, type PermissionInfo } from '../../api/permission'
 import { useConfirm } from '../../composables/useConfirm'
+import { formatDate } from '../../utils/format'
 
 const message = useMessage()
 const { confirm } = useConfirm()
@@ -85,6 +85,26 @@ const filteredRoles = computed(() => {
   const q = searchQuery.value.toLowerCase()
   return roles.value.filter(r => r.code.toLowerCase().includes(q) || r.name.toLowerCase().includes(q))
 })
+
+const paginationReactive = reactive({
+  page: 1,
+  pageSize: 20,
+  showSizePicker: true,
+  pageSizes: [10, 20, 50, 100],
+  onChange: (page: number) => { paginationReactive.page = page },
+  onUpdatePageSize: (size: number) => {
+    paginationReactive.pageSize = size
+    paginationReactive.page = 1
+  }
+})
+
+const paginatedRoles = computed(() => {
+  const start = (paginationReactive.page - 1) * paginationReactive.pageSize
+  const end = start + paginationReactive.pageSize
+  return filteredRoles.value.slice(start, end)
+})
+
+watch(searchQuery, () => { paginationReactive.page = 1 })
 
 const showCreate = ref(false)
 const showEdit = ref(false)
@@ -117,17 +137,21 @@ function renderPermissionLabel(option: { label: string; value: number | string }
 }
 
 const columns: DataTableColumns<RoleInfo> = [
-  { title: 'ID', key: 'id', width: 70 },
+  { title: 'ID', key: 'id', width: 70, render(row) { return h(NTag, { size: 'tiny', bordered: false }, { default: () => row.id }) } },
   { title: '编码', key: 'code' },
   { title: '名称', key: 'name' },
-  { title: '创建时间', key: 'createdAt', width: 180 },
+  { title: '创建时间', key: 'createdAt', width: 170,
+    render(row) {
+      return h('span', { style: 'color: #64748b; font-size: 13px;' }, formatDate(row.createdAt))
+    }
+  },
   {
     title: '操作', key: 'actions', width: 150,
     render(row) {
       return h(NSpace, null, {
         default: () => [
-          h(NButton, { size: 'small', quaternary: true, onClick: () => openEdit(row) }, { default: () => '编辑' }),
-          h(NButton, { size: 'small', quaternary: true, type: 'error', onClick: () => handleDelete(row.id) }, { default: () => '删除' })
+          h(NButton, { size: 'small', type: 'primary', quaternary: true, onClick: () => openEdit(row) }, { default: () => '编辑' }),
+          h(NButton, { size: 'small', type: 'error', quaternary: true, onClick: () => handleDelete(row.id) }, { default: () => '删除' })
         ]
       })
     }

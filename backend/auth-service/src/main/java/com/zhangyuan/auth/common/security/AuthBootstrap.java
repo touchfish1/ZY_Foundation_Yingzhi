@@ -38,8 +38,14 @@ public class AuthBootstrap implements ApplicationRunner {
     @Transactional
     public void run(ApplicationArguments args) {
         List<AdminPermission> permissions = defaultPermissions().stream()
-                .map(permission -> permissionRepository.findByCode(permission.code())
-                        .orElseGet(() -> permissionRepository.save(new AdminPermission(permission.code(), permission.name(), permission.module()))))
+                .map(seed -> {
+                    AdminPermission perm = permissionRepository.findByCode(seed.code())
+                            .orElseGet(() -> new AdminPermission(seed.code(), seed.name(), seed.module()));
+                    // Update name/module for existing permissions
+                    perm.setName(seed.name());
+                    perm.setModule(seed.module());
+                    return permissionRepository.save(perm);
+                })
                 .toList();
 
         AdminRole superAdmin = roleRepository.findByCode("super_admin")
@@ -60,34 +66,34 @@ public class AuthBootstrap implements ApplicationRunner {
 
     private List<PermissionSeed> defaultPermissions() {
         return List.of(
-                new PermissionSeed("cms:manage", "Manage CMS", "cms"),
-                new PermissionSeed("cms:page:read", "Read CMS pages", "cms"),
-                new PermissionSeed("cms:page:create", "Create CMS pages", "cms"),
-                new PermissionSeed("cms:page:update", "Update CMS pages", "cms"),
-                new PermissionSeed("cms:page:publish", "Publish CMS pages", "cms"),
-                new PermissionSeed("cms:page:delete", "Delete CMS pages", "cms"),
-                new PermissionSeed("asset:file:upload", "Upload assets", "asset"),
-                new PermissionSeed("asset:file:delete", "Delete assets", "asset"),
-                new PermissionSeed("asset:list", "List assets", "asset"),
-                new PermissionSeed("product:manage", "Manage products", "product"),
-                new PermissionSeed("product:plan:read", "Read plans", "product"),
-                new PermissionSeed("product:plan:update", "Update plans", "product"),
-                new PermissionSeed("order:read", "Read orders", "order"),
-                new PermissionSeed("payment:transaction:read", "Read payment transactions", "payment"),
-                new PermissionSeed("system:user:manage", "Manage users", "system"),
-                new PermissionSeed("system:user:list", "List system users", "system"),
-                new PermissionSeed("system:role:manage", "Manage roles", "system"),
-                new PermissionSeed("system:role:list", "List system roles", "system"),
-                new PermissionSeed("system:permission:list", "List permissions", "system"),
-                new PermissionSeed("system:permission:create", "Create permissions", "system"),
-                new PermissionSeed("system:permission:update", "Update permissions", "system"),
-                new PermissionSeed("system:permission:delete", "Delete permissions", "system"),
-                new PermissionSeed("system:user:update", "Update system users", "system"),
-                new PermissionSeed("system:role:update", "Update system roles", "system"),
-                new PermissionSeed("system:menu:list", "List menus", "system"),
-                new PermissionSeed("system:menu:create", "Create menus", "system"),
-                new PermissionSeed("system:menu:update", "Update menus", "system"),
-                new PermissionSeed("system:menu:delete", "Delete menus", "system")
+                new PermissionSeed("cms:manage", "CMS 管理", "cms"),
+                new PermissionSeed("cms:page:read", "查看页面", "cms"),
+                new PermissionSeed("cms:page:create", "新建页面", "cms"),
+                new PermissionSeed("cms:page:update", "编辑页面", "cms"),
+                new PermissionSeed("cms:page:publish", "发布页面", "cms"),
+                new PermissionSeed("cms:page:delete", "删除页面", "cms"),
+                new PermissionSeed("asset:file:upload", "上传文件", "asset"),
+                new PermissionSeed("asset:file:delete", "删除文件", "asset"),
+                new PermissionSeed("asset:list", "文件列表", "asset"),
+                new PermissionSeed("product:manage", "管理产品", "product"),
+                new PermissionSeed("product:plan:read", "查看套餐", "product"),
+                new PermissionSeed("product:plan:update", "编辑套餐", "product"),
+                new PermissionSeed("order:read", "查看订单", "order"),
+                new PermissionSeed("payment:transaction:read", "查看支付", "payment"),
+                new PermissionSeed("system:user:manage", "管理用户", "system"),
+                new PermissionSeed("system:user:list", "用户列表", "system"),
+                new PermissionSeed("system:role:manage", "管理角色", "system"),
+                new PermissionSeed("system:role:list", "角色列表", "system"),
+                new PermissionSeed("system:permission:list", "权限列表", "system"),
+                new PermissionSeed("system:permission:create", "新建权限", "system"),
+                new PermissionSeed("system:permission:update", "编辑权限", "system"),
+                new PermissionSeed("system:permission:delete", "删除权限", "system"),
+                new PermissionSeed("system:user:update", "编辑用户", "system"),
+                new PermissionSeed("system:role:update", "编辑角色", "system"),
+                new PermissionSeed("system:menu:list", "菜单列表", "system"),
+                new PermissionSeed("system:menu:create", "新建菜单", "system"),
+                new PermissionSeed("system:menu:update", "编辑菜单", "system"),
+                new PermissionSeed("system:menu:delete", "删除菜单", "system")
         );
     }
 

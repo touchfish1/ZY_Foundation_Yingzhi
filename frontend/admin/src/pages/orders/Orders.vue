@@ -16,23 +16,47 @@
       </div>
     </div>
 
-    <n-card :bordered="false" class="table-card">
+    <n-card title="订单列表" :bordered="false" class="table-card" content-style="padding: 0;">
       <n-empty v-if="!loading && !filteredOrders.length" description="暂无订单" />
-      <n-data-table v-else :columns="columns" :data="filteredOrders" :loading="loading" :bordered="false" :striped="true" size="small" />
+      <CommonTable
+        v-else
+        :columns="columns"
+        :data="filteredOrders"
+        :loading="loading"
+        :pagination="paginationReactive"
+      />
     </n-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, ref } from 'vue'
-import { NCard, NDataTable, NEmpty, NIcon, NInput, NTag, useMessage } from 'naive-ui'
+import { computed, h, onMounted, reactive, ref, watch } from 'vue'
+import { NButton, NCard, NEmpty, NIcon, NInput, NNumberAnimation, NTag, useMessage } from 'naive-ui'
+import CommonTable from '../../components/CommonTable.vue'
 import type { DataTableColumns } from 'naive-ui'
 import { listOrders, type OrderItem } from '../../api/order'
+import { formatDate } from '../../utils/format'
 
 const message = useMessage()
 const orders = ref<OrderItem[]>([])
 const loading = ref(false)
 const searchQuery = ref('')
+
+const paginationReactive = reactive({
+  page: 1,
+  pageSize: 20,
+  showSizePicker: true,
+  pageSizes: [10, 20, 50, 100],
+  onChange: (page: number) => { paginationReactive.page = page },
+  onUpdatePageSize: (size: number) => {
+    paginationReactive.pageSize = size
+    paginationReactive.page = 1
+  }
+})
+
+watch(searchQuery, () => {
+  paginationReactive.page = 1
+})
 
 const filteredOrders = computed(() => {
   if (!searchQuery.value) return orders.value
@@ -42,14 +66,36 @@ const filteredOrders = computed(() => {
 
 const columns: DataTableColumns<OrderItem> = [
   { title: '订单号', key: 'orderNo', width: 200 },
-  { title: '金额', key: 'amount', width: 100 },
+  {
+    title: '金额', key: 'amount', width: 120,
+    render(row) {
+      return h('span', { style: 'color: #f59e0b; font-weight: 600;' },
+        h(NNumberAnimation, { from: 0, to: +row.amount, showSeparator: true })
+      )
+    }
+  },
   { title: '币种', key: 'currency', width: 80 },
-  { title: '状态', key: 'status', width: 100, render(row) {
+  {
+    title: '状态', key: 'status', width: 100,
+    render(row) {
       const type = row.status === 'paid' || row.status === 'success' ? 'success' : row.status === 'pending' ? 'warning' : row.status === 'cancelled' || row.status === 'failed' ? 'error' : 'default'
       return h(NTag, { type, size: 'small', bordered: false }, { default: () => row.status })
     }
   },
-  { title: '创建时间', key: 'createdAt', width: 180 }
+  {
+    title: '创建时间', key: 'createdAt', width: 180,
+    render(row) {
+      return h('span', { style: 'color: #64748b; font-size: 13px;' }, formatDate(row.createdAt))
+    }
+  },
+  {
+    title: '操作',
+    key: 'actions',
+    width: 100,
+    render() {
+      return h(NButton, { size: 'small', type: 'primary' }, { default: () => '详情' })
+    }
+  }
 ]
 
 async function load() {
@@ -65,3 +111,10 @@ async function load() {
 
 onMounted(() => { load() })
 </script>
+
+<style scoped>
+.table-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+}
+</style>

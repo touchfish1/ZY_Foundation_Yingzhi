@@ -34,6 +34,16 @@ spring:
           uri: lb://auth-service
           predicates:
             - Path=/admin/system/roles/**
+        # Auth service - permission management
+        - id: auth-permissions
+          uri: lb://auth-service
+          predicates:
+            - Path=/admin/system/permissions/**
+        # Auth service - menu management
+        - id: auth-menus
+          uri: lb://auth-service
+          predicates:
+            - Path=/admin/system/menus/**
         # Auth service - DDD auth APIs
         - id: auth-ddd
           uri: lb://auth-service

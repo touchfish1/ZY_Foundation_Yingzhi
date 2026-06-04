@@ -34,9 +34,9 @@
       <n-grid-item :span="17">
         <n-card :title="selectedGroup?.name || '请选择套餐组'" :bordered="false" class="table-card">
           <div v-if="selectedGroup">
-            <n-empty v-if="!selectedGroup.plans.length" description="该套餐组暂无套餐，请点击新增套餐" />
+            <n-empty v-if="!paginatedPlans.length" description="该套餐组暂无套餐，请点击新增套餐" />
             <div v-else class="plans">
-              <article v-for="plan in selectedGroup.plans" :key="plan.id" class="plan-card">
+              <article v-for="plan in paginatedPlans" :key="plan.id" class="plan-card">
                 <div class="plan-top">
                   <div>
                     <strong>{{ plan.name }}</strong>
@@ -45,9 +45,9 @@
                   <n-tag v-if="plan.badge" type="info" size="small" :bordered="false">{{ plan.badge }}</n-tag>
                 </div>
                 <div class="price-row">
-                  <span v-for="price in plan.prices" :key="price.id">{{ price.currency }} {{ price.amount }} / {{ price.billingCycle }}</span>
+                  <n-tag v-for="price in plan.prices" :key="price.id" size="tiny" :bordered="false" style="margin: 2px">{{ price.currency }} {{ price.amount }} / {{ price.billingCycle }}</n-tag>
                 </div>
-                <ul>
+                <ul class="feature-list">
                   <li v-for="feature in plan.features" :key="feature.id">{{ feature.featureName }} {{ feature.featureValue }}</li>
                 </ul>
                 <n-space>
@@ -55,6 +55,17 @@
                   <n-button size="tiny" quaternary @click="openFeature(plan.id)">添加权益</n-button>
                 </n-space>
               </article>
+            </div>
+            <div v-if="selectedGroup.plans.length > planPagination.pageSize" class="pagination-bottom">
+              <n-pagination
+                :page="planPagination.page"
+                :page-size="planPagination.pageSize"
+                :page-sizes="planPagination.pageSizes"
+                :item-count="selectedGroup.plans.length"
+                :show-size-picker="planPagination.showSizePicker"
+                @update:page="planPagination.page = $event"
+                @update:page-size="onUpdatePlanPageSize"
+              />
             </div>
           </div>
           <n-empty v-else description="请选择或新增一个套餐组" />
@@ -113,8 +124,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
-import { NButton, NCard, NEmpty, NForm, NFormItem, NGrid, NGridItem, NIcon, NInput, NInputNumber, NList, NListItem, NModal, NSpace, NTag, useMessage } from 'naive-ui'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { NButton, NCard, NEmpty, NForm, NFormItem, NGrid, NGridItem, NIcon, NInput, NInputNumber, NList, NListItem, NModal, NPagination, NSpace, NTag, useMessage } from 'naive-ui'
 import { createFeature, createPlan, createPlanGroup, createPrice, listPlanGroups, type PlanGroup } from '../../api/product'
 
 const message = useMessage()
@@ -123,6 +134,28 @@ const loading = ref(false)
 const selectedGroupId = ref<number | null>(null)
 const selectedPlanId = ref<number | null>(null)
 const selectedGroup = computed(() => groups.value.find(group => group.id === selectedGroupId.value))
+
+const planPagination = reactive({
+  page: 1,
+  pageSize: 20,
+  showSizePicker: true,
+  pageSizes: [10, 20, 50, 100],
+})
+
+const paginatedPlans = computed(() => {
+  if (!selectedGroup.value) return []
+  const start = (planPagination.page - 1) * planPagination.pageSize
+  return selectedGroup.value.plans.slice(start, start + planPagination.pageSize)
+})
+
+function onUpdatePlanPageSize(size: number) {
+  planPagination.pageSize = size
+  planPagination.page = 1
+}
+
+watch(selectedGroupId, () => {
+  planPagination.page = 1
+})
 
 const showGroup = ref(false)
 const showPlan = ref(false)
@@ -203,3 +236,92 @@ async function submitFeature() {
 
 onMounted(() => { load() })
 </script>
+
+<style scoped>
+.group-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+.group-item.active {
+  background-color: rgba(24, 160, 88, 0.1);
+}
+.group-item strong {
+  font-size: 14px;
+}
+.group-item span {
+  font-size: 12px;
+  color: #888;
+}
+
+.plans {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.plan-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 20px;
+  background: #fff;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.plan-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-color: #d0d5dd;
+}
+
+.plan-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+.plan-top strong {
+  font-size: 16px;
+}
+.plan-top p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.price-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+.feature-list li {
+  font-size: 13px;
+  color: #444;
+  position: relative;
+  padding-left: 14px;
+}
+.feature-list li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+  color: #18a058;
+}
+
+.pagination-bottom {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+</style>
