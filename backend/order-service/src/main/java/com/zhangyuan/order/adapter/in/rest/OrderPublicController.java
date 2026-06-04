@@ -1,5 +1,6 @@
 package com.zhangyuan.order.adapter.in.rest;
 
+import com.zhangyuan.order.application.service.FulfillmentService;
 import com.zhangyuan.order.application.service.OrderApplicationService;
 import com.zhangyuan.order.common.ApiResponse;
 import com.zhangyuan.order.dto.CreateOrderRequest;
@@ -21,9 +22,12 @@ public class OrderPublicController {
     private static final Logger log = LoggerFactory.getLogger(OrderPublicController.class);
 
     private final OrderApplicationService orderApplicationService;
+    private final FulfillmentService fulfillmentService;
 
-    public OrderPublicController(OrderApplicationService orderApplicationService) {
+    public OrderPublicController(OrderApplicationService orderApplicationService,
+                                 FulfillmentService fulfillmentService) {
         this.orderApplicationService = orderApplicationService;
+        this.fulfillmentService = fulfillmentService;
     }
 
     @PostMapping
@@ -36,5 +40,12 @@ public class OrderPublicController {
     public ApiResponse<OrderResponse> get(@PathVariable String orderNo) {
         log.info("Getting order: {}", orderNo);
         return ApiResponse.ok(orderApplicationService.getOrder(orderNo));
+    }
+
+    @PostMapping("/{orderNo}/fulfill")
+    public ApiResponse<Void> fulfillOrder(@PathVariable String orderNo) {
+        log.info("Fulfilling order: {}", orderNo);
+        fulfillmentService.fulfillOrder(orderNo);
+        return ApiResponse.ok();
     }
 }

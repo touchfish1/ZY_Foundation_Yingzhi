@@ -1,11 +1,14 @@
 package com.zhangyuan.payment.application.service;
 
+import com.zhangyuan.payment.client.FulfillmentClient;
 import com.zhangyuan.payment.client.OrderServiceClient;
 import com.zhangyuan.payment.domain.model.Payment;
 import com.zhangyuan.payment.domain.repository.PaymentRepository;
 import com.zhangyuan.payment.dto.CheckoutRequest;
 import com.zhangyuan.payment.dto.CheckoutResponse;
 import com.zhangyuan.payment.dto.PaymentResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,12 +17,17 @@ import java.util.UUID;
 
 @Service
 public class PaymentApplicationService {
+    private static final Logger log = LoggerFactory.getLogger(PaymentApplicationService.class);
     private final PaymentRepository paymentRepository;
     private final OrderServiceClient orderServiceClient;
+    private final FulfillmentClient fulfillmentClient;
 
-    public PaymentApplicationService(PaymentRepository paymentRepository, OrderServiceClient orderServiceClient) {
+    public PaymentApplicationService(PaymentRepository paymentRepository,
+                                     OrderServiceClient orderServiceClient,
+                                     FulfillmentClient fulfillmentClient) {
         this.paymentRepository = paymentRepository;
         this.orderServiceClient = orderServiceClient;
+        this.fulfillmentClient = fulfillmentClient;
     }
 
     @Transactional
@@ -49,6 +57,15 @@ public class PaymentApplicationService {
                 .orElseThrow(() -> new IllegalArgumentException("Payment not found: " + paymentNo));
         payment.markSuccess();
         payment = paymentRepository.save(payment);
+
+        // Trigger order fulfillment after successful payment
+        try {
+            fulfillmentClient.fulfillOrder(payment.getOrderNo());
+            log.info("Fulfillment triggered for order: {}", payment.getOrderNo());
+        } catch (Exception e) {
+            log.error("Fulfillment failed for order: {}", payment.getOrderNo(), e);
+        }
+
         return new CheckoutResponse(paymentNo, payment.getStatus(), null, null);
     }
 

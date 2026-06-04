@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,17 +57,20 @@ public class OrderApplicationService {
         log.info("Creating order: planCode={}, billingCycle={}, currency={}", request.planCode(), request.billingCycle(), request.currency());
         String currency = request.currency().trim().toUpperCase();
         String billingCycle = request.billingCycle().trim();
+        String planCode = request.planCode().trim();
 
         // Verify product exists via Feign client
-        var resp = productClient.getPlanGroup(request.planCode().trim());
+        var resp = productClient.getPlanGroup(planCode);
         if (resp == null || resp.code() != 0) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product plan not found: " + request.planCode());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product plan not found: " + planCode);
         }
 
-        String snapshotJson = snapshotFromFeignResponse(resp.data(), request.planCode().trim(), billingCycle, currency);
-        Order order = orderDomainService.createOrder(null, null, java.math.BigDecimal.ZERO, currency, snapshotJson);
+        // Extract pricing and build snapshot from Feign response
+        SnapShotResult snapshotResult = buildSnapshotFromFeignResponse(resp.data(), planCode, billingCycle, currency);
+
+        Order order = orderDomainService.createOrder(null, null, snapshotResult.amount(), currency, snapshotResult.snapshotJson());
         Order saved = orderRepository.save(order);
-        log.info("Order created: orderNo={}", saved.getOrderNo());
+        log.info("Order created: orderNo={}, amount={}", saved.getOrderNo(), saved.getAmount());
         return toResponse(saved);
     }
 
@@ -123,8 +127,13 @@ public class OrderApplicationService {
         );
     }
 
+    /**
+     * Extract pricing info from the Feign response data and build an enriched snapshot JSON.
+     * The response data from getPlanGroup is a Map (due to Feign generic erasure) structured as:
+     *  PlanGroupResponse { code, name, plans: [{ code, name, prices: [{ billingCycle, currency, amount }] }] }
+     */
     @SuppressWarnings("unchecked")
-    private String snapshotFromFeignResponse(Object data, String planCode, String billingCycle, String currency) {
+    private SnapShotResult buildSnapshotFromFeignResponse(Object data, String planCode, String billingCycle, String currency) {
         try {
             Map<String, Object> snapshot = new LinkedHashMap<>();
             snapshot.put("planCode", planCode);
@@ -132,13 +141,70 @@ public class OrderApplicationService {
             snapshot.put("currency", currency);
             snapshot.put("createdAt", Instant.now().toString());
 
+            // Default values
+            BigDecimal amount = BigDecimal.ZERO;
+            String planName = planCode;
+            int validityDays = getValidityDays(billingCycle);
+
             if (data instanceof Map) {
-                snapshot.put("planGroup", (Map<String, Object>) data);
+                Map<String, Object> groupMap = (Map<String, Object>) data;
+                Object plansObj = groupMap.get("plans");
+                if (plansObj instanceof List) {
+                    for (Object planObj : (List<Object>) plansObj) {
+                        if (planObj instanceof Map) {
+                            Map<String, Object> planMap = (Map<String, Object>) planObj;
+                            String pCode = (String) planMap.get("code");
+                            if (planCode.equals(pCode)) {
+                                planName = (String) planMap.getOrDefault("name", planCode);
+                                // Find matching price for the given billing cycle and currency
+                                Object pricesObj = planMap.get("prices");
+                                if (pricesObj instanceof List) {
+                                    for (Object priceObj : (List<Object>) pricesObj) {
+                                        if (priceObj instanceof Map) {
+                                            Map<String, Object> priceMap = (Map<String, Object>) priceObj;
+                                            if (billingCycle.equals(priceMap.get("billingCycle"))
+                                                    && currency.equals(priceMap.get("currency"))) {
+                                                Object amt = priceMap.get("amount");
+                                                if (amt instanceof Number) {
+                                                    amount = new BigDecimal(((Number) amt).toString());
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
             }
 
-            return objectMapper.writeValueAsString(snapshot);
+            snapshot.put("planName", planName);
+            snapshot.put("validityDays", validityDays);
+            snapshot.put("amount", amount);
+
+            log.debug("Built snapshot for planCode={}: planName={}, validityDays={}, amount={}",
+                    planCode, planName, validityDays, amount);
+            return new SnapShotResult(objectMapper.writeValueAsString(snapshot), amount);
         } catch (JsonProcessingException ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Create order snapshot failed", ex);
         }
     }
+
+    private int getValidityDays(String billingCycle) {
+        return switch (billingCycle.toLowerCase()) {
+            case "monthly", "month" -> 30;
+            case "yearly", "year", "annual" -> 365;
+            case "quarterly", "quarter" -> 90;
+            case "weekly", "week" -> 7;
+            case "daily", "day" -> 1;
+            default -> 30;
+        };
+    }
+
+    /**
+     * Internal record holding the snapshot JSON string and the extracted amount.
+     */
+    private record SnapShotResult(String snapshotJson, BigDecimal amount) {}
 }
