@@ -48,6 +48,37 @@ img {
   }
 }
 
+/* ===== Mouse Interaction Effects ===== */
+.magnetic-target {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.tilt-hover {
+  cursor: default;
+}
+
+/* ===== Enhanced Hover Effects ===== */
+.tilt-enhanced {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.tilt-enhanced > * {
+  transform-style: preserve-3d;
+}
+
+.magnetic-btn {
+  cursor: pointer;
+  will-change: transform;
+}
+
+/* ===== Ripple Keyframe (global) ===== */
+@keyframes ripple-effect {
+  from { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+  to { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+}
+
 /* ===== Animation Keyframes ===== */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(24px); }

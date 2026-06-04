@@ -9,10 +9,10 @@
           <h1>顶级模型<br>即刻接入</h1>
           <p class="mono">PREMIUM MODELS · ONE ACCESS</p>
           <div class="chips">
-            <span>Image 2 · 1 毛 / 张</span>
-            <span>Grok · 5 分 / 张起</span>
-            <span>特惠 Codex 周卡 4 / 天</span>
-            <span>特价 Claude 同步接入</span>
+            <span class="chip-hover">Image 2 · 1 毛 / 张</span>
+            <span class="chip-hover">Grok · 5 分 / 张起</span>
+            <span class="chip-hover">特惠 Codex 周卡 4 / 天</span>
+            <span class="chip-hover">特价 Claude 同步接入</span>
           </div>
         </AnimReveal>
       </div>
@@ -36,7 +36,7 @@
         </div>
       </AnimReveal>
       <AnimReveal animation="fade-up" :delay="150">
-        <div class="brief-right">
+        <AnimMagnetic :strength="0.15" :radius="150" class="brief-right">
           <div>
             <h3>Pro+Plus</h3>
             <p>旗舰号池</p>
@@ -53,7 +53,7 @@
             <strong>0.04</strong>
             <span>元 / 万</span>
           </div>
-        </div>
+        </AnimMagnetic>
       </AnimReveal>
     </section>
 
@@ -64,28 +64,30 @@
         <p class="mono">06 · TRANSPARENCY · WANTED FILE</p>
         <h2>别被「1元=100万」骗，透明<br>真正便宜看 <em>实际消耗。</em></h2>
         <p class="paper-desc">不做虚高面额，不做套路分组。Plus+Pro 号池 0.16x 起步，周卡余额四分特惠，缓存命中率按真实消耗计算。</p>
-        <div class="feature-row">
-          <article>
-            <span>01</span>
-            <h3>透明额度</h3>
-            <p>账面、倍率、消耗关系都写清楚。</p>
-          </article>
-          <article>
-            <span>02</span>
-            <h3>Plus+Pro</h3>
-            <p>旗舰号池 0.16x 起步，不缩水模型。</p>
-          </article>
-          <article>
-            <span>03</span>
-            <h3>缓存不掺水</h3>
-            <p>缓存命中率 90%+，按真实命中结算。</p>
-          </article>
-          <article>
-            <span>04</span>
-            <h3>周卡余额</h3>
-            <p>四分特惠，账单变化可追踪。</p>
-          </article>
-        </div>
+        <AnimRipple color="rgba(168,50,43,0.15)" :duration="600">
+          <div class="feature-row">
+            <article>
+              <span>01</span>
+              <h3>透明额度</h3>
+              <p>账面、倍率、消耗关系都写清楚。</p>
+            </article>
+            <article>
+              <span>02</span>
+              <h3>Plus+Pro</h3>
+              <p>旗舰号池 0.16x 起步，不缩水模型。</p>
+            </article>
+            <article>
+              <span>03</span>
+              <h3>缓存不掺水</h3>
+              <p>缓存命中率 90%+，按真实命中结算。</p>
+            </article>
+            <article>
+              <span>04</span>
+              <h3>周卡余额</h3>
+              <p>四分特惠，账单变化可追踪。</p>
+            </article>
+          </div>
+        </AnimRipple>
         <h3 class="saving">价格<em>透明</em>，才是真的省钱</h3>
         <div class="compare">
           <div>
@@ -115,13 +117,13 @@
       </AnimReveal>
       <AnimReveal animation="fade-up" :delay="200">
         <div class="model-cloud">
-          <span class="m1">GPT 5.5<small>FLAGSHIP</small></span>
-          <span class="m2">GPT 5.4<small>STABLE</small></span>
-          <span class="m3">Claude<small>SYNC</small></span>
-          <span class="m4">Grok<small>IMAGINE</small></span>
-          <span class="m5">Image 2<small>AGENTIC</small></span>
-          <span class="m6">Gemini<small>VISION</small></span>
-          <span class="m7">Codex<small>WEEKLY</small></span>
+          <span class="m1 tilt-hover">GPT 5.5<small>FLAGSHIP</small></span>
+          <span class="m2 tilt-hover">GPT 5.4<small>STABLE</small></span>
+          <span class="m3 tilt-hover">Claude<small>SYNC</small></span>
+          <span class="m4 tilt-hover">Grok<small>IMAGINE</small></span>
+          <span class="m5 tilt-hover">Image 2<small>AGENTIC</small></span>
+          <span class="m6 tilt-hover">Gemini<small>VISION</small></span>
+          <span class="m7 tilt-hover">Codex<small>WEEKLY</small></span>
         </div>
       </AnimReveal>
     </section>
@@ -606,6 +608,31 @@ definePageMeta({ layout: 'default' })
 .m5 { left: 9%; top: 46%; }
 .m6 { right: 22%; top: 56%; }
 .m7 { left: 34%; top: 72%; }
+
+.chip-hover {
+  transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              border-color 0.25s ease,
+              color 0.25s ease;
+  will-change: transform;
+  cursor: default;
+}
+
+.chip-hover:hover {
+  transform: translateY(-2px) scale(1.03);
+  border-color: #a8322b;
+  color: #a8322b;
+}
+
+.tilt-hover {
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              color 0.3s ease;
+  will-change: transform;
+}
+
+.tilt-hover:hover {
+  transform: perspective(600px) rotateX(2deg) rotateY(-4deg) scale(1.08);
+  color: #a8322b;
+}
 
 .footer {
   min-height: 56px;

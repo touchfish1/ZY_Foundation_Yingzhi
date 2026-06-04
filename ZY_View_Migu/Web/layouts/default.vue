@@ -2,24 +2,29 @@
   <div class="layout-root">
     <AnimCursorGlow />
     <AnimWaves />
+    <AnimTrail :count="10" :size="4" color="rgba(168,50,43,0.4)" />
 
     <header class="nav-pill">
-      <NuxtLink to="/" class="brand">
-        <span class="crest">◇</span>
-        卡米API
-      </NuxtLink>
+      <AnimMagnetic :as="'span'" :strength="0.4" :radius="150">
+        <NuxtLink to="/" class="brand">
+          <span class="crest">◇</span>
+          卡米API
+        </NuxtLink>
+      </AnimMagnetic>
       <nav class="links" aria-label="Primary navigation">
-        <NuxtLink to="/" class="link">主页</NuxtLink>
-        <a class="link" href="#">控制台</a>
-        <a class="link" href="#models">模型广场</a>
-        <NuxtLink to="/" class="link">定价</NuxtLink>
-        <a class="link" href="#ranking">排行榜</a>
-        <a class="link" href="#docs">文档</a>
-        <a class="link" href="#about">关于</a>
+        <NuxtLink to="/" class="link nav-link-hover">主页</NuxtLink>
+        <a class="link nav-link-hover" href="#">控制台</a>
+        <a class="link nav-link-hover" href="#models">模型广场</a>
+        <NuxtLink to="/" class="link nav-link-hover">定价</NuxtLink>
+        <a class="link nav-link-hover" href="#ranking">排行榜</a>
+        <a class="link nav-link-hover" href="#docs">文档</a>
+        <a class="link nav-link-hover" href="#about">关于</a>
       </nav>
-      <div class="nav-actions">
-        <a href="#" class="login">登录</a>
-      </div>
+      <AnimRipple :duration="500" color="rgba(255,255,255,0.3)">
+        <div class="nav-actions">
+          <a href="#" class="login">登录</a>
+        </div>
+      </AnimRipple>
     </header>
 
     <main class="layout-content">
@@ -101,6 +106,17 @@ const site = await useSiteSettings()
 .link.active,
 .link:hover {
   color: #000;
+}
+
+.nav-link-hover {
+  transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              color 0.2s ease;
+  will-change: transform;
+  display: inline-block;
+}
+
+.nav-link-hover:hover {
+  transform: translateY(-1px) scale(1.04);
 }
 
 .nav-actions {
