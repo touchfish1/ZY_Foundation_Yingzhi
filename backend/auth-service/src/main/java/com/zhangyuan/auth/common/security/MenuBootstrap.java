@@ -31,32 +31,32 @@ public class MenuBootstrap implements ApplicationRunner {
         menuRepository.deleteAll();
 
         // Top-level menus
-        AdminMenu dashboard = menuRepository.save(createMenu(null, "仪表盘", "page", 1, "/", null, null));
+        AdminMenu dashboard = menuRepository.save(createMenu(null, "仪表盘", "page", 1, "/", "Dashboard", null));
 
-        AdminMenu contentManagement = menuRepository.save(createMenu(null, "内容管理", "group", 2, null, null, null));
-        AdminMenu businessManagement = menuRepository.save(createMenu(null, "商业管理", "group", 3, null, null, null));
-        AdminMenu systemManagement = menuRepository.save(createMenu(null, "系统管理", "group", 4, null, null, null));
+        AdminMenu contentManagement = menuRepository.save(createMenu(null, "内容管理", "group", 2, null, "BookOpen", null));
+        AdminMenu businessManagement = menuRepository.save(createMenu(null, "商业管理", "group", 3, null, "Briefcase", null));
+        AdminMenu systemManagement = menuRepository.save(createMenu(null, "系统管理", "group", 4, null, "Settings", null));
 
         // --- Content Management children ---
-        menuRepository.save(createMenu(contentManagement.getId(), "页面管理", "page", 1, "/cms/pages", null, null));
-        menuRepository.save(createMenu(contentManagement.getId(), "媒体资源", "page", 2, "/assets", null, null));
+        menuRepository.save(createMenu(contentManagement.getId(), "页面管理", "page", 1, "/cms/pages", "FileText", null));
+        menuRepository.save(createMenu(contentManagement.getId(), "媒体资源", "page", 2, "/assets", "Image", null));
 
         // --- Business Management children ---
-        menuRepository.save(createMenu(businessManagement.getId(), "套餐组", "page", 1, "/products/plan-groups", null, null));
-        menuRepository.save(createMenu(businessManagement.getId(), "套餐列表", "page", 2, "/products/plans", null, null));
-        menuRepository.save(createMenu(businessManagement.getId(), "订单管理", "page", 3, "/orders", null, null));
-        menuRepository.save(createMenu(businessManagement.getId(), "支付记录", "page", 4, "/payments/transactions", null, null));
+        menuRepository.save(createMenu(businessManagement.getId(), "套餐组", "page", 1, "/products/plan-groups", "Layers", null));
+        menuRepository.save(createMenu(businessManagement.getId(), "套餐列表", "page", 2, "/products/plans", "Pricetags", null));
+        menuRepository.save(createMenu(businessManagement.getId(), "订单管理", "page", 3, "/orders", "Cart", null));
+        menuRepository.save(createMenu(businessManagement.getId(), "支付记录", "page", 4, "/payments/transactions", "Wallet", null));
 
         // --- System Management children ---
-        AdminMenu users = menuRepository.save(createMenu(systemManagement.getId(), "用户管理", "page", 1, "/system/users", null,
+        AdminMenu users = menuRepository.save(createMenu(systemManagement.getId(), "用户管理", "page", 1, "/system/users", "People",
                 permissionSet("system:user:list")));
-        AdminMenu roles = menuRepository.save(createMenu(systemManagement.getId(), "角色管理", "page", 2, "/system/roles", null,
+        AdminMenu roles = menuRepository.save(createMenu(systemManagement.getId(), "角色管理", "page", 2, "/system/roles", "ShieldCheckmark",
                 permissionSet("system:role:list")));
-        AdminMenu permissions = menuRepository.save(createMenu(systemManagement.getId(), "权限管理", "page", 3, "/system/permissions", null,
+        AdminMenu permissions = menuRepository.save(createMenu(systemManagement.getId(), "权限管理", "page", 3, "/system/permissions", "Key",
                 permissionSet("system:permission:list")));
-        AdminMenu menus = menuRepository.save(createMenu(systemManagement.getId(), "菜单管理", "page", 4, "/system/menus", null,
+        AdminMenu menus = menuRepository.save(createMenu(systemManagement.getId(), "菜单管理", "page", 4, "/system/menus", "Menu",
                 permissionSet("system:menu:list")));
-        menuRepository.save(createMenu(systemManagement.getId(), "系统设置", "page", 5, "/system/settings", null, null));
+        menuRepository.save(createMenu(systemManagement.getId(), "系统设置", "page", 5, "/system/settings", "Wrench", null));
 
         // --- Button-type menu items for CRUD permissions ---
         // Permission CRUD buttons under Permissions menu
