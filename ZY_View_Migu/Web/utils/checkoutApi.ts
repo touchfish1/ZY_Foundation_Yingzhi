@@ -27,7 +27,7 @@ export interface CheckoutPayment {
   paymentUrl?: string
 }
 
-async function apiRequest<T>(apiBase: string, path: string, payload: unknown) {
+async function apiRequest<T>(apiBase: string, path: string, payload: any) {
   const response = await $fetch<ApiResponse<T>>(`${apiBase}${path}`, {
     method: 'POST',
     body: payload

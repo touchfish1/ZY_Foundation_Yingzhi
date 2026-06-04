@@ -1,40 +1,20 @@
 <template>
   <main class="kami-page">
-    <header class="nav-pill">
-      <NuxtLink to="/" class="brand">
-        <span class="crest">◇</span>
-        卡米API
-      </NuxtLink>
-      <nav class="links" aria-label="Primary navigation">
-        <NuxtLink to="/" class="link">主页</NuxtLink>
-        <a class="link" href="#">控制台</a>
-        <a class="link" href="#models">模型广场</a>
-        <NuxtLink to="/" class="link active">定价</NuxtLink>
-        <a class="link" href="#ranking">排行榜</a>
-        <a class="link" href="#docs">文档</a>
-        <a class="link" href="#about">关于</a>
-      </nav>
-      <div class="nav-actions">
-        <button>文A</button>
-        <button>☼</button>
-        <button class="bell">♧<span>7</span></button>
-        <a href="#" class="login">登录</a>
-      </div>
-    </header>
-
     <section class="hero section-paper">
       <div class="rings rings-a" />
       <div class="rings rings-b" />
       <div class="rings rings-c" />
       <div class="hero-copy">
-        <h1>顶级模型<br>即刻接入</h1>
-        <p class="mono">PREMIUM MODELS · ONE ACCESS</p>
-        <div class="chips">
-          <span>Image 2 · 1 毛 / 张</span>
-          <span>Grok · 5 分 / 张起</span>
-          <span>特惠 Codex 周卡 4 / 天</span>
-          <span>特价 Claude 同步接入</span>
-        </div>
+        <AnimReveal animation="fade-up">
+          <h1>顶级模型<br>即刻接入</h1>
+          <p class="mono">PREMIUM MODELS · ONE ACCESS</p>
+          <div class="chips">
+            <span>Image 2 · 1 毛 / 张</span>
+            <span>Grok · 5 分 / 张起</span>
+            <span>特惠 Codex 周卡 4 / 天</span>
+            <span>特价 Claude 同步接入</span>
+          </div>
+        </AnimReveal>
       </div>
     </section>
 
@@ -42,106 +22,115 @@
       <div class="burst burst-main" />
       <div class="burst burst-price" />
       <div class="float-squares" />
-      <div class="brief-left">
-        <p class="mono">GPT SERIES · FLAGSHIP POOL</p>
-        <h2>GPT<br>旗舰模型</h2>
-        <p class="lead">支持 5.5 / 5.4，官网同步接入。</p>
-        <div class="mini-tags">
-          <span>官网同价</span>
-          <span>缓存命中率 90%+</span>
-          <span>不掺水</span>
-          <span>价格真实</span>
+      <AnimReveal animation="fade-up">
+        <div class="brief-left">
+          <p class="mono">GPT SERIES · FLAGSHIP POOL</p>
+          <h2>GPT<br>旗舰模型</h2>
+          <p class="lead">支持 5.5 / 5.4，官网同步接入。</p>
+          <div class="mini-tags">
+            <span>官网同价</span>
+            <span>缓存命中率 90%+</span>
+            <span>不掺水</span>
+            <span>价格真实</span>
+          </div>
         </div>
-      </div>
-      <div class="brief-right">
-        <div>
-          <h3>Pro+Plus</h3>
-          <p>旗舰号池</p>
+      </AnimReveal>
+      <AnimReveal animation="fade-up" :delay="150">
+        <div class="brief-right">
+          <div>
+            <h3>Pro+Plus</h3>
+            <p>旗舰号池</p>
+          </div>
+          <div>
+            <strong>0.16</strong>
+            <span>元 / 万</span>
+          </div>
+          <div>
+            <h3>Free+Plus</h3>
+            <p>特惠分组</p>
+          </div>
+          <div>
+            <strong>0.04</strong>
+            <span>元 / 万</span>
+          </div>
         </div>
-        <div>
-          <strong>0.16</strong>
-          <span>元 / 万</span>
-        </div>
-        <div>
-          <h3>Free+Plus</h3>
-          <p>特惠分组</p>
-        </div>
-        <div>
-          <strong>0.04</strong>
-          <span>元 / 万</span>
-        </div>
-      </div>
+      </AnimReveal>
     </section>
 
-    <section class="price-paper">
-      <div class="pin pin-left" />
-      <div class="pin pin-right" />
-      <p class="mono">06 · TRANSPARENCY · WANTED FILE</p>
-      <h2>别被「1元=100万」骗，透明<br>真正便宜看 <em>实际消耗。</em></h2>
-      <p class="paper-desc">不做虚高面额，不做套路分组。Plus+Pro 号池 0.16x 起步，周卡余额四分特惠，缓存命中率按真实消耗计算。</p>
-      <div class="feature-row">
-        <article>
-          <span>01</span>
-          <h3>透明额度</h3>
-          <p>账面、倍率、消耗关系都写清楚。</p>
-        </article>
-        <article>
-          <span>02</span>
-          <h3>Plus+Pro</h3>
-          <p>旗舰号池 0.16x 起步，不缩水模型。</p>
-        </article>
-        <article>
-          <span>03</span>
-          <h3>缓存不掺水</h3>
-          <p>缓存命中率 90%+，按真实命中结算。</p>
-        </article>
-        <article>
-          <span>04</span>
-          <h3>周卡余额</h3>
-          <p>四分特惠，账单变化可追踪。</p>
-        </article>
-      </div>
-      <h3 class="saving">价格<em>透明</em>，才是真的省钱</h3>
-      <div class="compare">
-        <div>
-          <p class="mono">同类常见做法</p>
-          <p>× 用夸张额度制造便宜感，实际成本不低。</p>
-          <p>× 缓存、上下文、工具调用分散计费。</p>
-          <p>× 低价分组混入缩水能力，体验不可预期。</p>
+    <AnimReveal animation="scale-in">
+      <section class="price-paper">
+        <div class="pin pin-left" />
+        <div class="pin pin-right" />
+        <p class="mono">06 · TRANSPARENCY · WANTED FILE</p>
+        <h2>别被「1元=100万」骗，透明<br>真正便宜看 <em>实际消耗。</em></h2>
+        <p class="paper-desc">不做虚高面额，不做套路分组。Plus+Pro 号池 0.16x 起步，周卡余额四分特惠，缓存命中率按真实消耗计算。</p>
+        <div class="feature-row">
+          <article>
+            <span>01</span>
+            <h3>透明额度</h3>
+            <p>账面、倍率、消耗关系都写清楚。</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Plus+Pro</h3>
+            <p>旗舰号池 0.16x 起步，不缩水模型。</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>缓存不掺水</h3>
+            <p>缓存命中率 90%+，按真实命中结算。</p>
+          </article>
+          <article>
+            <span>04</span>
+            <h3>周卡余额</h3>
+            <p>四分特惠，账单变化可追踪。</p>
+          </article>
         </div>
-        <div>
-          <p class="mono">KAMIAPI 的做法</p>
-          <p>✓ Plus+Pro 0.16x 起步，倍率明示。</p>
-          <p>✓ 缓存命中不掺水，真实省下的才算优惠。</p>
-          <p>✓ 周卡余额四分特惠，适合高频试用。</p>
+        <h3 class="saving">价格<em>透明</em>，才是真的省钱</h3>
+        <div class="compare">
+          <div>
+            <p class="mono">同类常见做法</p>
+            <p>× 用夸张额度制造便宜感，实际成本不低。</p>
+            <p>× 缓存、上下文、工具调用分散计费。</p>
+            <p>× 低价分组混入缩水能力，体验不可预期。</p>
+          </div>
+          <div>
+            <p class="mono">KAMIAPI 的做法</p>
+            <p>✓ Plus+Pro 0.16x 起步，倍率明示。</p>
+            <p>✓ 缓存命中不掺水，真实省下的才算优惠。</p>
+            <p>✓ 周卡余额四分特惠，适合高频试用。</p>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </AnimReveal>
 
     <section id="ranking" class="forest section-paper">
       <div class="forest-lines" />
-      <div class="forest-copy">
-        <p class="mono">MODEL BRIEF</p>
-        <h2>模型森林</h2>
-        <p>主流强力大模型优选渠道，随时接入，欢迎随时体验。</p>
-      </div>
-      <div class="model-cloud">
-        <span class="m1">GPT 5.5<small>FLAGSHIP</small></span>
-        <span class="m2">GPT 5.4<small>STABLE</small></span>
-        <span class="m3">Claude<small>SYNC</small></span>
-        <span class="m4">Grok<small>IMAGINE</small></span>
-        <span class="m5">Image 2<small>AGENTIC</small></span>
-        <span class="m6">Gemini<small>VISION</small></span>
-        <span class="m7">Codex<small>WEEKLY</small></span>
-      </div>
+      <AnimReveal animation="fade-up">
+        <div class="forest-copy">
+          <p class="mono">MODEL BRIEF</p>
+          <h2>模型森林</h2>
+          <p>主流强力大模型优选渠道，随时接入，欢迎随时体验。</p>
+        </div>
+      </AnimReveal>
+      <AnimReveal animation="fade-up" :delay="200">
+        <div class="model-cloud">
+          <span class="m1">GPT 5.5<small>FLAGSHIP</small></span>
+          <span class="m2">GPT 5.4<small>STABLE</small></span>
+          <span class="m3">Claude<small>SYNC</small></span>
+          <span class="m4">Grok<small>IMAGINE</small></span>
+          <span class="m5">Image 2<small>AGENTIC</small></span>
+          <span class="m6">Gemini<small>VISION</small></span>
+          <span class="m7">Codex<small>WEEKLY</small></span>
+        </div>
+      </AnimReveal>
     </section>
-
-    <footer class="footer">
-      <span>MODEL PLAZA · ACT I · KMSOFT STUDIO © 2026</span>
-      <span>Actual pricing is subject to recharge rate & group ratio.</span>
-    </footer>
   </main>
 </template>
+
+<script setup lang="ts">
+definePageMeta({ layout: 'default' })
+</script>
 
 <style scoped>
 .kami-page {

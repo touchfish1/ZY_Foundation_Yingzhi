@@ -1,7 +1,7 @@
 <template>
   <section class="features">
-    <h2>{{ props.title || '核心能力' }}</h2>
-    <p v-if="props.subtitle" class="features-sub">{{ props.subtitle }}</p>
+    <h2>{{ props.props.title || '核心能力' }}</h2>
+    <p v-if="props.props.subtitle" class="features-sub">{{ props.props.subtitle }}</p>
     <div class="grid">
       <article v-for="(item, i) in items" :key="i" class="card">
         <div v-if="item.icon" class="icon">{{ item.icon }}</div>

@@ -2,19 +2,26 @@
   <main class="login-page">
     <section class="panel">
       <div class="brand-section">
+        <div class="brand-icon">
+          <n-icon size="48" color="#6366f1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </n-icon>
+        </div>
         <p class="eyebrow">Project ZHANGYUAN</p>
         <h1>运营内容管理中心</h1>
         <p class="sub">管理多语言页面、区块内容、套餐展示和发布版本。</p>
       </div>
-      <n-card class="card" title="登录后台">
+
+      <n-card class="card" :bordered="false">
+        <n-h3 style="margin-bottom:20px;font-weight:700;">登录后台</n-h3>
         <n-form @submit.prevent="submit">
           <n-form-item label="账号">
-            <n-input v-model:value="username" placeholder="admin" />
+            <n-input v-model:value="username" placeholder="admin" size="large" />
           </n-form-item>
           <n-form-item label="密码">
-            <n-input v-model:value="password" type="password" placeholder="admin123" @keyup.enter="submit" />
+            <n-input v-model:value="password" type="password" placeholder="admin123" size="large" @keyup.enter="submit" />
           </n-form-item>
-          <n-button type="primary" block :loading="loading" @click="submit">
+          <n-button type="primary" block :loading="loading" @click="submit" size="large" style="margin-top:8px;">
             {{ loading ? '登录中...' : '登录' }}
           </n-button>
         </n-form>
@@ -24,10 +31,9 @@
 </template>
 
 <script setup lang="ts">
-// 登录页面：管理员通过用户名和密码登录后台
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NCard, NForm, NFormItem, NInput, useMessage } from 'naive-ui'
+import { NButton, NCard, NForm, NFormItem, NH3, NIcon, NInput, useMessage } from 'naive-ui'
 import { login } from '../api/auth'
 
 const router = useRouter()
@@ -36,9 +42,7 @@ const username = ref('admin')
 const password = ref('admin123')
 const loading = ref(false)
 
-// 提交登录请求：校验输入 -> 调用 API -> 跳转主页
 async function submit() {
-  console.log('[Login] submit')
   if (!username.value || !password.value) {
     message.warning('请输入账号和密码')
     return
@@ -46,7 +50,6 @@ async function submit() {
   loading.value = true
   try {
     await login(username.value, password.value)
-    console.log('[Login] login success')
     message.success('登录成功')
     router.push('/')
   } catch (error) {
@@ -63,37 +66,51 @@ async function submit() {
   display: grid;
   place-items: center;
   padding: 32px;
-  background: radial-gradient(circle at 20% 20%, rgba(37, 99, 235, 0.2), transparent 32%), linear-gradient(135deg, #eef4ff, #f8fafc 45%, #eefdf8);
+  background: radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15), transparent 40%), radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.1), transparent 40%), linear-gradient(135deg, #eef4ff, #f8fafc 45%, #eefdf8);
 }
+
 .panel {
   width: min(980px, 100%);
   display: grid;
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: 1fr 380px;
   gap: 48px;
   align-items: center;
 }
+
 .brand-section {
   max-width: 520px;
 }
+
+.brand-icon {
+  margin-bottom: 20px;
+}
+
 .eyebrow {
-  color: #2563eb;
+  color: #6366f1;
   font-weight: 800;
   letter-spacing: 0.08em;
   margin: 0 0 16px;
+  font-size: 13px;
 }
+
 h1 {
   margin: 0 0 16px;
-  font-size: clamp(38px, 6vw, 72px);
-  line-height: 1;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1.1;
+  font-weight: 800;
 }
+
 .sub {
   color: #64748b;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1.6;
 }
+
 .card {
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  border-radius: 16px;
 }
+
 @media (max-width: 760px) {
   .panel {
     grid-template-columns: 1fr;

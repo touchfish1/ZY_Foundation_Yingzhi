@@ -1,6 +1,6 @@
 <template>
   <section class="stats">
-    <h2 v-if="props.title">{{ props.title }}</h2>
+    <h2 v-if="props.props.title">{{ props.props.title }}</h2>
     <div class="grid">
       <div v-for="(item, i) in items" :key="i" class="stat">
         <span class="value">{{ item.value }}</span>

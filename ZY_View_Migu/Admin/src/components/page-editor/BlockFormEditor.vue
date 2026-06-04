@@ -168,68 +168,6 @@ function openEdit(index: number) {
   showModal.value = true
 }
 
-function onAddSelect(type: string) {
-  console.log('[BlockFormEditor] onAddSelect', { type })
-  editingIndex.value = null
-  selectedAddType.value = type
-  const def = getDefinition(type)
-  if (def) {
-    editingProps.value = initEditingProps({}, def)
-  }
-  showModal.value = true
-}
-
-function confirmEdit() {
-  console.log('[BlockFormEditor] confirmEdit', { editingIndex: editingIndex.value, selectedAddType: selectedAddType.value })
-  if (editingIndex.value !== null) {
-    const updated = [...props.blocks]
-    updated[editingIndex.value] = { ...updated[editingIndex.value], props: { ...editingProps.value } }
-    emit('update:blocks', updated)
-  } else if (selectedAddType.value) {
-    const def = getDefinition(selectedAddType.value)
-    if (def) {
-      const newBlock: PageBlock = {
-        id: `block_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-        type: selectedAddType.value,
-        props: { ...editingProps.value }
-      }
-      emit('update:blocks', [...props.blocks, newBlock])
-    }
-  }
-  cancelEdit()
-}
-
-function removeBlock(index: number) {
-  console.log('[BlockFormEditor] removeBlock', { index })
-  const updated = props.blocks.filter((_, i) => i !== index)
-  emit('update:blocks', updated)
-}
-
-function moveBlock(index: number, direction: -1 | 1) {
-  console.log('[BlockFormEditor] moveBlock', { index, direction })
-  const newIndex = index + direction
-  if (newIndex < 0 || newIndex >= props.blocks.length) return
-  const updated = [...props.blocks]
-  const [removed] = updated.splice(index, 1)
-  updated.splice(newIndex, 0, removed)
-  emit('update:blocks', updated)
-}
-
-function duplicateBlock(index: number) {
-  console.log('[BlockFormEditor] duplicateBlock', { index })
-  const block = props.blocks[index]
-  const newBlock: PageBlock = {
-    ...block,
-    id: `block_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-    props: { ...block.props }
-  }
-  const updated = [...props.blocks]
-  updated.splice(index + 1, 0, newBlock)
-  emit('update:blocks', updated)
-}
-  showModal.value = true
-}
-
 // 从下拉菜单选择区块类型进行添加
 function onAddSelect(type: string) {
   editingIndex.value = null

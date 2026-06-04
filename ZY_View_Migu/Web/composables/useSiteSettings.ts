@@ -5,18 +5,24 @@ export interface SiteSettings {
   footerText: string
 }
 
-// 获取网站全局设置（站点名称、描述、ICP 备案、底部文本）
+function normalizeSettings(raw: Record<string, string>): SiteSettings {
+  return {
+    siteName: raw.site_name || raw.siteName || '',
+    siteDescription: raw.site_description || raw.siteDescription || '',
+    icpFiling: raw.icp_filing || raw.icpFiling || '',
+    footerText: raw.footer_text || raw.footerText || ''
+  }
+}
+
 export async function useSiteSettings() {
   const config = useRuntimeConfig()
   const url = `${config.public.apiBase}/api/system/settings`
-  console.log(`[useSiteSettings] GET ${url}`)
-  const { data, error } = await useFetch<SiteSettings>(url)
+  const { data, error } = await useFetch<Record<string, string>>(url)
 
   if (error.value) {
     console.error('[useSiteSettings] Failed to load', error.value)
-    return { siteName: '', siteDescription: '', icpFiling: '', footerText: '' } as SiteSettings
+    return normalizeSettings({})
   }
 
-  console.log(`[useSiteSettings] Success: siteName=${data.value?.siteName}`)
-  return data.value || ({} as SiteSettings)
+  return normalizeSettings(data.value || {})
 }

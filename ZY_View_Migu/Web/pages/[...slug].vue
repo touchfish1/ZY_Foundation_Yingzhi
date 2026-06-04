@@ -1,45 +1,20 @@
 <template>
   <main class="page-shell">
-    <header class="nav">
-      <div class="nav-inner section-paper">
-        <NuxtLink to="/" class="brand">
-          <span class="brand-icon">&#9670;</span>
-          <span class="brand-text">ZHANGYUAN</span>
-        </NuxtLink>
-        <nav class="nav-links">
-          <NuxtLink to="/" class="nav-link">首页</NuxtLink>
-          <NuxtLink to="/plans" class="nav-link">定价</NuxtLink>
-        </nav>
-      </div>
-    </header>
-
     <div class="page-content">
       <component
         :is="resolveBlock(block.type)"
-        v-for="block in page.blocks"
+        v-for="block in pageData.blocks"
         :key="block.id"
         :props="block.props"
       />
     </div>
-
-    <footer class="site-footer" v-if="settings">
-      <div class="footer-inner section-paper">
-        <div class="footer-brand">
-          <span class="footer-name">{{ settings.siteName || 'ZHANGYUAN' }}</span>
-          <span class="footer-desc">{{ settings.siteDescription || 'API Platform' }}</span>
-        </div>
-        <div class="footer-meta">
-          <span class="footer-text">{{ settings.footerText }}</span>
-          <span class="footer-icp" v-if="settings.icpFiling">{{ settings.icpFiling }}</span>
-        </div>
-      </div>
-    </footer>
   </main>
 </template>
 
 <script setup lang="ts">
+definePageMeta({ layout: 'default' })
+
 import type { CmsBlock } from '~/types/cms'
-import type { SiteSettings } from '~/composables/useSiteSettings'
 
 // 动态 CMS 页面组件：根据 URL 路径渲染对应页面区块
 const route = useRoute()
@@ -61,12 +36,6 @@ if (page.value) {
   console.log(`[Page] CMS data loaded for path=${path}`)
 } else {
   console.warn(`[Page] CMS data not found for path=${path}`)
-}
-
-// 获取网站全局设置（站点名称、底部信息等）
-const { data: settings } = await useAsyncData('settings', () => useSiteSettings())
-if (settings.value) {
-  console.log(`[Page] Site settings loaded`)
 }
 
 // 页面不存在时抛出 404 错误
@@ -114,93 +83,9 @@ function resolveBlock(type: CmsBlock['type']) {
   background: #fff;
 }
 
-.nav {
-  border-bottom: 1px solid #e8e8e8;
-  background: #fff;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-
-.nav-inner {
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  font-size: 16px;
-  color: #0a0a0a;
-}
-
-.brand-icon {
-  color: #2563eb;
-  font-size: 20px;
-}
-
-.nav-links {
-  display: flex;
-  gap: 24px;
-}
-
-.nav-link {
-  color: #606060;
-  font-size: 14px;
-  transition: color 0.2s;
-}
-
-.nav-link:hover {
-  color: #0a0a0a;
-}
-
 .page-content {
   flex: 1;
 }
 
-.site-footer {
-  background: #f8fafc;
-  border-top: 1px solid #e8e8e8;
-  color: #606060;
-  font-size: 14px;
-}
 
-.footer-inner {
-  padding: 32px 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.footer-brand {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.footer-name {
-  font-weight: 600;
-  color: #0a0a0a;
-}
-
-.footer-desc {
-  font-size: 13px;
-}
-
-.footer-meta {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.footer-icp {
-  color: #94a3b8;
-}
 </style>

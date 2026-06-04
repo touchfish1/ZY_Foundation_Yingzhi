@@ -1,9 +1,9 @@
 <template>
   <section class="image-banner">
     <div class="banner-inner" :style="bannerStyle">
-      <div class="overlay" v-if="props.title || props.subtitle">
-        <h2 v-if="props.title">{{ props.title }}</h2>
-        <p v-if="props.subtitle">{{ props.subtitle }}</p>
+      <div class="overlay" v-if="props.props.title || props.props.subtitle">
+        <h2 v-if="props.props.title">{{ props.props.title }}</h2>
+        <p v-if="props.props.subtitle">{{ props.props.subtitle }}</p>
       </div>
     </div>
   </section>
@@ -22,7 +22,7 @@ const bannerStyle = computed(() => {
     backgroundImage: `url(${imageUrl})`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    minHeight: props.props.height || '400px'
+    minHeight: String(props.props.height || '400px')
   }
 })
 

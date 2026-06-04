@@ -1,127 +1,40 @@
 # AGENTS.md — Project ZHANGYUAN
 
-## 项目速览
+## 项目边界
+- 这是多模块单体仓库，不是根目录 Node/Gradle 工作区；根目录没有 `package.json`，不要在根目录跑 `npm install`。
+- 命名体系固定为 `ZY_<Function>_<MythName>`；新功能优先落在现有顶层目录，不要随手新增顶层模块。
+- 主要入口：前台 `ZY_View_Migu/Web`，后台 `ZY_View_Migu/Admin`，后端 API `ZY_Nexus_Congcong/Services/Api`，基础设施 `ZY_Foundation_Yingzhi/Docker`。
+- `ZY_Guard_Bo`、`ZY_Nexus_Congcong/Gateway`、`ZY_Source_Origin` 当前多为占位/规划；认证、授权、领域逻辑实际仍在 API 单体内。
 
-多模块单体（CMS 子系统），命名体系 `ZY_<Function>_<MythName>`。
+## 常用命令
+- 中间件：`docker compose -f ZY_Foundation_Yingzhi/Docker/docker-compose.yml up -d`，提供 PostgreSQL `5432`、Redis `6379`、MinIO `9000/9001`。
+- 全栈 Docker：`docker compose -f ZY_Foundation_Yingzhi/Docker/docker-compose.yml -f ZY_Foundation_Yingzhi/Docker/docker-compose.app.yml up -d`；第二个 compose 依赖第一个创建的外部网络。
+- API：在 `ZY_Nexus_Congcong/Services/Api` 运行 `gradle bootRun`、`gradle test`、单测 `gradle test --tests "com.zhangyuan...Test"`；仓库没有 `gradlew`。
+- Web：在 `ZY_View_Migu/Web` 运行 `npm install`、`npm run dev`、`npm run build`；dev 固定 `0.0.0.0:3000`。
+- Admin：在 `ZY_View_Migu/Admin` 运行 `npm install`、`npm run dev`、`npm run build`；dev 固定 `0.0.0.0:5173`。
+- CI 使用 Node 22、JDK 21；前端 CI 先 `npm ci`，Admin 跑 `npx vue-tsc -b --noEmit`，Web 跑 `npx nuxt typecheck`。
 
-| 目录 | 技术栈 |
-|---|---|
-| `ZY_View_Migu/Web` | Nuxt 3 + TypeScript |
-| `ZY_View_Migu/Admin` | Vue 3 + Vite + Naive UI + Pinia |
-| `ZY_Nexus_Congcong/Services/Api` | Spring Boot 3.3.5 + Java 21 + Gradle |
-| `ZY_Archive_Shirou/Migrations` | Flyway (PostgreSQL) |
-| `ZY_Guard_Bo/` | 认证/授权（目前实现在 API 内） |
-| `ZY_Foundation_Yingzhi/Docker/` | Docker Compose（PostgreSQL + Redis + MinIO + Nginx） |
+## 后端约定
+- Spring Boot 3.3.5 + Java 21 + Gradle；数据库 schema 只由 Flyway 管理，JPA `ddl-auto: validate`，迁移放 `src/main/resources/db/migration/V*.sql`。
+- 本地默认连接：PostgreSQL `zhangyuan/zhangyuan@localhost:5432/zhangyuan`，Redis `localhost:6379`，MinIO `http://localhost:9000`。
+- 默认管理员来自配置：`admin / admin123`；生产必须覆盖 `JWT_SECRET` 和 `DEFAULT_ADMIN_PASSWORD`。
+- 统一响应格式为 `{ code, message, data }`；分页数据在 `data` 内使用 `items/page/pageSize/total`。
+- `/admin/**` 是后台接口，`/api/**` 是公开接口，`/api/ddd/**` 是 DDD 骨架验证接口；旧 CRUD 控制器和 DDD 适配器当前并行存在。
+- DDD 模块在 `com.zhangyuan.modules.{auth,cms,product,order,payment,asset,system}`；`domain` 不依赖 Spring/JPA，`application` 只编排，`adapter` 做 REST/JPA 映射。
+- 模块边界验证：`gradle test --tests "com.zhangyuan.architecture.*"`。
 
-**无根目录 package.json**，Web 和 Admin 各自独立 `npm install` / `npm run dev`。
+## 前端约定
+- Admin Vite 代理 `/admin`、`/api`、`/actuator` 到 `http://localhost:8080`；调用后台接口时优先走这些相对路径。
+- Web 后端地址从 `NUXT_PUBLIC_API_BASE` 读取，默认 `http://localhost:8080`。
+- Web 的 `pages/[...slug].vue` 是 CMS 动态页：调用 `GET /api/cms/pages/render?path=...&locale=...`，按 `block.type` 映射到 `components/blocks/*`，未知区块走 `UnknownBlock`。
+- `pages/index.vue` 目前是独立手写首页，不走 CMS 动态渲染；改首页 UI 时不要误以为 CMS 会覆盖它。
 
-## 开发命令
+## CMS 与业务边界
+- CMS 负责页面、区块、草稿、发布快照和前台渲染；发布后的前台读取 snapshot，避免草稿影响线上。
+- CMS 的 pricing 区块可注入真实套餐组快照，但套餐、订单、支付的核心规则属于 product/order/payment 模块，不要塞进 CMS。
+- 站点设置接口提供站点名、描述、备案号、footer 等，前台通过 `useSiteSettings` 使用。
 
-```bash
-# 启动中间件（PostgreSQL + Redis + MinIO）
-docker compose -f ZY_Foundation_Yingzhi/Docker/docker-compose.yml up -d
-
-# 启动全栈（中间件 + API + Web + Admin + Nginx）
-docker compose -f ZY_Foundation_Yingzhi/Docker/docker-compose.yml -f ZY_Foundation_Yingzhi/Docker/docker-compose.app.yml up -d
-
-# Web 前台（:3000）
-cd ZY_View_Migu/Web && npm install && npm run dev
-
-# Admin 后台（:5173）
-cd ZY_View_Migu/Admin && npm install && npm run dev
-
-# API 后端（:8080）
-cd ZY_Nexus_Congcong/Services/Api && gradle bootRun
-
-# 仅运行测试
-cd ZY_Nexus_Congcong/Services/Api && gradle test
-```
-
-**Docker Compose 文件拆分**：
-- `docker-compose.yml` — 中间件（PostgreSQL / Redis / MinIO），开发时只需启动此文件
-- `docker-compose.app.yml` — 应用服务（API / Web / Admin / Nginx），需与中间件文件叠加使用
-
-**Admin Vite 代理**：`/admin` `/api` `/actuator` → `localhost:8080`
-
-**Web 后端地址**：默认 `http://localhost:8080`，通过 `NUXT_PUBLIC_API_BASE` 覆盖。
-
-## WSL 开发模式
-
-Docker Compose 在 WSL 中运行，API 在 Windows 侧启动时：
-
-```bash
-$env:DB_HOST='100.125.148.23'; $env:REDIS_HOST='100.125.148.23'; $env:MINIO_ENDPOINT='http://100.125.148.23:9000'; gradle bootRun
-```
-
-或使用 `application-wsl.yml` profile（如果存在）。
-
-## 后端关键约定
-
-- **Flyway 管理 schema**，JPA `ddl-auto: validate`（不自动建表）。
-- Migration 路径：`src/main/resources/db/migration/V*.sql`
-- **统一响应格式**：`{ code: 0, message: "ok", data: ... }`，分页额外返回 `items/page/pageSize/total`。
-- 默认管理员：`admin / admin123`（生产通过 `DEFAULT_ADMIN_PASSWORD` 覆盖）。
-- JWT 密钥：`JWT_SECRET` 环境变量（开发有硬编码默认值，生产必须换）。
-- `gradlew` 不存在，依赖系统安装的 Gradle。
-
-## DDD 架构（模块化单体）
-
-后端已从 CRUD 贫血模型逐步迁移为六边形架构（Hexagonal Architecture）的 DDD 模块化单体。
-
-### 包结构（每个模块）
-
-```
-com.zhangyuan.modules.{module}/
-├── domain/
-│   ├── model/          # 聚合根 + 实体 + 值对象（零框架依赖）
-│   ├── repository/     # 仓库接口（端口）
-│   ├── service/        # 领域服务
-│   └── event/          # 领域事件
-├── application/
-│   └── service/        # 应用服务（事务编排、DTO 映射）
-├── adapter/
-│   ├── in/rest/        # REST 控制器（入站适配器）
-│   └── out/persistence/# JPA 实现（出站适配器）
-```
-
-### 跨模块通信
-
-- 模块间同步调用通过注入 ApplicationService
-- 异步解耦通过领域事件（`DomainEventPublisher` + `@TransactionalEventListener`）
-- 共享内核在 `common/ddd/`：`Entity`、`AggregateRoot`、`ValueObject`、`DomainEvent`、`Money`
-
-### 迁移状态
-
-所有 7 个模块（auth / cms / product / order / payment / asset / system）已完成 DDD 骨架创建：
-- Rich domain model 含业务行为方法（`Order.markPaid()`，`Payment.markSuccess()`）
-- 状态机显式表达（`OrderStatus.canTransitionTo()`）
-- Repository 端口在 domain 层定义，adapter 层实现
-- 新路径 `/api/ddd/*` 用于隔离验证，与旧路径并行运行
-
-### DDD 验证命令
-
-```bash
-# 运行模块边界验证
-cd ZY_Nexus_Congcong/Services/Api && gradle test --tests "com.zhangyuan.architecture.*"
-
-# 运行全部测试
-cd ZY_Nexus_Congcong/Services/Api && gradle test
-```
-
-### 关键约定
-
-- **Domain 层禁止依赖 Spring/JPA**，仅使用 `common/ddd/` 和 JDK
-- **Adapter 层** 负责领域对象 ↔ JPA 实体映射
-- **Application 层** 只编排不包含业务规则
-- 新功能优先在 DDD 结构下实现，旧 CRUD 代码逐步淘汰
-
-## 模块边界
-
-- 新功能代码落入现有 6 个模块，**不新增顶层目录**。
-- 领域逻辑暂在 API 内按模块组织（`modules/auth`, `modules/cms` 等），稳定后再下沉到 `ZY_Source_Origin`。
-- CMS 不承载套餐/订单/支付的核心规则。
-- `ZY_Guard_Bo` 和 `ZY_Nexus_Congcong/Gateway` 目前仅占位，实现仍在 API 单体中。
-
-## 前台渲染
-
-Nuxt 动态路由 `pages/[...slug].vue` 通过 `GET /api/cms/pages/render?path=...&locale=...` 获取已发布快照，按 `block.type` 映射到 `components/blocks/` 下对应组件。未知区块忽略不崩溃。
+## 环境坑点
+- Docker 在 WSL、API 在 Windows 侧运行时，用 `application-wsl.yml` profile 或设置 `DB_HOST`、`REDIS_HOST`、`MINIO_ENDPOINT` 指向 WSL IP；文件内当前默认 WSL IP 是 `100.125.148.23`，实际环境可能变化。
+- Nuxt 若出现 `Failed to resolve import "#app-manifest"`，通常是旧 dev 进程或 `.nuxt/.output` 缓存问题；停止旧 Node 进程后删除缓存再重启。
+- Docker Compose 的数据目录在 `ZY_Foundation_Yingzhi/Docker/data/*`，不要把运行数据当源码改动提交。
