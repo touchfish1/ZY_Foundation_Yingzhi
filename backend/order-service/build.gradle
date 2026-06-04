@@ -42,6 +42,7 @@ dependencies {
     // Cloud
     implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery'
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'

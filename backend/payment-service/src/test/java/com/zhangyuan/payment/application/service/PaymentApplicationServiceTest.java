@@ -5,6 +5,7 @@ import com.zhangyuan.payment.client.OrderServiceClient;
 import com.zhangyuan.payment.common.ApiResponse;
 import com.zhangyuan.payment.domain.model.Payment;
 import com.zhangyuan.payment.domain.repository.PaymentRepository;
+import com.zhangyuan.payment.domain.service.PaymentDomainService;
 import com.zhangyuan.payment.dto.CheckoutRequest;
 import com.zhangyuan.payment.dto.CheckoutResponse;
 import com.zhangyuan.payment.dto.PaymentResponse;
@@ -24,11 +25,12 @@ class PaymentApplicationServiceTest {
     private final PaymentRepository paymentRepository = mock(PaymentRepository.class);
     private final OrderServiceClient orderServiceClient = mock(OrderServiceClient.class);
     private final FulfillmentClient fulfillmentClient = mock(FulfillmentClient.class);
+    private final PaymentDomainService domainService = new PaymentDomainService();
     private PaymentApplicationService service;
 
     @BeforeEach
     void setUp() {
-        service = new PaymentApplicationService(paymentRepository, orderServiceClient, fulfillmentClient);
+        service = new PaymentApplicationService(paymentRepository, orderServiceClient, fulfillmentClient, domainService);
     }
 
     @Test

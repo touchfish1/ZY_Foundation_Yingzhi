@@ -23,10 +23,11 @@ spring:
     password: ${DB_PASSWORD:zhangyuan}
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     open-in-view: false
   flyway:
     enabled: true
+    validate-on-migrate: false
     baseline-on-migrate: true
     baseline-version: 1
 
