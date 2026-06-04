@@ -38,6 +38,14 @@ spring:
           uri: lb://system-service
           predicates:
             - Path=/api/ddd/settings/**
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
         - id: api-admin
           uri: lb://zhangyuan-api
           predicates:
