@@ -4,6 +4,7 @@ import com.zhangyuan.payment.client.FulfillmentClient;
 import com.zhangyuan.payment.client.OrderServiceClient;
 import com.zhangyuan.payment.domain.model.Payment;
 import com.zhangyuan.payment.domain.repository.PaymentRepository;
+import com.zhangyuan.payment.domain.service.PaymentDomainService;
 import com.zhangyuan.payment.dto.CheckoutRequest;
 import com.zhangyuan.payment.dto.CheckoutResponse;
 import com.zhangyuan.payment.dto.PaymentResponse;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Service
 public class PaymentApplicationService {
@@ -21,13 +21,16 @@ public class PaymentApplicationService {
     private final PaymentRepository paymentRepository;
     private final OrderServiceClient orderServiceClient;
     private final FulfillmentClient fulfillmentClient;
+    private final PaymentDomainService paymentDomainService;
 
     public PaymentApplicationService(PaymentRepository paymentRepository,
                                      OrderServiceClient orderServiceClient,
-                                     FulfillmentClient fulfillmentClient) {
+                                     FulfillmentClient fulfillmentClient,
+                                     PaymentDomainService paymentDomainService) {
         this.paymentRepository = paymentRepository;
         this.orderServiceClient = orderServiceClient;
         this.fulfillmentClient = fulfillmentClient;
+        this.paymentDomainService = paymentDomainService;
     }
 
     @Transactional
@@ -43,12 +46,11 @@ public class PaymentApplicationService {
             throw new IllegalArgumentException("Unsupported channel: " + request.channel());
         }
 
-        String paymentNo = "PAY" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 8);
-        Payment payment = new Payment(paymentNo, 0L, request.orderNo(), "mock", BigDecimal.ZERO, "CNY");
+        Payment payment = paymentDomainService.createPayment(request.orderNo(), "mock", BigDecimal.ZERO, "CNY");
         payment = paymentRepository.save(payment);
 
-        String mockPayUrl = "/api/payments/mock/" + paymentNo + "/success";
-        return new CheckoutResponse(paymentNo, payment.getStatus(), mockPayUrl, null);
+        String mockPayUrl = "/api/payments/mock/" + payment.getPaymentNo() + "/success";
+        return new CheckoutResponse(payment.getPaymentNo(), payment.getStatus(), mockPayUrl, null);
     }
 
     @Transactional

@@ -1,10 +1,10 @@
 package com.zhangyuan.user.application.service;
 
-import com.zhangyuan.user.adapter.out.persistence.SaasUserEntity;
+import com.zhangyuan.user.domain.model.User;
+import com.zhangyuan.user.domain.repository.UserRepository;
 import com.zhangyuan.user.dto.LoginRequest;
 import com.zhangyuan.user.dto.LoginResponse;
 import com.zhangyuan.user.dto.RegisterRequest;
-import com.zhangyuan.user.repository.SaasUserRepository;
 import cn.dev33.satoken.stp.StpUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 
 class SaasUserApplicationServiceTest {
 
-    private final SaasUserRepository userRepo = mock(SaasUserRepository.class);
+    private final UserRepository userRepo = mock(UserRepository.class);
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private SaasUserApplicationService service;
 
@@ -35,7 +35,7 @@ class SaasUserApplicationServiceTest {
 
             when(userRepo.existsByEmail("new@test.com")).thenReturn(false);
             when(userRepo.save(any())).thenAnswer(i -> {
-                SaasUserEntity u = i.getArgument(0);
+                User u = i.getArgument(0);
                 u.setId(1L);
                 return u;
             });
@@ -64,7 +64,8 @@ class SaasUserApplicationServiceTest {
 
             String rawPassword = "pass123";
             String encoded = passwordEncoder.encode(rawPassword);
-            SaasUserEntity user = new SaasUserEntity("test@test.com", encoded, "Test");
+            User user = new User("test@test.com", encoded, "Test");
+            user.setId(1L);
             when(userRepo.findByEmail("test@test.com")).thenReturn(Optional.of(user));
 
             LoginResponse resp = service.login(new LoginRequest("test@test.com", rawPassword));
@@ -75,7 +76,8 @@ class SaasUserApplicationServiceTest {
 
     @Test
     void login_wrongPassword_throws() {
-        SaasUserEntity user = new SaasUserEntity("test@test.com", passwordEncoder.encode("correct"), "Test");
+        User user = new User("test@test.com", passwordEncoder.encode("correct"), "Test");
+        user.setId(1L);
         when(userRepo.findByEmail("test@test.com")).thenReturn(Optional.of(user));
 
         assertThatThrownBy(() -> service.login(new LoginRequest("test@test.com", "wrong")))
@@ -93,7 +95,7 @@ class SaasUserApplicationServiceTest {
 
     @Test
     void verifyApiKey_validKey_returnsUserId() {
-        SaasUserEntity user = new SaasUserEntity("test@test.com", "hash", "Test");
+        User user = new User("test@test.com", "hash", "Test");
         user.setId(1L);
         user.setApiKey("sk-valid-key");
         when(userRepo.findByApiKey("sk-valid-key")).thenReturn(Optional.of(user));
@@ -114,7 +116,7 @@ class SaasUserApplicationServiceTest {
 
     @Test
     void verifyApiKey_disabledUser_returnsError() {
-        SaasUserEntity user = new SaasUserEntity("test@test.com", "hash", "Test");
+        User user = new User("test@test.com", "hash", "Test");
         user.setStatus("disabled");
         when(userRepo.findByApiKey("sk-disabled")).thenReturn(Optional.of(user));
 

@@ -1,9 +1,9 @@
 package com.zhangyuan.user.application.service;
 
-import com.zhangyuan.user.adapter.out.persistence.BalanceTransactionEntity;
-import com.zhangyuan.user.adapter.out.persistence.SaasUserEntity;
-import com.zhangyuan.user.repository.BalanceTransactionRepository;
-import com.zhangyuan.user.repository.SaasUserRepository;
+import com.zhangyuan.user.domain.model.BalanceTransaction;
+import com.zhangyuan.user.domain.model.User;
+import com.zhangyuan.user.domain.repository.BalanceTransactionRepository;
+import com.zhangyuan.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.*;
 
 class BalanceServiceTest {
 
-    private final SaasUserRepository userRepository = mock(SaasUserRepository.class);
+    private final UserRepository userRepository = mock(UserRepository.class);
     private final BalanceTransactionRepository txRepo = mock(BalanceTransactionRepository.class);
     private BalanceService service;
 
@@ -25,8 +25,8 @@ class BalanceServiceTest {
         service = new BalanceService(userRepository, txRepo);
     }
 
-    private SaasUserEntity createUser(Long id, BigDecimal balance) {
-        SaasUserEntity u = new SaasUserEntity("test@test.com", "hash", "Test");
+    private User createUser(Long id, BigDecimal balance) {
+        User u = new User("test@test.com", "hash", "Test");
         u.setId(id);
         u.setBalance(balance);
         u.setTotalRecharged(BigDecimal.ZERO);
@@ -35,7 +35,7 @@ class BalanceServiceTest {
 
     @Test
     void recharge_increasesBalance() {
-        SaasUserEntity user = createUser(1L, BigDecimal.valueOf(100));
+        User user = createUser(1L, BigDecimal.valueOf(100));
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.save(any())).thenReturn(user);
 
@@ -48,7 +48,7 @@ class BalanceServiceTest {
 
     @Test
     void deduct_decreasesBalance() {
-        SaasUserEntity user = createUser(1L, BigDecimal.valueOf(100));
+        User user = createUser(1L, BigDecimal.valueOf(100));
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.save(any())).thenReturn(user);
 
@@ -60,7 +60,7 @@ class BalanceServiceTest {
 
     @Test
     void deduct_insufficientBalance_throws() {
-        SaasUserEntity user = createUser(1L, BigDecimal.valueOf(10));
+        User user = createUser(1L, BigDecimal.valueOf(10));
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         assertThatThrownBy(() -> service.deduct(1L, BigDecimal.valueOf(100), "超额扣费"))
@@ -70,7 +70,7 @@ class BalanceServiceTest {
 
     @Test
     void getBalance_returnsCorrectAmount() {
-        SaasUserEntity user = createUser(1L, BigDecimal.valueOf(200));
+        User user = createUser(1L, BigDecimal.valueOf(200));
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         BigDecimal balance = service.getBalance(1L);
@@ -104,11 +104,11 @@ class BalanceServiceTest {
 
     @Test
     void getTransactions_returnsList() {
-        BalanceTransactionEntity tx1 = new BalanceTransactionEntity(1L, BigDecimal.valueOf(50), BigDecimal.valueOf(150), "RECHARGE", "充值");
-        BalanceTransactionEntity tx2 = new BalanceTransactionEntity(1L, BigDecimal.valueOf(-30), BigDecimal.valueOf(120), "DEDUCT", "扣费");
+        BalanceTransaction tx1 = new BalanceTransaction(1L, BigDecimal.valueOf(50), BigDecimal.valueOf(150), "RECHARGE", "充值");
+        BalanceTransaction tx2 = new BalanceTransaction(1L, BigDecimal.valueOf(-30), BigDecimal.valueOf(120), "DEDUCT", "扣费");
         when(txRepo.findByUserIdOrderByCreatedAtDesc(1L)).thenReturn(List.of(tx1, tx2));
 
-        List<BalanceTransactionEntity> result = service.getTransactions(1L);
+        List<BalanceTransaction> result = service.getTransactions(1L);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getAmount()).isEqualByComparingTo("50");
@@ -119,7 +119,7 @@ class BalanceServiceTest {
     void getTransactions_emptyList() {
         when(txRepo.findByUserIdOrderByCreatedAtDesc(1L)).thenReturn(List.of());
 
-        List<BalanceTransactionEntity> result = service.getTransactions(1L);
+        List<BalanceTransaction> result = service.getTransactions(1L);
 
         assertThat(result).isEmpty();
     }

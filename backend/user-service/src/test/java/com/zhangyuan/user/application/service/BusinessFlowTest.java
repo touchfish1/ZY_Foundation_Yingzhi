@@ -1,12 +1,11 @@
 package com.zhangyuan.user.application.service;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.zhangyuan.user.adapter.out.persistence.BalanceTransactionEntity;
-import com.zhangyuan.user.adapter.out.persistence.SaasUserEntity;
+import com.zhangyuan.user.domain.model.User;
+import com.zhangyuan.user.domain.repository.BalanceTransactionRepository;
+import com.zhangyuan.user.domain.repository.UserRepository;
 import com.zhangyuan.user.dto.LoginRequest;
 import com.zhangyuan.user.dto.RegisterRequest;
-import com.zhangyuan.user.repository.BalanceTransactionRepository;
-import com.zhangyuan.user.repository.SaasUserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -27,7 +25,7 @@ import static org.mockito.Mockito.*;
  */
 class BusinessFlowTest {
 
-    private final SaasUserRepository userRepo = mock(SaasUserRepository.class);
+    private final UserRepository userRepo = mock(UserRepository.class);
     private final BalanceTransactionRepository txRepo = mock(BalanceTransactionRepository.class);
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private SaasUserApplicationService userService;
@@ -59,8 +57,8 @@ class BusinessFlowTest {
         String nickname = "TestUser";
 
         when(userRepo.existsByEmail(email)).thenReturn(false);
-        when(userRepo.save(any(SaasUserEntity.class))).thenAnswer(i -> {
-            SaasUserEntity u = i.getArgument(0);
+        when(userRepo.save(any(User.class))).thenAnswer(i -> {
+            User u = i.getArgument(0);
             u.setId(1L);
             return u;
         });
@@ -71,7 +69,7 @@ class BusinessFlowTest {
         assertThat(loginResp.token()).isNotNull();
 
         // 2. 登录
-        SaasUserEntity savedUser = new SaasUserEntity(email, passwordEncoder.encode(password), nickname);
+        User savedUser = new User(email, passwordEncoder.encode(password), nickname);
         savedUser.setId(1L);
         when(userRepo.findByEmail(email)).thenReturn(Optional.of(savedUser));
 
@@ -84,7 +82,7 @@ class BusinessFlowTest {
         assertThat(initialBalance).isEqualByComparingTo(BigDecimal.ZERO);
 
         // 4. 充值100
-        doReturn(savedUser).when(userRepo).save(any(SaasUserEntity.class));
+        doReturn(savedUser).when(userRepo).save(any(User.class));
         balanceService.recharge(1L, BigDecimal.valueOf(100), "充值100元");
         assertThat(savedUser.getBalance()).isEqualByComparingTo("100");
         verify(txRepo, times(1)).save(any());
@@ -116,8 +114,9 @@ class BusinessFlowTest {
 
     @Test
     void login_wrongPassword_throws() {
-        SaasUserEntity user = new SaasUserEntity("test@test.com",
+        User user = new User("test@test.com",
             passwordEncoder.encode("correct"), "Test");
+        user.setId(1L);
         when(userRepo.findByEmail("test@test.com")).thenReturn(Optional.of(user));
         assertThatThrownBy(() -> userService.login(new LoginRequest("test@test.com", "wrong")))
             .isInstanceOf(IllegalArgumentException.class)

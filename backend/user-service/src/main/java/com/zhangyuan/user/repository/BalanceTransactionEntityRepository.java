@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface BalanceTransactionRepository extends JpaRepository<BalanceTransactionEntity, Long> {
+public interface BalanceTransactionEntityRepository extends JpaRepository<BalanceTransactionEntity, Long> {
     List<BalanceTransactionEntity> findByUserIdOrderByCreatedAtDesc(Long userId);
 }

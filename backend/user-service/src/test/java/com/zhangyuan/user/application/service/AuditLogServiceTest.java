@@ -1,6 +1,6 @@
 package com.zhangyuan.user.application.service;
 
-import com.zhangyuan.user.repository.AuditLogRepository;
+import com.zhangyuan.user.domain.repository.AuditLogRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

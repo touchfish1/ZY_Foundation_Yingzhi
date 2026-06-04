@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface SaasUserRepository extends JpaRepository<SaasUserEntity, Long> {
+public interface SaasUserEntityRepository extends JpaRepository<SaasUserEntity, Long> {
     Optional<SaasUserEntity> findByEmail(String email);
     Optional<SaasUserEntity> findByApiKey(String apiKey);
     boolean existsByEmail(String email);

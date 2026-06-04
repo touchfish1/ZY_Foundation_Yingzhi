@@ -1,9 +1,9 @@
 package com.zhangyuan.user.application.service;
 
-import com.zhangyuan.user.adapter.out.persistence.SaasUserEntity;
 import com.zhangyuan.user.common.ApiResponse;
+import com.zhangyuan.user.domain.model.User;
+import com.zhangyuan.user.domain.repository.UserRepository;
 import com.zhangyuan.user.dto.*;
-import com.zhangyuan.user.repository.SaasUserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,10 +13,10 @@ import java.util.UUID;
 
 @Service
 public class SaasUserApplicationService {
-    private final SaasUserRepository userRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public SaasUserApplicationService(SaasUserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public SaasUserApplicationService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -26,7 +26,7 @@ public class SaasUserApplicationService {
         if (userRepository.existsByEmail(request.email())) {
             throw new IllegalArgumentException("Email already registered");
         }
-        SaasUserEntity user = new SaasUserEntity(
+        User user = new User(
                 request.email(),
                 passwordEncoder.encode(request.password()),
                 request.nickname() != null ? request.nickname() : request.email().split("@")[0]
@@ -38,7 +38,7 @@ public class SaasUserApplicationService {
     }
 
     public LoginResponse login(LoginRequest request) {
-        SaasUserEntity user = userRepository.findByEmail(request.email())
+        User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new IllegalArgumentException("Invalid email or password");
@@ -55,7 +55,7 @@ public class SaasUserApplicationService {
     public ApiResponse<Long> verifyApiKey(String apiKey) {
         return userRepository.findByApiKey(apiKey)
                 .map(user -> {
-                    if (!"active".equals(user.getStatus())) {
+                    if (!user.isActive()) {
                         return ApiResponse.<Long>error(403, "User is not active");
                     }
                     return ApiResponse.<Long>ok(user.getId());
@@ -63,7 +63,7 @@ public class SaasUserApplicationService {
                 .orElse(ApiResponse.<Long>error(404, "API Key not found"));
     }
 
-    private UserResponse toResponse(SaasUserEntity user) {
+    private UserResponse toResponse(User user) {
         return new UserResponse(
                 user.getId(), user.getEmail(), user.getNickname(),
                 user.getApiKey(), user.getQuotaUsed(), user.getQuotaLimit(), user.getStatus()

@@ -96,18 +96,28 @@ scripts/seed-test-data.ps1
 - PostgreSQL、MinIO
 
 ### DDD 六边形架构（每模块结构）
-```
-com.zhangyuan.modules.{cms,product,order,payment,asset}
-  ├── domain/          # 领域模型 + 仓储接口，不依赖 Spring/JPA
-  ├── domain/model/    # 聚合根、实体、值对象
-  ├── domain/repository/ # 仓储接口
-  ├── domain/service/  # 领域服务
-  ├── application/     # 应用服务（编排用），不包含业务规则
-  ├── adapter/in/      # REST 控制器
-  ├── adapter/out/     # JPA 仓储实现
-  ├── dto/             # 数据传输对象
-  └── repository/      # JPA Repository 接口
-```
+
+详细规范请参阅 [`docs/ddd-architecture.md`](../docs/ddd-architecture.md)。
+
+每个微服务遵循 DDD 六边形架构（端口与适配器模式），包路径对应关系：
+
+| 层 | 包路径 | 职责 | 框架依赖 |
+|----|--------|------|----------|
+| 领域模型 | `domain/model/` | 聚合根、实体、值对象（纯 POJO） | 无 |
+| 仓储接口 | `domain/repository/` | 端口定义 | 无 |
+| 领域服务 | `domain/service/` | 纯业务规则 | 无 |
+| 应用服务 | `application/service/` | 用例编排 | 可依赖 Spring 事务 |
+| 入站适配器 | `adapter/in/rest/` | REST 控制器 | Spring MVC |
+| 出站适配器 | `adapter/out/persistence/` | JPA 仓储实现 + 实体 | Spring Data JPA |
+| DTO | `dto/` | 数据传输对象 | 无 |
+| 通用 | `common/` | 工具类、配置 | Spring 配置注解 |
+
+**核心约束：**
+- 依赖方向：`adapter/in → application → domain` 且 `adapter/out → domain`
+- 控制器**只能**依赖应用服务和 DTO，不能直接调用 repository 或返回 JPA 实体
+- 应用服务**只能**依赖领域模型、仓储接口和领域服务，不能注入 Spring Data JPA 接口
+- 领域模型**不能**包含任何框架注解（JPA、Spring 等）
+- 仓储适配器负责 JPA 实体 <-> 领域模型转换
 
 ### API 规范
 - 统一响应：`{ code, message, data }`
