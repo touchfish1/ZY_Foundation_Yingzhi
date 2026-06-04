@@ -3,7 +3,7 @@
     <div class="payment-card">
       <h2>支付处理中...</h2>
       <p>订单号: {{ orderNo }}</p>
-      <a v-if="payUrl" :href="payUrl" class="btn-primary" target="_blank">点击完成支付</a>
+      <a v-if="fullPayUrl" :href="fullPayUrl" class="btn-primary" target="_blank">点击完成支付</a>
       <button class="btn-secondary" @click="verifyPayment" :disabled="verifying">
         {{ verifying ? '验证中...' : '我已支付完成' }}
       </button>
@@ -20,17 +20,17 @@ const router = useRouter()
 const config = useRuntimeConfig()
 const token = import.meta.client ? localStorage.getItem('saas_token') : null
 const orderNo = ref(route.query.orderNo as string || '')
-const payUrl = ref(route.query.payUrl as string || '')
+const payUrl = ref(route.query.payUrl ? decodeURIComponent(route.query.payUrl as string) : '')
 const verifying = ref(false)
 const verified = ref(false)
 const error = ref('')
+const fullPayUrl = computed(() => payUrl.value ? `${config.public.apiBase}${payUrl.value}` : '')
 
 async function verifyPayment() {
   verifying.value = true; error.value = ''
   try {
-    // Call mock payment success
-    const payPath = payUrl.value.replace('/api', '')
-    await $fetch(`${config.public.apiBase}${payPath}`, { method: 'POST' })
+    // Call mock payment success - payUrl is already a full API path like /api/payments/mock/PAYxxx/success
+    await $fetch(`${config.public.apiBase}${payUrl.value}`, { method: 'POST' })
     verified.value = true
     setTimeout(() => router.push('/dashboard/orders'), 2000)
   } catch (e: any) { error.value = e?.data?.message || '验证失败' }

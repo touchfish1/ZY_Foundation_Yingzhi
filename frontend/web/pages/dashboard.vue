@@ -25,6 +25,10 @@
           <span class="nav-icon">📈</span>
           <span class="nav-label">用量统计</span>
         </NuxtLink>
+        <NuxtLink to="/settings" class="nav-item">
+          <span class="nav-icon">⚙️</span>
+          <span class="nav-label">设置</span>
+        </NuxtLink>
       </nav>
       <div class="sidebar-footer">
         <button @click="auth.logout()" class="logout-btn">退出登录</button>
@@ -35,6 +39,10 @@
         <div class="stat-card">
           <div class="stat-label">API Key</div>
           <div class="stat-value code">{{ user?.apiKey?.slice(0, 20) }}...</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">账户余额</div>
+          <div class="stat-value">¥{{ balance }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">已用配额</div>
@@ -99,6 +107,10 @@ const auth = useSaasAuth()
 const { user } = auth
 const config = useRuntimeConfig()
 const token = import.meta.client ? localStorage.getItem('saas_token') : null
+const userId = computed(() => auth.user.value?.id)
+
+const balance = ref(0)
+const usageSummary = ref<any>(null)
 
 const subscriptionStatus = ref('')
 const loadingSubscription = ref(true)
@@ -110,10 +122,25 @@ const subscriptionStatusClass = computed(() => {
   return map[subscriptionStatus.value?.toLowerCase()] || 'badge-warning'
 })
 
-onMounted(async () => {
-  if (!user.value) await auth.fetchProfile()
+async function fetchBalance() {
+  if (!userId.value) return
+  try {
+    const res = await $fetch(`${config.public.apiBase}/api/balance/${userId.value}`) as any
+    balance.value = res.balance || 0
+  } catch (e) { console.error('Failed to load balance', e) }
+}
 
-  // Fetch subscription status
+async function fetchUsage() {
+  if (!userId.value) return
+  try {
+    const res = await $fetch(`${config.public.apiBase}/api/usage/${userId.value}/summary`, {
+      headers: { Authorization: `Bearer ${import.meta.client ? localStorage.getItem('saas_token') : ''}` }
+    }) as any
+    usageSummary.value = res?.data
+  } catch (e) { /* usage may not have data yet */ }
+}
+
+async function fetchSubscription() {
   if (user.value?.id && token) {
     try {
       const subRes = await $fetch(`${config.public.apiBase}/api/subscriptions/active`, {
@@ -127,8 +154,9 @@ onMounted(async () => {
   } else {
     loadingSubscription.value = false
   }
+}
 
-  // Fetch recent orders
+async function fetchOrders() {
   if (user.value?.id && token) {
     try {
       const orderRes = await $fetch(`${config.public.apiBase}/api/orders`, {
@@ -142,6 +170,16 @@ onMounted(async () => {
   } else {
     loadingOrders.value = false
   }
+}
+
+onMounted(async () => {
+  if (!user.value) await auth.fetchProfile()
+  await Promise.all([
+    fetchBalance(),
+    fetchSubscription(),
+    fetchOrders(),
+    fetchUsage()
+  ])
 })
 
 function orderStatusClass(s: string) {

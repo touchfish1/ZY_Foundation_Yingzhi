@@ -1,5 +1,6 @@
 package com.zhangyuan.order.common;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.zhangyuan.order.client.UserServiceClient;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +26,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws IOException {
         String path = request.getRequestURI();
 
-        // Only protect /api/orders paths that need auth
+        // Only protect /api/orders paths
         if (!path.startsWith("/api/orders") || path.contains("fulfill")) {
             try { filterChain.doFilter(request, response); } catch (Exception e) { log.error("Filter error", e); }
             return;
@@ -35,17 +36,26 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             response.setStatus(401);
             response.setContentType("application/json");
-            response.getWriter().write("{\"code\":401,\"message\":\"Missing or invalid Authorization header\",\"data\":null}");
+            response.getWriter().write("{\"code\":401,\"message\":\"Missing token\",\"data\":null}");
             return;
         }
 
-        String apiKey = authHeader.substring(7);
+        String token = authHeader.substring(7);
+
+        // Check if it's a valid Sa-Token session first (web users)
+        StpUtil.setTokenValue(token);
+        if (StpUtil.isLogin()) {
+            request.setAttribute("userId", StpUtil.getLoginIdAsLong());
+            try { filterChain.doFilter(request, response); } catch (Exception e) { log.error("Filter error", e); }
+            return;
+        }
+
+        // Fallback: verify as API key via system-service
         try {
-            // Verify API key via Feign call to system-service
-            var resp = userServiceClient.verifyApiKey(apiKey);
+            var resp = userServiceClient.verifyApiKey(token);
             if (resp == null || resp.code() != 0) {
                 response.setStatus(403);
-                response.getWriter().write("{\"code\":403,\"message\":\"Invalid API Key\",\"data\":null}");
+                response.getWriter().write("{\"code\":403,\"message\":\"Invalid token\",\"data\":null}");
                 return;
             }
             request.setAttribute("userId", resp.data());

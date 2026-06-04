@@ -15,11 +15,18 @@
         </NuxtLink>
 
         <nav class="desktop-nav" aria-label="Primary navigation">
-          <NuxtLink to="/" class="nav-link">首页</NuxtLink>
-          <NuxtLink to="/#models" class="nav-link nav-hash">模型广场</NuxtLink>
-          <NuxtLink to="/#pricing" class="nav-link nav-hash">定价</NuxtLink>
-          <NuxtLink to="/docs" class="nav-link">文档</NuxtLink>
-          <NuxtLink to="/about" class="nav-link">关于</NuxtLink>
+          <template v-if="auth.isLoggedIn.value">
+            <NuxtLink to="/dashboard" class="nav-link">控制台</NuxtLink>
+            <NuxtLink to="/pricing" class="nav-link">定价</NuxtLink>
+            <NuxtLink to="/docs" class="nav-link">API 文档</NuxtLink>
+          </template>
+          <template v-else>
+            <NuxtLink to="/" class="nav-link">首页</NuxtLink>
+            <NuxtLink to="/#models" class="nav-link nav-hash">模型广场</NuxtLink>
+            <NuxtLink to="/#pricing" class="nav-link nav-hash">定价</NuxtLink>
+            <NuxtLink to="/docs" class="nav-link">文档</NuxtLink>
+            <NuxtLink to="/about" class="nav-link">关于</NuxtLink>
+          </template>
         </nav>
 
         <div class="navbar-right">
@@ -34,8 +41,10 @@
                   <div class="dropdown-header">
                     <span class="dropdown-name">{{ auth.user.value?.nickname || '用户' }}</span>
                     <span class="dropdown-email">{{ auth.user.value?.email }}</span>
+                    <span class="dropdown-balance">余额: ¥{{ balance }}</span>
                   </div>
                   <NuxtLink to="/dashboard" class="dropdown-item" @click="userMenuOpen = false">控制台</NuxtLink>
+                  <NuxtLink to="/pricing" class="dropdown-item" @click="userMenuOpen = false">定价</NuxtLink>
                   <NuxtLink to="/dashboard/settings" class="dropdown-item" @click="userMenuOpen = false">设置</NuxtLink>
                   <hr class="dropdown-divider" />
                   <button class="dropdown-item dropdown-logout" @click="handleLogout">退出登录</button>
@@ -71,7 +80,10 @@
             <NuxtLink to="/docs" class="mobile-link" @click="mobileOpen = false">文档</NuxtLink>
             <NuxtLink to="/about" class="mobile-link" @click="mobileOpen = false">关于</NuxtLink>
             <template v-if="auth.isLoggedIn.value">
-              <NuxtLink to="/dashboard" class="mobile-cta" @click="mobileOpen = false">控制台</NuxtLink>
+              <NuxtLink to="/dashboard" class="mobile-link" @click="mobileOpen = false">控制台</NuxtLink>
+              <NuxtLink to="/pricing" class="mobile-link" @click="mobileOpen = false">定价</NuxtLink>
+              <NuxtLink to="/docs" class="mobile-link" @click="mobileOpen = false">API 文档</NuxtLink>
+              <hr class="mobile-divider" />
               <button class="mobile-link mobile-logout" @click="handleLogout">退出登录</button>
             </template>
             <template v-else>
@@ -135,6 +147,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 const site = await useSiteSettings()
 const auth = useSaasAuth()
 
+const balance = ref(0)
 const mobileOpen = ref(false)
 const isScrolled = ref(false)
 const userMenuOpen = ref(false)
@@ -156,6 +169,15 @@ function handleLogout() {
   auth.logout()
 }
 
+async function fetchBalance() {
+  if (!auth.isLoggedIn.value || !auth.user.value?.id) return
+  try {
+    const config = useRuntimeConfig()
+    const res = await $fetch(`${config.public.apiBase}/api/balance/${auth.user.value.id}`) as any
+    balance.value = res.balance || 0
+  } catch (e) { /* silent */ }
+}
+
 // Close user menu on Escape key
 function onKeyDown(e: KeyboardEvent) {
   if (e.key === 'Escape') userMenuOpen.value = false
@@ -170,6 +192,7 @@ onMounted(() => {
   window.addEventListener('keydown', onKeyDown)
   document.addEventListener('click', onDocClick)
   onScroll()
+  fetchBalance()
 })
 
 onUnmounted(() => {
@@ -413,6 +436,14 @@ html {
   margin-top: 2px;
 }
 
+.dropdown-balance {
+  display: block;
+  font-size: 13px;
+  color: #6366f1;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
 .dropdown-item {
   display: block;
   width: 100%;
@@ -591,6 +622,13 @@ html {
   cursor: pointer;
   font-family: inherit;
   padding: 14px 40px;
+}
+
+.mobile-divider {
+  width: 60%;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  margin: 8px 0;
 }
 
 .mobile-logout:hover {
