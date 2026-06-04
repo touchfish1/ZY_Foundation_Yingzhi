@@ -1,6 +1,7 @@
 package com.zhangyuan.system.adapter.in.rest;
 
 import com.zhangyuan.system.application.service.SaasUserApplicationService;
+import com.zhangyuan.system.common.ApiResponse;
 import com.zhangyuan.system.dto.*;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -36,5 +37,11 @@ public class SaasUserController {
     public UserResponse profile() {
         long loginId = StpUtil.getLoginIdAsLong();
         return saasUserApplicationService.getProfile(loginId);
+    }
+
+    @GetMapping("/verify-key")
+    public ApiResponse<Long> verifyApiKey(@RequestParam String apiKey) {
+        log.info("Verifying API key");
+        return saasUserApplicationService.verifyApiKey(apiKey);
     }
 }

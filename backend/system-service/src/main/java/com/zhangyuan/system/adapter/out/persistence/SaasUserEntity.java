@@ -1,6 +1,8 @@
 package com.zhangyuan.system.adapter.out.persistence;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -33,6 +35,26 @@ public class SaasUserEntity {
 
     @Column(name = "quota_limit")
     private Long quotaLimit = 0L;
+
+    @Column(precision = 20, scale = 8)
+    private BigDecimal balance = BigDecimal.ZERO;
+
+    private int concurrency = 5;
+
+    @Column(name = "rpm_limit")
+    private int rpmLimit = 0;
+
+    @Column(length = 20)
+    private String role = "user";
+
+    @Column(name = "total_recharged", precision = 20, scale = 8)
+    private BigDecimal totalRecharged = BigDecimal.ZERO;
+
+    @Column(columnDefinition = "text")
+    private String notes;
+
+    @Column(name = "last_login_at")
+    private Instant lastLoginAt;
 
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
@@ -82,4 +104,18 @@ public class SaasUserEntity {
     public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
     public OffsetDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public BigDecimal getBalance() { return balance; }
+    public void setBalance(BigDecimal balance) { this.balance = balance; }
+    public int getConcurrency() { return concurrency; }
+    public void setConcurrency(int concurrency) { this.concurrency = concurrency; }
+    public int getRpmLimit() { return rpmLimit; }
+    public void setRpmLimit(int rpmLimit) { this.rpmLimit = rpmLimit; }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+    public BigDecimal getTotalRecharged() { return totalRecharged; }
+    public void setTotalRecharged(BigDecimal totalRecharged) { this.totalRecharged = totalRecharged; }
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
+    public Instant getLastLoginAt() { return lastLoginAt; }
+    public void setLastLoginAt(Instant lastLoginAt) { this.lastLoginAt = lastLoginAt; }
 }

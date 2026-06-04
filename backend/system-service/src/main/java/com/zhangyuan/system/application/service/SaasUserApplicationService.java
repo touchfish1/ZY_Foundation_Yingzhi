@@ -1,6 +1,7 @@
 package com.zhangyuan.system.application.service;
 
 import com.zhangyuan.system.adapter.out.persistence.SaasUserEntity;
+import com.zhangyuan.system.common.ApiResponse;
 import com.zhangyuan.system.dto.*;
 import com.zhangyuan.system.repository.SaasUserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -49,6 +50,17 @@ public class SaasUserApplicationService {
     public UserResponse getProfile(Long userId) {
         return toResponse(userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found")));
+    }
+
+    public ApiResponse<Long> verifyApiKey(String apiKey) {
+        return userRepository.findByApiKey(apiKey)
+                .map(user -> {
+                    if (!"active".equals(user.getStatus())) {
+                        return ApiResponse.<Long>error(403, "User is not active");
+                    }
+                    return ApiResponse.<Long>ok(user.getId());
+                })
+                .orElse(ApiResponse.<Long>error(404, "API Key not found"));
     }
 
     private UserResponse toResponse(SaasUserEntity user) {
