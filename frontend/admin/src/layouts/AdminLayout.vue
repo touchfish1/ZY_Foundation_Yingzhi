@@ -11,7 +11,7 @@
       @expand="collapsed = false"
       class="sidebar"
     >
-      <div class="brand">
+      <div class="brand" :class="{ 'brand-collapsed': collapsed }">
         <div class="brand-icon">
           <n-icon size="28" color="#6366f1">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
@@ -282,6 +282,12 @@ function handleUserMenu(key: string) {
   font-size: 11px;
   color: #64748b;
   letter-spacing: 0.08em;
+}
+
+.brand-collapsed {
+  justify-content: center;
+  padding: 0;
+  gap: 0;
 }
 
 .sidebar-search {
