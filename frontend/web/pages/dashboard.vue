@@ -45,13 +45,41 @@
           <div class="stat-value">{{ user?.quotaLimit || 0 }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">状态</div>
+          <div class="stat-label">订阅状态</div>
           <div class="stat-value">
-            <span class="badge" :class="user?.status === 'active' ? 'badge-success' : 'badge-warning'">
-              {{ user?.status }}
+            <span v-if="loadingSubscription" class="loading-text">加载中...</span>
+            <span v-else class="badge" :class="subscriptionStatusClass">
+              {{ subscriptionStatus || '无订阅' }}
             </span>
           </div>
         </div>
+      </div>
+
+      <div class="section">
+        <h2>最近订单</h2>
+        <div class="table-card" v-if="recentOrders.length">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>订单号</th>
+                <th>金额</th>
+                <th>状态</th>
+                <th>时间</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in recentOrders" :key="order.orderNo">
+                <td class="mono">{{ order.orderNo }}</td>
+                <td>{{ order.amount }} {{ order.currency }}</td>
+                <td>
+                  <span class="badge" :class="orderStatusClass(order.status)">{{ order.status }}</span>
+                </td>
+                <td>{{ formatDate(order.createdAt) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p v-else class="empty-text">{{ loadingOrders ? '加载中...' : '暂无订单' }}</p>
       </div>
 
       <div class="section">
@@ -69,10 +97,62 @@
 definePageMeta({ middleware: 'auth' })
 const auth = useSaasAuth()
 const { user } = auth
+const config = useRuntimeConfig()
+const token = import.meta.client ? localStorage.getItem('saas_token') : null
 
-onMounted(() => {
-  if (!user.value) auth.fetchProfile()
+const subscriptionStatus = ref('')
+const loadingSubscription = ref(true)
+const recentOrders = ref<any[]>([])
+const loadingOrders = ref(true)
+
+const subscriptionStatusClass = computed(() => {
+  const map: Record<string, string> = { active: 'badge-success', expired: 'badge-error', pending: 'badge-warning' }
+  return map[subscriptionStatus.value?.toLowerCase()] || 'badge-warning'
 })
+
+onMounted(async () => {
+  if (!user.value) await auth.fetchProfile()
+
+  // Fetch subscription status
+  if (user.value?.id && token) {
+    try {
+      const subRes = await $fetch(`${config.public.apiBase}/api/subscriptions/active`, {
+        params: { userId: user.value.id },
+        headers: { Authorization: `Bearer ${token}` }
+      }) as any
+      subscriptionStatus.value = subRes?.data?.status || subRes?.status || 'none'
+    } catch {
+      subscriptionStatus.value = 'none'
+    } finally { loadingSubscription.value = false }
+  } else {
+    loadingSubscription.value = false
+  }
+
+  // Fetch recent orders
+  if (user.value?.id && token) {
+    try {
+      const orderRes = await $fetch(`${config.public.apiBase}/api/orders`, {
+        params: { userId: user.value.id },
+        headers: { Authorization: `Bearer ${token}` }
+      }) as any
+      recentOrders.value = (orderRes?.data?.items || orderRes?.data || []).slice(0, 5)
+    } catch {
+      // silently fail
+    } finally { loadingOrders.value = false }
+  } else {
+    loadingOrders.value = false
+  }
+})
+
+function orderStatusClass(s: string) {
+  const map: Record<string, string> = { PENDING: 'badge-warning', PAID: 'badge-success', CANCELLED: 'badge-error' }
+  return map[s] || ''
+}
+
+function formatDate(ts: string) {
+  if (!ts) return '-'
+  return new Date(ts).toLocaleString('zh-CN')
+}
 </script>
 
 <style scoped>
@@ -147,8 +227,18 @@ onMounted(() => {
 .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
 .badge-success { background: #dcfce7; color: #16a34a; }
 .badge-warning { background: #fef3c7; color: #d97706; }
+.badge-error { background: #fee2e2; color: #dc2626; }
 .section { margin-bottom: 32px; }
 .section h2 { font-size: 18px; font-weight: 600; margin: 0 0 16px; }
+.table-card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); overflow: hidden; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th, .data-table td { padding: 12px 16px; text-align: left; font-size: 14px; }
+.data-table th { background: #f8fafc; font-weight: 600; color: #475569; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+.data-table tr:not(:last-child) td { border-bottom: 1px solid #f1f5f9; }
+.data-table tr:hover td { background: #f8fafc; }
+.mono { font-family: monospace; font-size: 13px; }
+.empty-text { text-align: center; padding: 24px; color: #94a3b8; font-size: 14px; }
+.loading-text { font-size: 13px; color: #94a3b8; }
 .quickstart-card { background: #1e293b; border-radius: 12px; padding: 24px; color: #e2e8f0; }
 .quickstart-card p { margin: 0 0 12px; font-size: 14px; }
 .code-block { background: #0f172a; padding: 16px; border-radius: 8px; font-size: 13px; overflow-x: auto; }

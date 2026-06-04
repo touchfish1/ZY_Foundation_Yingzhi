@@ -3,7 +3,7 @@
     <div class="page-header">
       <h2>订单记录</h2>
     </div>
-    <div class="table-card">
+    <div class="table-card" v-if="!loading">
       <table class="data-table">
         <thead>
           <tr>
@@ -28,22 +28,26 @@
         </tbody>
       </table>
     </div>
+    <div v-else class="loading-state">加载中...</div>
   </div>
 </template>
 
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
+const auth = useSaasAuth()
 const orders = ref<any[]>([])
 const loading = ref(true)
 const config = useRuntimeConfig()
+const token = import.meta.client ? localStorage.getItem('saas_token') : null
 
 onMounted(async () => {
-  const token = localStorage.getItem('saas_token')
+  if (!auth.user.value) await auth.fetchProfile()
   try {
     const res = await $fetch(`${config.public.apiBase}/api/orders`, {
+      params: { userId: auth.user.value?.id },
       headers: { Authorization: `Bearer ${token}` }
     }) as any
-    orders.value = res.data || []
+    orders.value = res?.data?.items || res?.data || []
   } catch (e) {
     console.error('Failed to load orders', e)
   } finally { loading.value = false }
@@ -76,4 +80,5 @@ function formatDate(ts: string) {
 .badge-success { background: #dcfce7; color: #16a34a; }
 .badge-warning { background: #fef3c7; color: #d97706; }
 .badge-error { background: #fee2e2; color: #dc2626; }
+.loading-state { text-align: center; padding: 60px; color: #94a3b8; }
 </style>
