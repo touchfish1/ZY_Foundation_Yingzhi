@@ -46,6 +46,11 @@ spring:
           uri: lb://payment-service
           predicates:
             - Path=/api/payments/**
+        # Payment service admin
+        - id: payment-admin
+          uri: lb://payment-service
+          predicates:
+            - Path=/admin/payments/**
         - id: api-admin
           uri: lb://zhangyuan-api
           predicates:
