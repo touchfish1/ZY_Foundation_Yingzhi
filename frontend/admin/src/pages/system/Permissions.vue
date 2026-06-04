@@ -8,8 +8,8 @@
             :options="moduleOptions"
             placeholder="筛选模块"
             clearable
-            style="width: 160px"
-            @update:value="load"
+            multiple
+            style="width: 240px"
           />
           <n-input v-model:value="searchQuery" placeholder="搜索编码/名称..." clearable style="width: 200px">
             <template #prefix>
@@ -104,7 +104,7 @@ const permissions = ref<PermissionInfo[]>([])
 const modules = ref<string[]>([])
 const loading = ref(false)
 const searchQuery = ref('')
-const moduleFilter = ref<string | null>(null)
+const moduleFilter = ref<string[]>([])
 const codeError = ref('')
 
 const moduleOptions = computed<SelectOption[]>(() =>
@@ -113,6 +113,9 @@ const moduleOptions = computed<SelectOption[]>(() =>
 
 const filteredPermissions = computed(() => {
   let list = permissions.value
+  if (moduleFilter.value.length > 0) {
+    list = list.filter(p => moduleFilter.value.includes(p.module))
+  }
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase()
     list = list.filter(p => p.code.toLowerCase().includes(q) || p.name.toLowerCase().includes(q))
@@ -139,6 +142,7 @@ const paginatedPermissions = computed(() => {
 })
 
 watch(searchQuery, () => { paginationReactive.page = 1 })
+watch(moduleFilter, () => { paginationReactive.page = 1 })
 
 const showCreate = ref(false)
 const showEdit = ref(false)
@@ -197,7 +201,7 @@ async function load() {
   paginationReactive.page = 1
   loading.value = true
   try {
-    permissions.value = await listPermissions(moduleFilter.value ?? undefined)
+    permissions.value = await listPermissions()
   } catch (error) {
     message.error(error instanceof Error ? error.message : '加载失败')
   } finally {

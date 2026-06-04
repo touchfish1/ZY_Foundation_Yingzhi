@@ -1,40 +1,44 @@
-# AGENTS.md — Project ZHANGYUAN
+# AGENTS.md — 中元项目
 
-## 项目边界
-- 这是多模块单体仓库，不是根目录 Node/Gradle 工作区；根目录没有 `package.json`，不要在根目录跑 `npm install`。
-- 目录按用途命名（`frontend`、`backend`、`infrastructure` 等）；新功能优先落在现有顶层目录，不要随手新增顶层模块。
-- 主要入口：前台 `frontend/web`，后台 `frontend/admin`，后端 API `backend/api`，基础设施 `infrastructure/docker`。
-- `security`、`backend/gateway`、`domain` 当前多为占位/规划；认证、授权、领域逻辑实际仍在 API 单体内。
+## 项目布局
+- 多模块单体仓库，根目录无 `package.json`。顶层目录按功能划分。
+- **活跃入口：** `frontend/web`（Nuxt 3，端口 3000）、`frontend/admin`（Vite+Vue 3+NaiveUI，端口 5173）、`backend/api`（Spring Boot 3.3.5+Java21，**端口 8088**）、`infrastructure/docker/`。
+- **真实微服务**（非占位符）：`backend/auth-service`（8082）、`backend/system-service`（8081）、`backend/gateway`（Spring Cloud Gateway，8080）。
+- `domain/` 和 `security/` 仅有 README；`gateway` 有真实代码。
+- DDD 模块位于 `backend/api/.../modules/{asset,cms,order,payment,product}`。`auth` 和 `system` 模块尚未创建。
 
 ## 常用命令
-- 中间件已在 WSL 常驻运行（PostgreSQL `5432`、Redis `6379`、MinIO `9000/9001`），一般无需手动启动。如需重启：`docker compose -f infrastructure/docker/docker-compose.yml up -d`。
-- 全栈 Docker：`docker compose -f infrastructure/docker/docker-compose.yml -f infrastructure/docker/docker-compose.app.yml up -d`；第二个 compose 依赖第一个创建的外部网络。
-- API：在 `backend/api` 运行 `./gradlew bootRun`、`./gradlew test`、单测 `./gradlew test --tests "com.zhangyuan...Test"`。
-- Web：在 `frontend/web` 运行 `npm install`、`npm run dev`、`npm run build`；dev 固定 `0.0.0.0:3000`。
-- Admin：在 `frontend/admin` 运行 `npm install`、`npm run dev`、`npm run build`；dev 固定 `0.0.0.0:5173`。
-- CI 使用 Node 22、JDK 21；前端 CI 先 `npm ci`，Admin 跑 `npx vue-tsc -b --noEmit`，Web 跑 `npx nuxt typecheck`。
+- **API：** `./gradlew bootRun` / `./gradlew test` / `./gradlew test --tests "com.zhangyuan.architecture.*"` — 在 `backend/api/` 目录下执行。
+- **Auth/System/Gateway：** 各自目录下执行 `./gradlew bootRun`。
+- **Web：** `npm run dev`（固定 `0.0.0.0:3000`）、`npm run build`、CI 类型检查：`npx nuxt typecheck`。
+- **Admin：** `npm run dev`（固定 `0.0.0.0:5173`）、`npm run build`（含 `vue-tsc -b`）、CI 类型检查：`npx vue-tsc -b --noEmit`。
+- **中间件（WSL Docker）：** `docker compose -f infrastructure/docker/docker-compose.yml up -d`。全栈：追加 `-f infrastructure/docker/docker-compose.app.yml`。
+- **种子数据：** `scripts/seed-test-data.ps1 [-BaseUrl http://localhost:8080]`。
 
-## 后端约定
-- Spring Boot 3.3.5 + Java 21 + Gradle；数据库 schema 只由 Flyway 管理，JPA `ddl-auto: validate`，迁移放 `src/main/resources/db/migration/V*.sql`。
-- 本地默认连接：PostgreSQL `zhangyuan/zhangyuan@localhost:5432/zhangyuan`，Redis `localhost:6379`，MinIO `http://localhost:9000`。
-- 默认管理员来自配置：`admin / admin123`；生产必须覆盖 `JWT_SECRET` 和 `DEFAULT_ADMIN_PASSWORD`。
-- 统一响应格式为 `{ code, message, data }`；分页数据在 `data` 内使用 `items/page/pageSize/total`。
-- `/admin/**` 是后台接口，`/api/**` 是公开接口，`/api/ddd/**` 是 DDD 骨架验证接口；旧 CRUD 控制器和 DDD 适配器当前并行存在。
-- DDD 模块在 `com.zhangyuan.modules.{auth,cms,product,order,payment,asset,system}`；`domain` 不依赖 Spring/JPA，`application` 只编排，`adapter` 做 REST/JPA 映射。
-- 模块边界验证：`gradle test --tests "com.zhangyuan.architecture.*"`。
+## 后端
+- **API 端口为 8088**（不是 8080）。Gateway 监听 8080，路由到所有服务。
+- **必须启动 Nacos**（服务发现+配置中心，地址 `100.125.148.23:8848`）。已禁用 Nacos 配置导入检查（`import-check.enabled: false`），但服务发现仍需 Nacos。
+- **Sa-Token**（非 Spring Security）负责鉴权：`/admin/**` 需登录，`/api/**` 和 `/actuator/**` 公开。Spring Security 已配置为全部放行。
+- Admin Vite 代理目标为 `http://localhost:8088`（直接连 API，非 Gateway）。
+- **Web** 通过 `NUXT_PUBLIC_API_BASE` 读取后端地址（默认 `http://localhost:8080`，即 Gateway）。
+- **Flyway** 管理数据库迁移，脚本位于 `backend/api/src/main/resources/db/migration/V*.sql`。auth-service 和 system-service 中已禁用 Flyway。
+- **统一响应格式：** `{ code, message, data }`；分页数据中 `data` 使用 `{ items, page, pageSize, total }`。
+- **三类端点：** `/admin/**`（Sa-Token + `@SaCheckPermission`）、`/api/**`（公开）、`/api/ddd/**`（DDD 骨架验证，公开）。
+
+## DDD 与架构
+- 模块遵循六边形架构：`domain/{model,repository,service}/` → `application/service/` → `adapter/in/rest/` + `adapter/out/persistence/`。旧版 `repository/`（Spring Data JPA）与新仓库并存。
+- 领域模型为普通 POJO，**未继承** `common/dddframework/` 基类（框架存在但未使用）。
+- **架构测试：** `com.zhangyuan.architecture.DddLayerTest`（ArchUnit）+ `ModularityTest`（Spring Modulith）。执行：`./gradlew test --tests "com.zhangyuan.architecture.*"`。
+- `ModularityTest` 扫描 `com.zhangyuan.modules`，已发现模块：`asset`、`cms`、`order`、`payment`、`product`。
 
 ## 前端约定
-- Admin Vite 代理 `/admin`、`/api`、`/actuator` 到 `http://localhost:8080`；调用后台接口时优先走这些相对路径。
-- Web 后端地址从 `NUXT_PUBLIC_API_BASE` 读取，默认 `http://localhost:8080`。
-- Web 的 `pages/[...slug].vue` 是 CMS 动态页：调用 `GET /api/cms/pages/render?path=...&locale=...`，按 `block.type` 映射到 `components/blocks/*`，未知区块走 `UnknownBlock`。
-- `pages/index.vue` 目前是独立手写首页，不走 CMS 动态渲染；改首页 UI 时不要误以为 CMS 会覆盖它。
-
-## CMS 与业务边界
-- CMS 负责页面、区块、草稿、发布快照和前台渲染；发布后的前台读取 snapshot，避免草稿影响线上。
-- CMS 的 pricing 区块可注入真实套餐组快照，但套餐、订单、支付的核心规则属于 product/order/payment 模块，不要塞进 CMS。
-- 站点设置接口提供站点名、描述、备案号、footer 等，前台通过 `useSiteSettings` 使用。
+- **Admin** 通过 `vite.config.ts` 代理 `/admin`、`/api`、`/actuator` → `http://localhost:8088`。使用 `request()` 封装，token 存 `localStorage` 的 `zhangyuan_admin_token` 键。
+- **Web** 动态 CMS 页面：`pages/[...slug].vue` 调用 `GET /api/cms/pages/render?path=...&locale=...`，按 `block.type` 映射到 `components/blocks/*`，未知类型→ `UnknownBlock`。**`pages/index.vue` 是手写首页，不受 CMS 控制。**
+- 共享类型位于 `frontend/shared/types/`，两个前端应用通过路径别名引用。
 
 ## 环境坑点
-- Docker 在 WSL、API 在 Windows 侧运行时，用 `application-wsl.yml` profile 或设置 `DB_HOST`、`REDIS_HOST`、`MINIO_ENDPOINT` 指向 WSL IP；文件内当前默认 WSL IP 是 `100.125.148.23`，实际环境可能变化。
-- Nuxt 若出现 `Failed to resolve import "#app-manifest"`，通常是旧 dev 进程或 `.nuxt/.output` 缓存问题；停止旧 Node 进程后删除缓存再重启。
-- Docker Compose 的数据目录在 `infrastructure/docker/data/*`，不要把运行数据当源码改动提交。
+- **WSL IP `100.125.148.23`** 硬编码在各配置文件中。可通过环境变量覆盖：`DB_HOST`、`REDIS_HOST`、`MINIO_ENDPOINT`、`NACOS_HOST`。
+- **Nuxt 缓存问题：** 出现 `"Failed to resolve import \"#app-manifest\""` 时，终止旧 Node 进程，删除 `.nuxt/.output` 后重启。
+- **Docker 数据目录**（`infrastructure/docker/data/{postgres,redis,minio}/`）在 gitignore 中；Nacos 日志（`standalone-logs/`）**未**在 gitignore 中，注意不要提交。
+- **CI** 使用 Node 22、JDK 21，仅在 `main` 分支的 push/PR 触发。前端 Docker 镜像从 `ZY_View_Migu/Admin` 和 `ZY_View_Migu/Web` 构建（非 `frontend/` 目录）。
+- **生产必须覆盖** `JWT_SECRET` 和 `DEFAULT_ADMIN_PASSWORD`。
