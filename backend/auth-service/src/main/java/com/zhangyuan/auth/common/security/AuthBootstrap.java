@@ -60,6 +60,7 @@ public class AuthBootstrap implements ApplicationRunner {
 
     private List<PermissionSeed> defaultPermissions() {
         return List.of(
+                new PermissionSeed("cms:manage", "Manage CMS", "cms"),
                 new PermissionSeed("cms:page:read", "Read CMS pages", "cms"),
                 new PermissionSeed("cms:page:create", "Create CMS pages", "cms"),
                 new PermissionSeed("cms:page:update", "Update CMS pages", "cms"),
@@ -67,12 +68,26 @@ public class AuthBootstrap implements ApplicationRunner {
                 new PermissionSeed("cms:page:delete", "Delete CMS pages", "cms"),
                 new PermissionSeed("asset:file:upload", "Upload assets", "asset"),
                 new PermissionSeed("asset:file:delete", "Delete assets", "asset"),
+                new PermissionSeed("asset:list", "List assets", "asset"),
+                new PermissionSeed("product:manage", "Manage products", "product"),
                 new PermissionSeed("product:plan:read", "Read plans", "product"),
                 new PermissionSeed("product:plan:update", "Update plans", "product"),
                 new PermissionSeed("order:read", "Read orders", "order"),
                 new PermissionSeed("payment:transaction:read", "Read payment transactions", "payment"),
                 new PermissionSeed("system:user:manage", "Manage users", "system"),
-                new PermissionSeed("system:role:manage", "Manage roles", "system")
+                new PermissionSeed("system:user:list", "List system users", "system"),
+                new PermissionSeed("system:role:manage", "Manage roles", "system"),
+                new PermissionSeed("system:role:list", "List system roles", "system"),
+                new PermissionSeed("system:permission:list", "List permissions", "system"),
+                new PermissionSeed("system:permission:create", "Create permissions", "system"),
+                new PermissionSeed("system:permission:update", "Update permissions", "system"),
+                new PermissionSeed("system:permission:delete", "Delete permissions", "system"),
+                new PermissionSeed("system:user:update", "Update system users", "system"),
+                new PermissionSeed("system:role:update", "Update system roles", "system"),
+                new PermissionSeed("system:menu:list", "List menus", "system"),
+                new PermissionSeed("system:menu:create", "Create menus", "system"),
+                new PermissionSeed("system:menu:update", "Update menus", "system"),
+                new PermissionSeed("system:menu:delete", "Delete menus", "system")
         );
     }
 

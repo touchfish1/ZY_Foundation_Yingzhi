@@ -27,6 +27,18 @@
         <n-form-item label="密码"><n-input v-model:value="createForm.password" type="password" placeholder="请输入密码" /></n-form-item>
         <n-form-item label="昵称"><n-input v-model:value="createForm.nickname" placeholder="选填" /></n-form-item>
         <n-form-item label="邮箱"><n-input v-model:value="createForm.email" placeholder="选填" /></n-form-item>
+        <n-form-item label="角色">
+          <div>
+            <n-button size="tiny" quaternary @click="toggleSelectAllCreateRoles" style="margin-bottom: 8px">
+              {{ allCreateRolesSelected ? '取消全选' : '全选' }}
+            </n-button>
+            <n-checkbox-group v-model:value="createSelectedRoleIds">
+              <n-space item-style="display: flex;">
+                <n-checkbox v-for="role in allRoles" :key="role.id" :value="role.id" :label="`${role.name} (${role.code})`" />
+              </n-space>
+            </n-checkbox-group>
+          </div>
+        </n-form-item>
         <n-space justify="end" style="margin-top: 8px;">
           <n-button @click="showCreate = false">取消</n-button>
           <n-button type="primary" :loading="creating" @click="submitCreate">创建</n-button>
@@ -41,6 +53,18 @@
         <n-form-item label="状态">
           <n-select v-model:value="editForm.status" :options="statusOptions" />
         </n-form-item>
+        <n-form-item label="角色">
+          <div>
+            <n-button size="tiny" quaternary @click="toggleSelectAllRoles" style="margin-bottom: 8px">
+              {{ allRolesSelected ? '取消全选' : '全选' }}
+            </n-button>
+            <n-checkbox-group v-model:value="editSelectedRoleIds">
+              <n-space item-style="display: flex;">
+                <n-checkbox v-for="role in allRoles" :key="role.id" :value="role.id" :label="`${role.name} (${role.code})`" />
+              </n-space>
+            </n-checkbox-group>
+          </div>
+        </n-form-item>
         <n-space justify="end" style="margin-top: 8px;">
           <n-button @click="showEdit = false">取消</n-button>
           <n-button type="primary" :loading="saving" @click="submitEdit">保存</n-button>
@@ -52,9 +76,9 @@
 
 <script setup lang="ts">
 import { computed, h, onMounted, reactive, ref } from 'vue'
-import { NButton, NCard, NDataTable, NForm, NFormItem, NIcon, NInput, NModal, NSelect, NSpace, NTag, useMessage } from 'naive-ui'
+import { NButton, NCard, NCheckbox, NCheckboxGroup, NDataTable, NForm, NFormItem, NIcon, NInput, NModal, NSelect, NSpace, NTag, useMessage } from 'naive-ui'
 import type { DataTableColumns, SelectOption } from 'naive-ui'
-import { listUsers, createUser, updateUser, deleteUser, type UserInfo } from '../../api/system'
+import { listUsers, createUser, updateUser, deleteUser, listRoles, getUserRoles, setUserRoles, type UserInfo, type RoleInfo } from '../../api/system'
 import { useConfirm } from '../../composables/useConfirm'
 
 const message = useMessage()
@@ -81,6 +105,21 @@ const statusOptions: SelectOption[] = [
   { label: '启用', value: 'enabled' },
   { label: '禁用', value: 'disabled' }
 ]
+
+const allRoles = ref<RoleInfo[]>([])
+const editSelectedRoleIds = ref<number[]>([])
+const createSelectedRoleIds = ref<number[]>([])
+
+const allRolesSelected = computed(() => allRoles.value.length > 0 && editSelectedRoleIds.value.length === allRoles.value.length)
+const allCreateRolesSelected = computed(() => allRoles.value.length > 0 && createSelectedRoleIds.value.length === allRoles.value.length)
+
+function toggleSelectAllRoles() {
+  editSelectedRoleIds.value = allRolesSelected.value ? [] : allRoles.value.map(r => r.id)
+}
+
+function toggleSelectAllCreateRoles() {
+  createSelectedRoleIds.value = allCreateRolesSelected.value ? [] : allRoles.value.map(r => r.id)
+}
 
 const columns: DataTableColumns<UserInfo> = [
   { title: 'ID', key: 'id', width: 70 },
@@ -116,15 +155,24 @@ async function load() {
   }
 }
 
-function openCreate() {
+async function openCreate() {
   createForm.username = ''; createForm.password = ''; createForm.nickname = ''; createForm.email = ''
+  createSelectedRoleIds.value = []
   showCreate.value = true
+  try {
+    allRoles.value = await listRoles()
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : '加载角色列表失败')
+  }
 }
 
 async function submitCreate() {
   creating.value = true
   try {
-    await createUser(createForm)
+    const user = await createUser(createForm)
+    if (createSelectedRoleIds.value.length > 0) {
+      await setUserRoles(user.id, createSelectedRoleIds.value)
+    }
     message.success('用户已创建')
     showCreate.value = false
     await load()
@@ -135,12 +183,23 @@ async function submitCreate() {
   }
 }
 
-function openEdit(user: UserInfo) {
+async function openEdit(user: UserInfo) {
   editingId.value = user.id
   editForm.nickname = user.nickname
   editForm.email = user.email
   editForm.status = user.status
+  editSelectedRoleIds.value = []
   showEdit.value = true
+  try {
+    const [roles, userRoleIds] = await Promise.all([
+      listRoles(),
+      getUserRoles(user.id)
+    ])
+    allRoles.value = roles
+    editSelectedRoleIds.value = userRoleIds
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : '加载角色信息失败')
+  }
 }
 
 async function submitEdit() {
@@ -148,6 +207,7 @@ async function submitEdit() {
   saving.value = true
   try {
     await updateUser(editingId.value, editForm)
+    await setUserRoles(editingId.value, editSelectedRoleIds.value)
     message.success('用户已更新')
     showEdit.value = false
     await load()

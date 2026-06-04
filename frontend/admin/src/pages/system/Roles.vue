@@ -36,13 +36,26 @@
       </n-form>
     </n-modal>
 
-    <n-modal v-model:show="showEdit" preset="card" title="编辑角色" class="modal-card" :mask-closable="false">
+    <n-modal v-model:show="showEdit" preset="card" title="编辑角色" class="modal-card" style="width: 720px" :mask-closable="false">
       <n-form label-placement="top">
         <n-form-item label="编码">
           <n-input v-model:value="editForm.code" />
         </n-form-item>
         <n-form-item label="名称">
           <n-input v-model:value="editForm.name" />
+        </n-form-item>
+        <n-divider />
+        <n-form-item label="权限分配">
+          <n-spin v-if="permissionsLoading" />
+          <n-transfer
+            v-else-if="permissionTransferOptions.length > 0"
+            v-model:value="selectedPermissionIds"
+            :options="permissionTransferOptions"
+            filterable
+            :render-label="renderPermissionLabel"
+            style="width: 100%"
+          />
+          <n-empty v-else description="暂无权限数据" size="small" />
         </n-form-item>
         <n-space justify="end" style="margin-top: 8px;">
           <n-button @click="showEdit = false">取消</n-button>
@@ -55,9 +68,10 @@
 
 <script setup lang="ts">
 import { computed, h, onMounted, reactive, ref } from 'vue'
-import { NButton, NCard, NDataTable, NEmpty, NForm, NFormItem, NIcon, NInput, NModal, NSpace, useMessage } from 'naive-ui'
+import { NButton, NCard, NDataTable, NDivider, NEmpty, NForm, NFormItem, NIcon, NInput, NModal, NSpace, NSpin, NTransfer, useMessage } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
-import { listRoles, createRole, updateRole, deleteRole, type RoleInfo } from '../../api/system'
+import { listRoles, createRole, updateRole, deleteRole, getRolePermissions, setRolePermissions, type RoleInfo } from '../../api/system'
+import { listPermissions, type PermissionInfo } from '../../api/permission'
 import { useConfirm } from '../../composables/useConfirm'
 
 const message = useMessage()
@@ -80,6 +94,27 @@ const editingId = ref<number | null>(null)
 
 const form = reactive({ code: '', name: '' })
 const editForm = reactive({ code: '', name: '' })
+
+// Permission assignment state
+const allPermissions = ref<PermissionInfo[]>([])
+const selectedPermissionIds = ref<number[]>([])
+const permissionsLoading = ref(false)
+
+// Transfer options: sorted by module, then code
+const permissionTransferOptions = computed(() => {
+  return [...allPermissions.value]
+    .sort((a, b) => a.module.localeCompare(b.module) || a.code.localeCompare(b.code))
+    .map(p => ({
+      label: `${p.code} - ${p.name}`,
+      value: p.id
+    }))
+})
+
+function renderPermissionLabel(option: { label: string; value: number | string }) {
+  const perm = allPermissions.value.find(p => p.id === option.value)
+  if (!perm) return option.label
+  return `${perm.module} / ${option.label}`
+}
 
 const columns: DataTableColumns<RoleInfo> = [
   { title: 'ID', key: 'id', width: 70 },
@@ -129,11 +164,26 @@ async function submitCreate() {
   }
 }
 
-function openEdit(role: RoleInfo) {
+async function openEdit(role: RoleInfo) {
   editingId.value = role.id
   editForm.code = role.code
   editForm.name = role.name
+  selectedPermissionIds.value = []
   showEdit.value = true
+
+  permissionsLoading.value = true
+  try {
+    const [permissions, rolePermissionIds] = await Promise.all([
+      listPermissions(),
+      getRolePermissions(role.id)
+    ])
+    allPermissions.value = permissions
+    selectedPermissionIds.value = rolePermissionIds
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : '加载权限失败')
+  } finally {
+    permissionsLoading.value = false
+  }
 }
 
 async function submitEdit() {
@@ -141,6 +191,7 @@ async function submitEdit() {
   saving.value = true
   try {
     await updateRole(editingId.value, editForm)
+    await setRolePermissions(editingId.value, selectedPermissionIds.value)
     message.success('角色已更新')
     showEdit.value = false
     await load()

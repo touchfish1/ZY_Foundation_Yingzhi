@@ -40,6 +40,19 @@ export function deleteUser(id: number) {
   return request<void>(`/admin/system/users/${id}`, { method: 'DELETE' })
 }
 
+// 获取用户已分配的角色 ID 列表
+export function getUserRoles(userId: number) {
+  return request<number[]>(`/admin/system/users/${userId}/roles`)
+}
+
+// 设置用户角色
+export function setUserRoles(userId: number, roleIds: number[]) {
+  return request<void>(`/admin/system/users/${userId}/roles`, {
+    method: 'PUT',
+    body: JSON.stringify({ roleIds })
+  })
+}
+
 // 获取角色列表
 export function listRoles() {
   console.log('[API] listRoles')
@@ -62,6 +75,19 @@ export function updateRole(id: number, payload: { code?: string; name?: string }
 export function deleteRole(id: number) {
   console.log('[API] deleteRole', { id })
   return request<void>(`/admin/system/roles/${id}`, { method: 'DELETE' })
+}
+
+// 获取角色的权限 ID 列表
+export function getRolePermissions(roleId: number) {
+  return request<number[]>(`/admin/system/roles/${roleId}/permissions`)
+}
+
+// 设置角色的权限
+export function setRolePermissions(roleId: number, permissionIds: number[]) {
+  return request<void>(`/admin/system/roles/${roleId}/permissions`, {
+    method: 'PUT',
+    body: JSON.stringify({ permissionIds })
+  })
 }
 
 export interface MonitorStats {

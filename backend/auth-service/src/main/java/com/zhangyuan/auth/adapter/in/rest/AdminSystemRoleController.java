@@ -1,11 +1,13 @@
 package com.zhangyuan.auth.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.zhangyuan.auth.application.service.PermissionApplicationService;
 import com.zhangyuan.auth.common.ApiResponse;
 import com.zhangyuan.auth.domain.model.Role;
 import com.zhangyuan.auth.domain.repository.RoleRepository;
 import com.zhangyuan.auth.dto.CreateRoleRequest;
 import com.zhangyuan.auth.dto.RoleResponse;
+import com.zhangyuan.auth.dto.SetPermissionRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +33,12 @@ public class AdminSystemRoleController {
     private static final Logger log = LoggerFactory.getLogger(AdminSystemRoleController.class);
 
     private final RoleRepository roleRepository;
+    private final PermissionApplicationService permissionApplicationService;
 
-    public AdminSystemRoleController(RoleRepository roleRepository) {
+    public AdminSystemRoleController(RoleRepository roleRepository,
+                                     PermissionApplicationService permissionApplicationService) {
         this.roleRepository = roleRepository;
+        this.permissionApplicationService = permissionApplicationService;
     }
 
     @GetMapping
@@ -69,6 +74,19 @@ public class AdminSystemRoleController {
         log.info("Deleting system role: {}", id);
         roleRepository.deleteById(id);
         log.info("System role deleted: {}", id);
+        return ApiResponse.ok();
+    }
+
+    @GetMapping("/{id}/permissions")
+    public ApiResponse<List<Long>> getRolePermissions(@PathVariable Long id) {
+        return ApiResponse.ok(permissionApplicationService.getRolePermissionIds(id));
+    }
+
+    @PutMapping("/{id}/permissions")
+    @SaCheckPermission("system:role:update")
+    public ApiResponse<Void> setRolePermissions(@PathVariable Long id,
+                                                @Valid @RequestBody SetPermissionRequest request) {
+        permissionApplicationService.setRolePermissions(id, request.permissionIds());
         return ApiResponse.ok();
     }
 }

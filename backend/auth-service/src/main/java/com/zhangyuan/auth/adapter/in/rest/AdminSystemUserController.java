@@ -5,6 +5,7 @@ import com.zhangyuan.auth.application.service.AuthApplicationService;
 import com.zhangyuan.auth.common.ApiResponse;
 import com.zhangyuan.auth.domain.model.User;
 import com.zhangyuan.auth.dto.CreateUserRequest;
+import com.zhangyuan.auth.dto.SetRoleRequest;
 import com.zhangyuan.auth.dto.UpdateUserRequest;
 import com.zhangyuan.auth.dto.UserResponse;
 import jakarta.validation.Valid;
@@ -80,6 +81,19 @@ public class AdminSystemUserController {
         log.info("Deleting system user: {}", id);
         authApplicationService.deleteUser(id);
         log.info("System user deleted: {}", id);
+        return ApiResponse.ok();
+    }
+
+    @GetMapping("/{id}/roles")
+    public ApiResponse<List<Long>> getUserRoles(@PathVariable Long id) {
+        return ApiResponse.ok(authApplicationService.getUserRoleIds(id));
+    }
+
+    @PutMapping("/{id}/roles")
+    @SaCheckPermission("system:user:update")
+    public ApiResponse<Void> setUserRoles(@PathVariable Long id,
+                                          @Valid @RequestBody SetRoleRequest request) {
+        authApplicationService.setUserRoles(id, request.roleIds());
         return ApiResponse.ok();
     }
 }

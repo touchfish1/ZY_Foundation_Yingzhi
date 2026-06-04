@@ -2,6 +2,8 @@ package com.zhangyuan.auth.application.service;
 
 import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.StpUtil;
+import com.zhangyuan.auth.adapter.out.persistence.AdminRole;
+import com.zhangyuan.auth.adapter.out.persistence.AdminUser;
 import com.zhangyuan.auth.common.security.AuthUser;
 import com.zhangyuan.auth.common.security.AuthUserService;
 import com.zhangyuan.auth.domain.model.LoginResult;
@@ -11,6 +13,8 @@ import com.zhangyuan.auth.domain.repository.UserRepository;
 import com.zhangyuan.auth.domain.service.AuthDomainService;
 import com.zhangyuan.auth.dto.AdminUserResponse;
 import com.zhangyuan.auth.dto.LoginResponse;
+import com.zhangyuan.auth.repository.AdminRoleRepository;
+import com.zhangyuan.auth.repository.AdminUserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -33,13 +37,19 @@ public class AuthApplicationService {
     private final AuthDomainService authDomainService;
     private final AuthUserService authUserService;
     private final PasswordEncoder passwordEncoder;
+    private final AdminUserRepository adminUserRepository;
+    private final AdminRoleRepository adminRoleRepository;
 
     public AuthApplicationService(UserRepository userRepository, AuthDomainService authDomainService,
-                                   AuthUserService authUserService, PasswordEncoder passwordEncoder) {
+                                   AuthUserService authUserService, PasswordEncoder passwordEncoder,
+                                   AdminUserRepository adminUserRepository,
+                                   AdminRoleRepository adminRoleRepository) {
         this.userRepository = userRepository;
         this.authDomainService = authDomainService;
         this.authUserService = authUserService;
         this.passwordEncoder = passwordEncoder;
+        this.adminUserRepository = adminUserRepository;
+        this.adminRoleRepository = adminRoleRepository;
     }
 
     /**
@@ -61,8 +71,8 @@ public class AuthApplicationService {
         SaSession session = StpUtil.getSession();
         session.set("username", user.getUsername());
         session.set("nickname", user.getNickname());
-        session.set("permissions", user.getPermissions());
-        session.set("roleCodes", authUserService.findRoleCodes(user.getUsername()));
+        session.set(SaSession.PERMISSION_LIST, user.getPermissions());
+        session.set(SaSession.ROLE_LIST, authUserService.findRoleCodes(user.getUsername()));
         String tokenValue = StpUtil.getTokenValue();
 
         log.info("User logged in: username={}", username);
@@ -160,6 +170,26 @@ public class AuthApplicationService {
         user.disable();
         userRepository.save(user);
         log.info("User disabled: {}", id);
+    }
+
+    // User-Role assignment (needs JPA entity access for the join table)
+    @Transactional(readOnly = true)
+    public List<Long> getUserRoleIds(Long userId) {
+        AdminUser user = adminUserRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+        return user.getRoles().stream()
+                .map(AdminRole::getId)
+                .toList();
+    }
+
+    @Transactional
+    public void setUserRoles(Long userId, List<Long> roleIds) {
+        AdminUser user = adminUserRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+        List<AdminRole> roles = adminRoleRepository.findAllById(roleIds);
+        user.getRoles().clear();
+        user.getRoles().addAll(roles);
+        adminUserRepository.save(user);
     }
 
     private AdminUserResponse toResponse(AuthUser user) {

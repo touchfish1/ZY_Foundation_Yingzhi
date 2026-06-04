@@ -108,51 +108,86 @@ import {
 } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
 import { useThemeStore } from '../stores/theme'
+import { usePermissionStore } from '../stores/permission'
+import type { MenuItem } from '../api/menu'
 import { clearToken } from '../api/http'
+import * as Icons from '@vicons/ionicons5'
 
 const route = useRoute()
 const router = useRouter()
 const themeStore = useThemeStore()
+const permissionStore = usePermissionStore()
 
 const collapsed = ref(false)
 
-function icon(svgContent: string) {
-  return () => h('svg', {
-    xmlns: 'http://www.w3.org/2000/svg',
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: 'currentColor',
-    'stroke-width': '2',
-    style: 'width:20px;height:20px'
-  }, svgContent.split('>').map((part, i) => {
-    if (!part) return null
-    const tagEnd = part.indexOf('<')
-    if (tagEnd === -1) return null
-    const tag = part.substring(tagEnd + 1, part.indexOf(' ', tagEnd + 1) > 0 ? part.indexOf(' ', tagEnd + 1) : part.indexOf('>', tagEnd + 1))
-    if (!tag) return null
-    const rest = part.substring(part.indexOf('>', tagEnd + 1) + 1)
-    return h(tag, {}, rest)
-  }))
+// Icon mapping using @vicons/ionicons5
+const iconMap: Record<string, any> = {
+  Dashboard: Icons.Grid,
+  BookOpen: Icons.BookOutline,
+  Image: Icons.Image,
+  FileText: Icons.DocumentText,
+  Briefcase: Icons.Briefcase,
+  Layers: Icons.Layers,
+  Pricetags: Icons.Pricetags,
+  Cart: Icons.Cart,
+  Wallet: Icons.Wallet,
+  Settings: Icons.Settings,
+  People: Icons.People,
+  ShieldCheckmark: Icons.ShieldCheckmark,
+  Key: Icons.Key,
+  Menu: Icons.Menu,
+  Wrench: Icons.Construct,
+  PersonOutline: Icons.PersonOutline,
+  Code: Icons.Code,
+  ColorPalette: Icons.ColorPalette,
+  Globe: Icons.Globe,
+  Chatbubbles: Icons.Chatbubbles,
+  Newspaper: Icons.Newspaper,
+  Server: Icons.Server,
+  Build: Icons.Build,
+  LogOut: Icons.LogOut,
 }
 
-const menuOptions: MenuOption[] = [
-  { label: '仪表盘', key: '/', icon: icon('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>') },
-  { type: 'divider' },
-  { label: '内容管理', key: 'cms-group', type: 'group' as const },
-  { label: '页面管理', key: '/cms/pages', icon: icon('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>') },
-  { label: '媒体资源', key: '/assets', icon: icon('<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>') },
-  { type: 'divider' },
-  { label: '商业管理', key: 'commerce-group', type: 'group' as const },
-  { label: '套餐组', key: '/products/plan-groups', icon: icon('<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>') },
-  { label: '套餐列表', key: '/products/plans', icon: icon('<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>') },
-  { label: '订单管理', key: '/orders', icon: icon('<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>') },
-  { label: '支付记录', key: '/payments/transactions', icon: icon('<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>') },
-  { type: 'divider' },
-  { label: '系统管理', key: 'sys-group', type: 'group' as const },
-  { label: '用户管理', key: '/system/users', icon: icon('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>') },
-  { label: '角色管理', key: '/system/roles', icon: icon('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>') },
-  { label: '系统设置', key: '/system/settings', icon: icon('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>') }
-]
+function renderIcon(iconName: string | null) {
+  if (!iconName || !iconMap[iconName]) return undefined
+  return () => h(NIcon, null, { default: () => h(iconMap[iconName]) })
+}
+
+const menuOptions = computed<MenuOption[]>(() => {
+  return buildMenuOptions(permissionStore.menus)
+})
+
+function buildMenuOptions(items: MenuItem[]): MenuOption[] {
+  if (!items || items.length === 0) return []
+
+  return items
+    .filter(item => item.menuType !== 'button' && item.status === 'enabled')
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map(item => {
+      const option: MenuOption = {
+        key: item.path || `menu-${item.id}`,
+        label: item.name,
+      }
+
+      if (item.icon) {
+        option.icon = renderIcon(item.icon)
+      }
+
+      if (item.children && item.children.length > 0) {
+        const filteredChildren = item.children.filter(
+          c => c.menuType !== 'button' && c.status === 'enabled'
+        )
+        if (filteredChildren.length > 0) {
+          if (item.menuType === 'group') {
+            option.type = 'group'
+          }
+          option.children = buildMenuOptions(filteredChildren)
+        }
+      }
+
+      return option
+    })
+}
 
 const userMenuOptions = [
   { label: '个人设置', key: 'profile' },
@@ -160,32 +195,46 @@ const userMenuOptions = [
   { label: '退出登录', key: 'logout' }
 ]
 
-const currentPageLabel = computed(() => {
-  const list: MenuOption[] = [...menuOptions]
-  let i = 0
-  while (i < list.length) {
-    const item = list[i]
-    i++
-    if (item && 'key' in item && typeof item.key === 'string' && item.key.startsWith('/') && route.path.startsWith(item.key)) {
-      return item.label as string
+function flattenMenuOptions(options: MenuOption[]): MenuOption[] {
+  const result: MenuOption[] = []
+  for (const option of options) {
+    if (!option || !option.key) continue
+    result.push(option)
+    if (option.children && Array.isArray(option.children)) {
+      result.push(...flattenMenuOptions(option.children as MenuOption[]))
     }
   }
-  return ''
+  return result
+}
+
+const currentPageLabel = computed(() => {
+  const flat = flattenMenuOptions(menuOptions.value)
+  let bestItem: any = null
+  let bestLength = -1
+  for (const item of flat) {
+    if (typeof item.key === 'string' && item.key.startsWith('/') && route.path.startsWith(item.key)) {
+      if (item.key.length > bestLength) {
+        bestLength = item.key.length
+        bestItem = item
+      }
+    }
+  }
+  return bestItem?.label ?? ''
 })
 
 const activeKey = computed(() => {
-  if (route.path.startsWith('/cms')) return '/cms/pages'
-  if (route.path.startsWith('/products/plan-groups')) return '/products/plan-groups'
-  if (route.path.startsWith('/products/plans')) return '/products/plans'
-  if (route.path.startsWith('/orders')) return '/orders'
-  if (route.path.startsWith('/payments')) return '/payments/transactions'
-  if (route.path.startsWith('/assets')) return '/assets'
-  if (route.path.startsWith('/system')) {
-    if (route.path.startsWith('/system/settings')) return '/system/settings'
-    if (route.path.startsWith('/system/users')) return '/system/users'
-    if (route.path.startsWith('/system/roles')) return '/system/roles'
+  const flat = flattenMenuOptions(menuOptions.value)
+  let bestMatch = '/'
+  let bestLength = -1
+  for (const item of flat) {
+    if (typeof item.key === 'string' && item.key.startsWith('/') && route.path.startsWith(item.key)) {
+      if (item.key.length > bestLength) {
+        bestLength = item.key.length
+        bestMatch = item.key
+      }
+    }
   }
-  return '/'
+  return bestMatch
 })
 
 function go(path: string) {
@@ -194,6 +243,7 @@ function go(path: string) {
 
 function handleUserMenu(key: string) {
   if (key === 'logout') {
+    permissionStore.reset()
     clearToken()
     router.push('/login')
   }

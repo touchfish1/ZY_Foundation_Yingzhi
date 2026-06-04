@@ -35,6 +35,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { NButton, NCard, NForm, NFormItem, NH3, NIcon, NInput, useMessage } from 'naive-ui'
 import { login } from '../api/auth'
+import { usePermissionStore } from '../stores/permission'
 
 const router = useRouter()
 const message = useMessage()
@@ -51,6 +52,17 @@ async function submit() {
   try {
     await login(username.value, password.value)
     message.success('登录成功')
+
+    // Fetch permissions after login (non-blocking on failure)
+    const permissionStore = usePermissionStore()
+    try {
+      await permissionStore.fetchUserInfo()
+    } catch (e) {
+      console.error('Failed to load permissions after login:', e)
+      // Continue to dashboard even if permissions fail to load
+      // (they'll be retried by the route guard)
+    }
+
     router.push('/')
   } catch (error) {
     message.error(error instanceof Error ? error.message : '登录失败')

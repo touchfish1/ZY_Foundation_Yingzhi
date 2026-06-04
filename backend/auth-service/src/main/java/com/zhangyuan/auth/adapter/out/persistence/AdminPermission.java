@@ -48,4 +48,12 @@ public class AdminPermission {
     public String getModule() {
         return module;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setModule(String module) {
+        this.module = module;
+    }
 }
