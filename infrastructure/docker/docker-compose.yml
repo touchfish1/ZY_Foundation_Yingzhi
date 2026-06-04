@@ -54,6 +54,24 @@ services:
     networks:
       - zhangyuan-dev
 
+  nacos:
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/nacos/nacos-server:v3.2.2
+    container_name: nacos-standalone
+    environment:
+      - PREFER_HOST_MODE=hostname
+      - MODE=standalone
+      - NACOS_AUTH_IDENTITY_KEY=chengccn
+      - NACOS_AUTH_IDENTITY_VALUE=cheng123456
+      - NACOS_AUTH_TOKEN=75rwn6PJrEdiAyLMkbod8aQkb8wERm5+ywACcy059qE=
+    volumes:
+      - ./standalone-logs/:/home/nacos/logs
+    ports:
+      - "8080:8080"
+      - "8848:8848"
+      - "9848:9848"
+    networks:
+      - zhangyuan-dev
+  
 networks:
   zhangyuan-dev:
     driver: bridge

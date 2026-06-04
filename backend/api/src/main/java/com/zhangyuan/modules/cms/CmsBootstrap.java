@@ -1,5 +1,6 @@
 package com.zhangyuan.modules.cms;
 
+import com.zhangyuan.modules.cms.client.SystemServiceClient;
 import com.zhangyuan.modules.cms.domain.CmsBlockDefinition;
 import com.zhangyuan.modules.cms.domain.CmsPage;
 import com.zhangyuan.modules.cms.domain.CmsPageTranslation;
@@ -10,8 +11,8 @@ import com.zhangyuan.modules.cms.repository.CmsPageRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageTranslationRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageVersionRepository;
 import com.zhangyuan.modules.cms.repository.CmsPublishRecordRepository;
-import com.zhangyuan.modules.system.domain.SystemSetting;
-import com.zhangyuan.modules.system.repository.SystemSettingRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
@@ -25,25 +26,27 @@ import java.util.Map;
 @Profile("!test")
 public class CmsBootstrap implements ApplicationRunner {
 
+    private static final Logger log = LoggerFactory.getLogger(CmsBootstrap.class);
+
     private final CmsBlockDefinitionRepository blockDefinitionRepository;
     private final CmsPageRepository pageRepository;
     private final CmsPageTranslationRepository translationRepository;
     private final CmsPageVersionRepository versionRepository;
     private final CmsPublishRecordRepository publishRecordRepository;
-    private final SystemSettingRepository systemSettingRepository;
+    private final SystemServiceClient systemServiceClient;
 
     public CmsBootstrap(CmsBlockDefinitionRepository blockDefinitionRepository,
                         CmsPageRepository pageRepository,
                         CmsPageTranslationRepository translationRepository,
                         CmsPageVersionRepository versionRepository,
                         CmsPublishRecordRepository publishRecordRepository,
-                        SystemSettingRepository systemSettingRepository) {
+                        SystemServiceClient systemServiceClient) {
         this.blockDefinitionRepository = blockDefinitionRepository;
         this.pageRepository = pageRepository;
         this.translationRepository = translationRepository;
         this.versionRepository = versionRepository;
         this.publishRecordRepository = publishRecordRepository;
-        this.systemSettingRepository = systemSettingRepository;
+        this.systemServiceClient = systemServiceClient;
     }
 
     @Override
@@ -58,15 +61,20 @@ public class CmsBootstrap implements ApplicationRunner {
     }
 
     private void seedDefaultSettings() {
-        seedSetting("site_name", "ZHANGYUAN API");
-        seedSetting("site_description", "新一代 API 服务平台");
-        seedSetting("icp_filing", "沪ICP备XXXXXXXX号");
-        seedSetting("footer_text", "© 2026 ZHANGYUAN. All rights reserved.");
-    }
-
-    private void seedSetting(String key, String value) {
-        systemSettingRepository.findBySettingKey(key)
-                .orElseGet(() -> systemSettingRepository.save(new SystemSetting(key, value)));
+        var defaults = Map.of(
+                "site_name", "ZHANGYUAN API",
+                "site_description", "新一代 API 服务平台",
+                "icp_filing", "沪ICP备XXXXXXXX号",
+                "footer_text", "© 2026 ZHANGYUAN. All rights reserved."
+        );
+        try {
+            for (var entry : defaults.entrySet()) {
+                systemServiceClient.upsertSetting(entry.getKey(), Map.of("value", entry.getValue()));
+            }
+            log.info("Default system settings seeded via system-service");
+        } catch (Exception e) {
+            log.warn("Failed to seed default settings to system-service: {}", e.getMessage());
+        }
     }
 
     private void seedPage(String slug, String title) {

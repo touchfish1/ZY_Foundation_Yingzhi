@@ -13,15 +13,25 @@ import com.zhangyuan.modules.order.repository.OrderMainRepository;
 import com.zhangyuan.modules.payment.repository.PaymentTransactionRepository;
 import com.zhangyuan.modules.product.repository.ProductFeatureRepository;
 import com.zhangyuan.modules.product.repository.ProductPlanGroupRepository;
-import com.zhangyuan.modules.system.repository.SystemSettingRepository;
 import com.zhangyuan.modules.product.repository.ProductPlanRepository;
 import com.zhangyuan.modules.product.repository.ProductPriceRepository;
+import io.minio.MinioClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+    "spring.cloud.nacos.discovery.enabled=false",
+    "spring.cloud.nacos.config.enabled=false",
+    "spring.cloud.nacos.discovery.server-addr=127.0.0.1:8848",
+    "spring.cloud.nacos.config.server-addr=127.0.0.1:8848",
+    "spring.cloud.nacos.config.import-check.enabled=false",
+    "zhangyuan.minio.endpoint=http://localhost:9000",
+    "zhangyuan.minio.access-key=test",
+    "zhangyuan.minio.secret-key=test",
+    "zhangyuan.minio.bucket=test"
+})
 @ActiveProfiles("test")
 class ZhangyuanApplicationTests {
 
@@ -71,7 +81,7 @@ class ZhangyuanApplicationTests {
     private PaymentTransactionRepository paymentTransactionRepository;
 
     @MockBean
-    private SystemSettingRepository systemSettingRepository;
+    private MinioClient minioClient;
 
     @Test
     void contextLoads() {

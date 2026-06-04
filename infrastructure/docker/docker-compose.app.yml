@@ -10,12 +10,35 @@ services:
       MINIO_ENDPOINT: http://minio:9000
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-admin123}
+      NACOS_HOST: nacos
+      NACOS_PORT: 8848
+      NACOS_USERNAME: nacos
+      NACOS_PASSWORD: chengccn
     ports:
       - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - zhangyuan-dev
+
+  system-service:
+    build:
+      context: ../../backend/system-service
+      dockerfile: Dockerfile
+    container_name: zhangyuan-system
+    environment:
+      DB_HOST: postgres
+      SERVER_PORT: 8081
+      NACOS_HOST: nacos
+      NACOS_PORT: 8848
+      NACOS_USERNAME: nacos
+      NACOS_PASSWORD: chengccn
+    depends_on:
+      postgres:
         condition: service_healthy
     restart: unless-stopped
     networks:

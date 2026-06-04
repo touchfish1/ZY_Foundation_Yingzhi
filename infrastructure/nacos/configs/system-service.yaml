@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:100.125.148.23}:${DB_PORT:5432}/${DB_NAME:zhangyuan}
+    username: ${DB_USERNAME:zhangyuan}
+    password: ${DB_PASSWORD:zhangyuan}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: false
