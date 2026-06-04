@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 /**
  * 文件资产领域服务，包含文件资产的核心创建和 URL 构建逻辑。
  */
@@ -41,5 +43,15 @@ public class AssetDomainService {
         String url = endpoint + "/" + bucket + "/" + objectKey;
         log.debug("Asset URL built: {}", url);
         return url;
+    }
+
+    /**
+     * 生成对象键（UUID 目录 + 原始文件名），防止文件名冲突。
+     *
+     * @param originalName 原始文件名
+     * @return 对象键
+     */
+    public String generateObjectKey(String originalName) {
+        return UUID.randomUUID() + "/" + originalName;
     }
 }

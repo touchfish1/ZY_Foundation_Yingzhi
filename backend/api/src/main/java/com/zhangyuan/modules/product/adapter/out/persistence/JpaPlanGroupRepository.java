@@ -36,7 +36,7 @@ public class JpaPlanGroupRepository implements PlanGroupRepository {
 
     @Override
     public PlanGroup save(PlanGroup group) {
-        com.zhangyuan.modules.product.domain.ProductPlanGroup entity = new com.zhangyuan.modules.product.domain.ProductPlanGroup(
+        ProductPlanGroup entity = new ProductPlanGroup(
                 group.getCode(), group.getName(), group.getDescription(), group.getSortOrder());
         entity = jpaRepository.save(entity);
         return toDomain(entity);
@@ -52,7 +52,7 @@ public class JpaPlanGroupRepository implements PlanGroupRepository {
         return jpaRepository.findByCode(code).isPresent();
     }
 
-    private PlanGroup toDomain(com.zhangyuan.modules.product.domain.ProductPlanGroup entity) {
+    private PlanGroup toDomain(ProductPlanGroup entity) {
         PlanGroup group = new PlanGroup(entity.getCode(), entity.getName(), entity.getDescription(), entity.getSortOrder());
         return group;
     }

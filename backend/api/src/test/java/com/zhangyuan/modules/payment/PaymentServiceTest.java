@@ -3,11 +3,14 @@ package com.zhangyuan.modules.payment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhangyuan.modules.order.domain.OrderMain;
 import com.zhangyuan.modules.order.repository.OrderMainRepository;
-import com.zhangyuan.modules.payment.domain.PaymentTransaction;
+import com.zhangyuan.modules.payment.adapter.out.persistence.PaymentTransactionEntity;
+import com.zhangyuan.modules.payment.adapter.out.persistence.PaymentTransactionJpaRepository;
+import com.zhangyuan.modules.payment.application.service.PaymentApplicationService;
+import com.zhangyuan.modules.payment.domain.repository.PaymentRepository;
+import com.zhangyuan.modules.payment.domain.service.PaymentDomainService;
 import com.zhangyuan.modules.payment.dto.CheckoutRequest;
 import com.zhangyuan.modules.payment.dto.CheckoutResponse;
 import com.zhangyuan.modules.payment.dto.PaymentResponse;
-import com.zhangyuan.modules.payment.repository.PaymentTransactionRepository;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -25,10 +28,13 @@ import static org.mockito.Mockito.when;
 
 class PaymentServiceTest {
 
-    private final PaymentTransactionRepository paymentTransactionRepository = mock(PaymentTransactionRepository.class);
+    private final PaymentTransactionJpaRepository paymentTransactionJpaRepository = mock(PaymentTransactionJpaRepository.class);
     private final OrderMainRepository orderMainRepository = mock(OrderMainRepository.class);
+    private final PaymentRepository paymentRepository = mock(PaymentRepository.class);
+    private final PaymentDomainService paymentDomainService = mock(PaymentDomainService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final PaymentService paymentService = new PaymentService(paymentTransactionRepository, orderMainRepository, objectMapper);
+    private final PaymentApplicationService paymentService = new PaymentApplicationService(
+            paymentRepository, paymentDomainService, paymentTransactionJpaRepository, orderMainRepository, objectMapper);
 
     @Test
     void checkoutCreatesPaymentForPendingOrder() {
@@ -40,9 +46,9 @@ class PaymentServiceTest {
         when(order.getCurrency()).thenReturn("CNY");
         when(order.getStatus()).thenReturn("pending");
         when(orderMainRepository.findByOrderNo("ORD123")).thenReturn(Optional.of(order));
-        when(paymentTransactionRepository.save(any())).thenAnswer(invocation -> {
-            PaymentTransaction saved = invocation.getArgument(0);
-            return new PaymentTransaction(saved.getPaymentNo(), saved.getOrderId(), saved.getChannel(),
+        when(paymentTransactionJpaRepository.save(any())).thenAnswer(invocation -> {
+            PaymentTransactionEntity saved = invocation.getArgument(0);
+            return new PaymentTransactionEntity(saved.getPaymentNo(), saved.getOrderId(), saved.getChannel(),
                     saved.getAmount(), saved.getCurrency(), saved.getRequestJson());
         });
 
@@ -51,7 +57,7 @@ class PaymentServiceTest {
         assertThat(response.status()).isEqualTo("pending");
         assertThat(response.mockPayUrl()).contains("/api/payments/mock/");
         assertThat(response.checkoutUrl()).contains("/api/payments/mock/");
-        verify(paymentTransactionRepository).save(any());
+        verify(paymentTransactionJpaRepository).save(any());
     }
 
     @Test
@@ -84,11 +90,11 @@ class PaymentServiceTest {
 
     @Test
     void mockSuccessMarksPaymentAndOrderAsPaid() {
-        PaymentTransaction payment = mock(PaymentTransaction.class);
+        PaymentTransactionEntity payment = mock(PaymentTransactionEntity.class);
         when(payment.getPaymentNo()).thenReturn("PAY123");
         when(payment.getOrderId()).thenReturn(1L);
         when(payment.getStatus()).thenReturn("pending");
-        when(paymentTransactionRepository.findByPaymentNo("PAY123")).thenReturn(Optional.of(payment));
+        when(paymentTransactionJpaRepository.findByPaymentNo("PAY123")).thenReturn(Optional.of(payment));
 
         OrderMain order = mock(OrderMain.class);
         when(order.getOrderNo()).thenReturn("ORD123");
@@ -104,12 +110,12 @@ class PaymentServiceTest {
 
     @Test
     void mockSuccessIdempotentWhenAlreadyPaid() {
-        PaymentTransaction payment = mock(PaymentTransaction.class);
+        PaymentTransactionEntity payment = mock(PaymentTransactionEntity.class);
         when(payment.getPaymentNo()).thenReturn("PAY123");
         when(payment.getOrderId()).thenReturn(1L);
         when(payment.getStatus()).thenReturn("paid");
         when(payment.getPaidAt()).thenReturn(Instant.now());
-        when(paymentTransactionRepository.findByPaymentNo("PAY123")).thenReturn(Optional.of(payment));
+        when(paymentTransactionJpaRepository.findByPaymentNo("PAY123")).thenReturn(Optional.of(payment));
 
         OrderMain order = mock(OrderMain.class);
         when(order.getOrderNo()).thenReturn("ORD123");
@@ -123,7 +129,7 @@ class PaymentServiceTest {
 
     @Test
     void mockSuccessThrowsWhenPaymentNotFound() {
-        when(paymentTransactionRepository.findByPaymentNo("INVALID")).thenReturn(Optional.empty());
+        when(paymentTransactionJpaRepository.findByPaymentNo("INVALID")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> paymentService.mockSuccess("INVALID"))
                 .hasMessageContaining("Payment not found");
@@ -131,8 +137,8 @@ class PaymentServiceTest {
 
     @Test
     void listPaymentsReturnsAll() {
-        PaymentTransaction tx = new PaymentTransaction("PAY1", 1L, "mock", BigDecimal.TEN, "CNY", "{}");
-        when(paymentTransactionRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(tx));
+        PaymentTransactionEntity tx = new PaymentTransactionEntity("PAY1", 1L, "mock", BigDecimal.TEN, "CNY", "{}");
+        when(paymentTransactionJpaRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(tx));
         when(orderMainRepository.findById(1L)).thenReturn(Optional.of(mock(OrderMain.class)));
 
         List<PaymentResponse> payments = paymentService.listPayments();

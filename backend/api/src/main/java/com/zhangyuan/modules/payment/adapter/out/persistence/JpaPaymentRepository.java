@@ -3,7 +3,6 @@ package com.zhangyuan.modules.payment.adapter.out.persistence;
 import com.zhangyuan.modules.payment.domain.model.Payment;
 import com.zhangyuan.modules.payment.domain.model.PaymentStatus;
 import com.zhangyuan.modules.payment.domain.repository.PaymentRepository;
-import com.zhangyuan.modules.payment.repository.PaymentTransactionRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -12,9 +11,9 @@ import java.util.Optional;
 @Component
 public class JpaPaymentRepository implements PaymentRepository {
 
-    private final PaymentTransactionRepository jpaRepository;
+    private final PaymentTransactionJpaRepository jpaRepository;
 
-    public JpaPaymentRepository(PaymentTransactionRepository jpaRepository) {
+    public JpaPaymentRepository(PaymentTransactionJpaRepository jpaRepository) {
         this.jpaRepository = jpaRepository;
     }
 
@@ -32,7 +31,7 @@ public class JpaPaymentRepository implements PaymentRepository {
 
     @Override
     public Payment save(Payment payment) {
-        com.zhangyuan.modules.payment.domain.PaymentTransaction entity = new com.zhangyuan.modules.payment.domain.PaymentTransaction(
+        PaymentTransactionEntity entity = new PaymentTransactionEntity(
                 payment.getPaymentNo(),
                 payment.getOrderId(),
                 payment.getChannel(),
@@ -44,7 +43,7 @@ public class JpaPaymentRepository implements PaymentRepository {
         return toDomain(entity);
     }
 
-    private Payment toDomain(com.zhangyuan.modules.payment.domain.PaymentTransaction entity) {
+    private Payment toDomain(PaymentTransactionEntity entity) {
         Payment payment = new Payment(
                 entity.getPaymentNo(),
                 entity.getOrderId(),
@@ -52,7 +51,7 @@ public class JpaPaymentRepository implements PaymentRepository {
                 entity.getAmount(),
                 entity.getCurrency()
         );
-        if ("success".equals(entity.getStatus())) {
+        if ("paid".equals(entity.getStatus())) {
             payment.markSuccess();
         }
         return payment;

@@ -1,6 +1,6 @@
 package com.zhangyuan.auth.repository;
 
-import com.zhangyuan.auth.domain.AdminUser;
+import com.zhangyuan.auth.adapter.out.persistence.AdminUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -33,7 +33,7 @@ public class JpaCmsPageRepository implements CmsPageRepository {
 
     @Override
     public CmsPage save(CmsPage page) {
-        com.zhangyuan.modules.cms.domain.CmsPage entity;
+        com.zhangyuan.modules.cms.adapter.out.persistence.CmsPage entity;
         if (page.getId() != null) {
             entity = jpaRepository.findById(page.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Page not found: " + page.getId()));
@@ -41,7 +41,7 @@ public class JpaCmsPageRepository implements CmsPageRepository {
             entity.setDefaultLocale(page.getDefaultLocale());
             entity.touch();
         } else {
-            entity = new com.zhangyuan.modules.cms.domain.CmsPage(
+            entity = new com.zhangyuan.modules.cms.adapter.out.persistence.CmsPage(
                     page.getSlug(), page.getDefaultLocale(), page.getCreatedBy());
         }
         entity = jpaRepository.save(entity);
@@ -58,7 +58,7 @@ public class JpaCmsPageRepository implements CmsPageRepository {
         return jpaRepository.existsBySlug(slug);
     }
 
-    private CmsPage toDomain(com.zhangyuan.modules.cms.domain.CmsPage entity) {
+    private CmsPage toDomain(com.zhangyuan.modules.cms.adapter.out.persistence.CmsPage entity) {
         CmsPage page = new CmsPage(entity.getSlug(), entity.getDefaultLocale(), null);
         return page;
     }

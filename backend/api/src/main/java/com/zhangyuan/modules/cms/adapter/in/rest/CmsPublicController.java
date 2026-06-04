@@ -1,0 +1,31 @@
+package com.zhangyuan.modules.cms.adapter.in.rest;
+
+import com.zhangyuan.common.response.ApiResponse;
+import com.zhangyuan.modules.cms.application.service.CmsApplicationService;
+import com.zhangyuan.modules.cms.dto.RenderPageResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/cms/pages")
+public class CmsPublicController {
+
+    private static final Logger log = LoggerFactory.getLogger(CmsPublicController.class);
+
+    private final CmsApplicationService cmsApplicationService;
+
+    public CmsPublicController(CmsApplicationService cmsApplicationService) {
+        this.cmsApplicationService = cmsApplicationService;
+    }
+
+    @GetMapping("/render")
+    public ApiResponse<RenderPageResponse> render(@RequestParam("path") String path,
+                                                  @RequestParam(value = "locale", required = false) String locale) {
+        log.info("Rendering CMS page: path={}, locale={}", path, locale);
+        return ApiResponse.ok(cmsApplicationService.render(path, locale));
+    }
+}

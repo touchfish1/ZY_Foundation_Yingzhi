@@ -44,6 +44,11 @@ public class User {
         this.updatedAt = Instant.now();
     }
 
+    public void setStatus(UserStatus status) {
+        this.status = status;
+        this.updatedAt = Instant.now();
+    }
+
     public boolean authenticate(String rawPassword, java.util.function.BiFunction<String, String, Boolean> passwordMatcher) {
         if (status != UserStatus.ENABLED) {
             throw new IllegalStateException("User is disabled");
@@ -69,4 +74,8 @@ public class User {
     public Set<String> getRoleCodes() { return Collections.unmodifiableSet(roleCodes); }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
+
+    public void setId(Long id) { this.id = id; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }

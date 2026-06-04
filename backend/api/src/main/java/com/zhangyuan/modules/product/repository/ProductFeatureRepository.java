@@ -1,6 +1,6 @@
 package com.zhangyuan.modules.product.repository;
 
-import com.zhangyuan.modules.product.domain.ProductFeature;
+import com.zhangyuan.modules.product.adapter.out.persistence.ProductFeature;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

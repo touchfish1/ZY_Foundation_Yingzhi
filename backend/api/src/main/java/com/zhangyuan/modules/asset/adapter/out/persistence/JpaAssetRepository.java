@@ -2,7 +2,6 @@ package com.zhangyuan.modules.asset.adapter.out.persistence;
 
 import com.zhangyuan.modules.asset.domain.model.AssetFile;
 import com.zhangyuan.modules.asset.domain.repository.AssetRepository;
-import com.zhangyuan.modules.asset.repository.AssetFileRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -11,9 +10,9 @@ import java.util.Optional;
 @Component
 public class JpaAssetRepository implements AssetRepository {
 
-    private final AssetFileRepository jpaRepository;
+    private final AssetFileJpaRepository jpaRepository;
 
-    public JpaAssetRepository(AssetFileRepository jpaRepository) {
+    public JpaAssetRepository(AssetFileJpaRepository jpaRepository) {
         this.jpaRepository = jpaRepository;
     }
 
@@ -31,7 +30,7 @@ public class JpaAssetRepository implements AssetRepository {
 
     @Override
     public AssetFile save(AssetFile asset) {
-        com.zhangyuan.modules.asset.domain.AssetFile entity = new com.zhangyuan.modules.asset.domain.AssetFile(
+        AssetFileEntity entity = new AssetFileEntity(
                 asset.getBucket(),
                 asset.getObjectKey(),
                 asset.getOriginalName(),
@@ -45,7 +44,7 @@ public class JpaAssetRepository implements AssetRepository {
         return toDomain(entity);
     }
 
-    private AssetFile toDomain(com.zhangyuan.modules.asset.domain.AssetFile entity) {
+    private AssetFile toDomain(AssetFileEntity entity) {
         AssetFile file = new AssetFile(
                 entity.getBucket(),
                 entity.getObjectKey(),

@@ -23,4 +23,8 @@ public class Role {
     public String getCode() { return code; }
     public String getName() { return name; }
     public Instant getCreatedAt() { return createdAt; }
+
+    public void setId(Long id) { this.id = id; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+    public void setCode(String code) { this.code = code; }
 }

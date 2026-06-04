@@ -1,15 +1,17 @@
 package com.zhangyuan.modules.cms;
 
-import com.zhangyuan.modules.cms.domain.CmsPage;
-import com.zhangyuan.modules.cms.domain.CmsPageTranslation;
-import com.zhangyuan.modules.cms.domain.CmsPageVersion;
+import com.zhangyuan.modules.cms.adapter.out.persistence.CmsPage;
+import com.zhangyuan.modules.cms.adapter.out.persistence.CmsPageTranslation;
+import com.zhangyuan.modules.cms.adapter.out.persistence.CmsPageVersion;
+import com.zhangyuan.modules.cms.application.service.CmsApplicationService;
 import com.zhangyuan.modules.cms.dto.PublishPageRequest;
 import com.zhangyuan.modules.cms.dto.UpdatePageRequest;
+import com.zhangyuan.modules.cms.repository.CmsBlockDefinitionRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageTranslationRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageVersionRepository;
 import com.zhangyuan.modules.cms.repository.CmsPublishRecordRepository;
-import com.zhangyuan.modules.product.ProductService;
+import com.zhangyuan.modules.product.application.service.ProductApplicationService;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -29,8 +31,9 @@ class CmsServiceAdditionalTest {
     private final CmsPageTranslationRepository translationRepository = mock(CmsPageTranslationRepository.class);
     private final CmsPageVersionRepository versionRepository = mock(CmsPageVersionRepository.class);
     private final CmsPublishRecordRepository publishRecordRepository = mock(CmsPublishRecordRepository.class);
-    private final ProductService productService = mock(ProductService.class);
-    private final CmsService cmsService = new CmsService(pageRepository, translationRepository, versionRepository, publishRecordRepository, productService);
+    private final CmsBlockDefinitionRepository blockDefinitionRepository = mock(CmsBlockDefinitionRepository.class);
+    private final ProductApplicationService productService = mock(ProductApplicationService.class);
+    private final CmsApplicationService cmsService = new CmsApplicationService(pageRepository, translationRepository, versionRepository, publishRecordRepository, blockDefinitionRepository, productService);
 
     @Test
     void previewReturnsSpecificVersion() {

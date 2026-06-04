@@ -1,6 +1,6 @@
 package com.zhangyuan.modules.cms.repository;
 
-import com.zhangyuan.modules.cms.domain.CmsPageVersion;
+import com.zhangyuan.modules.cms.adapter.out.persistence.CmsPageVersion;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

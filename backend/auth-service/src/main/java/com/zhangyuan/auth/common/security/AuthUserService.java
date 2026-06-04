@@ -1,8 +1,8 @@
 package com.zhangyuan.auth.common.security;
 
-import com.zhangyuan.auth.domain.AdminPermission;
-import com.zhangyuan.auth.domain.AdminRole;
-import com.zhangyuan.auth.domain.AdminUser;
+import com.zhangyuan.auth.adapter.out.persistence.AdminPermission;
+import com.zhangyuan.auth.adapter.out.persistence.AdminRole;
+import com.zhangyuan.auth.adapter.out.persistence.AdminUser;
 import com.zhangyuan.auth.repository.AdminUserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

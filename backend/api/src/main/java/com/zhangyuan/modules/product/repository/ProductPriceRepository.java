@@ -1,6 +1,6 @@
 package com.zhangyuan.modules.product.repository;
 
-import com.zhangyuan.modules.product.domain.ProductPrice;
+import com.zhangyuan.modules.product.adapter.out.persistence.ProductPrice;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

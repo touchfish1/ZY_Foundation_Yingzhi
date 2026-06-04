@@ -2,17 +2,22 @@ package com.zhangyuan.modules.cms.adapter.in.rest;
 
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.modules.cms.application.service.CmsApplicationService;
-import com.zhangyuan.modules.cms.domain.model.CmsPage;
+import com.zhangyuan.modules.cms.dto.CreatePageRequest;
+import com.zhangyuan.modules.cms.dto.PageDetailResponse;
+import com.zhangyuan.modules.cms.dto.PageListItemResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 
-/**
- * DDD 版 CMS 页面控制器，提供页面的增删改查接口。
- */
 @RestController
 @RequestMapping("/api/ddd/cms")
 public class CmsPageController {
@@ -25,51 +30,28 @@ public class CmsPageController {
         this.cmsApplicationService = cmsApplicationService;
     }
 
-    /**
-     * 获取所有 CMS 页面列表。
-     *
-     * @return 页面列表
-     */
     @GetMapping("/pages")
-    public ApiResponse<List<CmsPage>> listPages() {
+    public ApiResponse<List<PageListItemResponse>> listPages() {
         log.info("Listing all CMS pages");
-        return ApiResponse.ok(cmsApplicationService.listAll());
+        return ApiResponse.ok(cmsApplicationService.listPages());
     }
 
-    /**
-     * 创建新 CMS 页面。
-     *
-     * @param request 创建页面请求
-     * @return 创建的页面
-     */
     @PostMapping("/pages")
-    public ApiResponse<CmsPage> createPage(@RequestBody CreatePageRequest request) {
-        log.info("Creating CMS page with slug: {}", request.slug());
-        CmsPage page = cmsApplicationService.createPage(request.slug(), request.defaultLocale(), request.createdBy());
-        log.info("CMS page created: id={}, slug={}", page.getId(), page.getSlug());
-        return ApiResponse.ok(page);
+    public ApiResponse<PageDetailResponse> createPage(@RequestBody Map<String, Object> body) {
+        String slug = (String) body.get("slug");
+        String defaultLocale = (String) body.getOrDefault("defaultLocale", "zh-CN");
+        String title = (String) body.getOrDefault("title", slug);
+        CreatePageRequest request = new CreatePageRequest(slug, title, defaultLocale);
+        log.info("Creating CMS page with slug: {}", slug);
+        return ApiResponse.ok(cmsApplicationService.createPage(request));
     }
 
-    /**
-     * 根据 ID 查询 CMS 页面。
-     *
-     * @param id 页面 ID
-     * @return 页面信息
-     */
     @GetMapping("/pages/{id}")
-    public ApiResponse<CmsPage> getPage(@PathVariable Long id) {
+    public ApiResponse<PageDetailResponse> getPage(@PathVariable Long id) {
         log.info("Getting CMS page by id: {}", id);
-        return cmsApplicationService.findById(id)
-                .map(ApiResponse::ok)
-                .orElse(ApiResponse.error(404, "CMS page not found"));
+        return ApiResponse.ok(cmsApplicationService.getPage(id));
     }
 
-    /**
-     * 删除指定 CMS 页面。
-     *
-     * @param id 页面 ID
-     * @return 成功响应
-     */
     @DeleteMapping("/pages/{id}")
     public ApiResponse<Void> deletePage(@PathVariable Long id) {
         log.info("Deleting CMS page: {}", id);
@@ -77,6 +59,4 @@ public class CmsPageController {
         log.info("CMS page deleted: {}", id);
         return ApiResponse.ok();
     }
-
-    public record CreatePageRequest(String slug, String defaultLocale, Long createdBy) {}
 }

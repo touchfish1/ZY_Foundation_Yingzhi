@@ -7,7 +7,7 @@ import com.zhangyuan.modules.cms.repository.CmsPageTranslationRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageVersionRepository;
 import com.zhangyuan.modules.cms.repository.CmsPublishRecordRepository;
 import com.zhangyuan.modules.order.repository.OrderMainRepository;
-import com.zhangyuan.modules.payment.repository.PaymentTransactionRepository;
+import com.zhangyuan.modules.payment.adapter.out.persistence.PaymentTransactionJpaRepository;
 import com.zhangyuan.modules.product.repository.ProductFeatureRepository;
 import com.zhangyuan.modules.product.repository.ProductPlanGroupRepository;
 import com.zhangyuan.modules.product.repository.ProductPlanRepository;
@@ -66,7 +66,7 @@ class ZhangyuanApplicationTests {
     private OrderMainRepository orderMainRepository;
 
     @MockBean
-    private PaymentTransactionRepository paymentTransactionRepository;
+    private PaymentTransactionJpaRepository paymentTransactionJpaRepository;
 
     @MockBean
     private MinioClient minioClient;

@@ -1,6 +1,6 @@
 package com.zhangyuan.modules.cms.repository;
 
-import com.zhangyuan.modules.cms.domain.CmsBlockDefinition;
+import com.zhangyuan.modules.cms.adapter.out.persistence.CmsBlockDefinition;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -3,7 +3,6 @@ package com.zhangyuan.modules.order.adapter.out.persistence;
 import com.zhangyuan.modules.order.domain.model.Order;
 import com.zhangyuan.modules.order.domain.model.OrderNumber;
 import com.zhangyuan.modules.order.domain.repository.OrderRepository;
-import com.zhangyuan.modules.order.repository.OrderMainRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -12,9 +11,9 @@ import java.util.Optional;
 @Component
 public class JpaOrderRepository implements OrderRepository {
 
-    private final OrderMainRepository jpaRepository;
+    private final OrderMainEntityRepository jpaRepository;
 
-    public JpaOrderRepository(OrderMainRepository jpaRepository) {
+    public JpaOrderRepository(OrderMainEntityRepository jpaRepository) {
         this.jpaRepository = jpaRepository;
     }
 
@@ -37,7 +36,7 @@ public class JpaOrderRepository implements OrderRepository {
 
     @Override
     public Order save(Order order) {
-        com.zhangyuan.modules.order.domain.OrderMain entity = new com.zhangyuan.modules.order.domain.OrderMain(
+        OrderMainEntity entity = new OrderMainEntity(
                 order.getOrderNo().value(),
                 order.getPlanId(),
                 order.getPriceId(),
@@ -49,7 +48,7 @@ public class JpaOrderRepository implements OrderRepository {
         return toDomain(entity);
     }
 
-    private Order toDomain(com.zhangyuan.modules.order.domain.OrderMain entity) {
+    private Order toDomain(OrderMainEntity entity) {
         Order order = new Order(
                 new OrderNumber(entity.getOrderNo()),
                 entity.getPlanId(),
