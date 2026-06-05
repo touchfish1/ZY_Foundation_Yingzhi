@@ -22,21 +22,34 @@ public class SaasUserController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public LoginResponse register(@Valid @RequestBody RegisterRequest request) {
+    public ApiResponse<LoginResponse> register(@Valid @RequestBody RegisterRequest request) {
         log.info("User register: {}", request.email());
-        return saasUserApplicationService.register(request);
+        return ApiResponse.ok(saasUserApplicationService.register(request));
     }
 
     @PostMapping("/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
+    public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         log.info("User login: {}", request.email());
-        return saasUserApplicationService.login(request);
+        return ApiResponse.ok(saasUserApplicationService.login(request));
     }
 
     @GetMapping("/profile")
-    public UserResponse profile() {
+    public ApiResponse<UserResponse> profile() {
         long loginId = StpUtil.getLoginIdAsLong();
-        return saasUserApplicationService.getProfile(loginId);
+        return ApiResponse.ok(saasUserApplicationService.getProfile(loginId));
+    }
+
+    @PutMapping("/keys/regenerate")
+    public ApiResponse<UserResponse> regenerateApiKey() {
+        long loginId = StpUtil.getLoginIdAsLong();
+        return ApiResponse.ok(saasUserApplicationService.regenerateApiKey(loginId));
+    }
+
+    @PutMapping("/password")
+    public ApiResponse<Void> changePassword(@Valid @RequestBody PasswordChangeRequest request) {
+        long loginId = StpUtil.getLoginIdAsLong();
+        saasUserApplicationService.changePassword(loginId, request);
+        return ApiResponse.ok();
     }
 
     @GetMapping("/verify-key")

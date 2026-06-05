@@ -41,6 +41,9 @@
         <n-form-item label="默认语言">
           <n-select v-model:value="form.defaultLocale" :options="localeOptions" />
         </n-form-item>
+        <n-form-item label="页面类型">
+          <n-select v-model:value="form.pageType" :options="pageTypeOptions" />
+        </n-form-item>
         <n-space justify="end" style="margin-top: 8px;">
           <n-button @click="showCreate = false">取消</n-button>
           <n-button type="primary" :loading="creating" @click="create">创建</n-button>
@@ -67,11 +70,17 @@ const loading = ref(false)
 const creating = ref(false)
 const showCreate = ref(false)
 const pages = ref<CmsPageListItem[]>([])
-const form = reactive({ slug: '/plans', title: '套餐价格', defaultLocale: 'zh-CN' })
+const form = reactive({ slug: '/plans', title: '套餐价格', defaultLocale: 'zh-CN', pageType: 'custom' })
 const localeOptions: SelectOption[] = [
   { label: '中文 (zh-CN)', value: 'zh-CN' },
   { label: '英文 (en-US)', value: 'en-US' },
   { label: '日文 (ja-JP)', value: 'ja-JP' }
+]
+
+const pageTypeOptions: SelectOption[] = [
+  { label: '自定义页面', value: 'custom' },
+  { label: '博客文章', value: 'blog' },
+  { label: '文档文章', value: 'doc' }
 ]
 
 const paginationReactive = reactive({

@@ -19,6 +19,9 @@ import Users from '../pages/system/Users.vue'
 import Plans from '../pages/products/Plans.vue'
 import Transactions from '../pages/payments/Transactions.vue'
 
+const Usage = () => import('../pages/orders/Usage.vue')
+const Logs = () => import('../pages/system/Logs.vue')
+
 export const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -34,12 +37,17 @@ export const router = createRouter({
         { path: 'cms/pages/:id/versions', component: CmsVersions },
         { path: 'products/plan-groups', component: PlanGroups },
         { path: 'orders', component: Orders },
+        { path: 'orders/:orderNo', component: () => import('../pages/orders/[orderNo].vue'), meta: { title: '订单详情' } },
+        { path: 'orders/subscriptions', component: () => import('../pages/orders/Subscriptions.vue'), meta: { title: '订阅管理' } },
         { path: 'products/plans', component: Plans },
         { path: 'payments/transactions', component: Transactions },
+        { path: 'payments/:paymentNo', component: () => import('../pages/payments/[paymentNo].vue'), meta: { title: '支付详情' } },
         { path: 'system/users', component: Users },
         { path: 'system/monitor', component: Monitor },
         { path: 'system/roles', component: Roles },
         { path: 'system/settings', component: Settings },
+        { path: 'orders/usage', component: Usage, meta: { title: '用量管理', permissions: ['order:usage:list'] } },
+        { path: 'system/logs', component: Logs, meta: { title: '审计日志', permissions: ['system:log:list'] } },
         { path: 'system/permissions', component: Permissions, meta: { permissions: ['system:permission:list'] } },
         { path: 'system/menus', component: Menus, meta: { permissions: ['system:menu:list'] } }
       ]

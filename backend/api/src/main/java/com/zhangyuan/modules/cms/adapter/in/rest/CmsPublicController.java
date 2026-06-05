@@ -1,7 +1,9 @@
 package com.zhangyuan.modules.cms.adapter.in.rest;
 
 import com.zhangyuan.common.response.ApiResponse;
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.cms.application.service.CmsApplicationService;
+import com.zhangyuan.modules.cms.dto.PageListItemResponse;
 import com.zhangyuan.modules.cms.dto.RenderPageResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,5 +29,14 @@ public class CmsPublicController {
                                                   @RequestParam(value = "locale", required = false) String locale) {
         log.info("Rendering CMS page: path={}, locale={}", path, locale);
         return ApiResponse.ok(cmsApplicationService.render(path, locale));
+    }
+
+    @GetMapping("/list")
+    public ApiResponse<PageResponse<PageListItemResponse>> listPublishedPages(
+            @RequestParam(defaultValue = "custom") String type,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int pageSize) {
+        log.info("Listing published CMS pages: type={}, page={}, pageSize={}", type, page, pageSize);
+        return ApiResponse.ok(cmsApplicationService.listPublishedByType(type, page, pageSize));
     }
 }

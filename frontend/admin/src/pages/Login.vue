@@ -16,10 +16,10 @@
         <n-h3 style="margin-bottom:20px;font-weight:700;">登录后台</n-h3>
         <n-form @submit.prevent="submit">
           <n-form-item label="账号">
-            <n-input v-model:value="username" placeholder="admin" size="large" />
+            <n-input v-model:value="username" placeholder="请输入账号" size="large" />
           </n-form-item>
           <n-form-item label="密码">
-            <n-input v-model:value="password" type="password" placeholder="admin123" size="large" @keyup.enter="submit" />
+            <n-input v-model:value="password" type="password" placeholder="请输入密码" size="large" @keyup.enter="submit" />
           </n-form-item>
           <n-button type="primary" block :loading="loading" @click="submit" size="large" style="margin-top:8px;">
             {{ loading ? '登录中...' : '登录' }}
@@ -39,8 +39,8 @@ import { usePermissionStore } from '../stores/permission'
 
 const router = useRouter()
 const message = useMessage()
-const username = ref('admin')
-const password = ref('admin123')
+const username = ref('')
+const password = ref('')
 const loading = ref(false)
 
 async function submit() {

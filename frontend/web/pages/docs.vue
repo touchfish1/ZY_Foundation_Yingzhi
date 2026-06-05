@@ -8,7 +8,7 @@
         <p class="lead">快速集成，轻松上手。从入门到高级，尽在文档中心。</p>
         <div class="search-bar">
           <span class="search-icon">⌕</span>
-          <input type="text" placeholder="搜索文档..." readonly />
+          <input v-model="searchQuery" type="text" placeholder="搜索文档..." />
           <span class="search-hint">⌘K</span>
         </div>
       </AnimReveal>
@@ -17,41 +17,11 @@
     <section class="doc-cards section-paper">
       <AnimReveal animation="fade-up">
         <div class="cards-grid">
-          <a href="#" class="doc-card">
-            <span class="card-icon">→</span>
-            <h3>快速开始</h3>
-            <p>5 分钟集成 API Key，发送你的第一个请求。</p>
-            <span class="card-meta">5 分钟阅读</span>
-          </a>
-          <a href="#" class="doc-card">
-            <span class="card-icon">☰</span>
-            <h3>API 参考</h3>
-            <p>完整的端点和参数说明，涵盖所有模型接口。</p>
-            <span class="card-meta">详细文档</span>
-          </a>
-          <a href="#" class="doc-card">
-            <span class="card-icon">◇</span>
-            <h3>SDK &amp; 库</h3>
-            <p>Python、Node.js、Go 等多语言 SDK 下载与使用。</p>
-            <span class="card-meta">多语言支持</span>
-          </a>
-          <a href="#" class="doc-card">
-            <span class="card-icon">◎</span>
-            <h3>最佳实践</h3>
-            <p>缓存策略、错误处理、并发优化等生产级建议。</p>
-            <span class="card-meta">进阶指南</span>
-          </a>
-          <a href="#" class="doc-card">
-            <span class="card-icon">⚙</span>
-            <h3>常见问题</h3>
-            <p>计费、限流、模型兼容性等高频问题解答。</p>
-            <span class="card-meta">FAQ</span>
-          </a>
-          <a href="#" class="doc-card">
-            <span class="card-icon">⇌</span>
-            <h3>更新日志</h3>
-            <p>平台更新、模型上线、功能变更历史记录。</p>
-            <span class="card-meta">Changelog</span>
+          <a v-for="doc in filteredDocs" :key="doc.id" :href="doc.slug" class="doc-card">
+            <span class="card-icon">{{ docIcon(doc.slug) }}</span>
+            <h3>{{ doc.title }}</h3>
+            <p>{{ docCategory(doc.slug) }}</p>
+            <span class="card-meta">阅读文档</span>
           </a>
         </div>
       </AnimReveal>
@@ -88,6 +58,67 @@ print(response.choices[0].message.content)</code></pre>
 <script setup lang="ts">
 definePageMeta({ layout: 'default' })
 usePageMeta('文档中心 — 卡米 API', '卡米 API 开发者文档，快速开始、API 参考、SDK 下载')
+
+interface DocPage {
+  id: number
+  slug: string
+  title: string
+  pageType: string
+  status: string
+  createdAt: string
+  updatedAt: string
+}
+
+const config = useRuntimeConfig()
+const allDocs = ref<DocPage[]>([])
+const searchQuery = ref('')
+
+const docIconMap: Record<string, string> = {
+  'quick-start': '→',
+  'api-reference': '☰',
+  sdk: '◇',
+  'best-practices': '◎',
+  faq: '⚙',
+  changelog: '⇌'
+}
+
+const docCategoryMap: Record<string, string> = {
+  'quick-start': '快速开始',
+  'api-reference': 'API 参考',
+  sdk: 'SDK & 库',
+  'best-practices': '最佳实践',
+  faq: '常见问题',
+  changelog: '更新日志'
+}
+
+function slugKey(slug: string): string {
+  return slug.replace(/^\/docs\//, '').split('/')[0] || ''
+}
+
+function docIcon(slug: string): string {
+  return docIconMap[slugKey(slug)] || '·'
+}
+
+function docCategory(slug: string): string {
+  return docCategoryMap[slugKey(slug)] || '文档'
+}
+
+const filteredDocs = computed(() => {
+  if (!searchQuery.value) return allDocs.value
+  const q = searchQuery.value.toLowerCase()
+  return allDocs.value.filter(d => d.title.toLowerCase().includes(q))
+})
+
+onMounted(async () => {
+  try {
+    const res: any = await $fetch(`${config.public.apiBase}/api/cms/pages/list?type=doc&page=1&pageSize=50`)
+    if (res.code === 0) {
+      allDocs.value = res.data.items
+    }
+  } catch (e) {
+    console.error('Failed to fetch docs', e)
+  }
+})
 </script>
 
 <style scoped>

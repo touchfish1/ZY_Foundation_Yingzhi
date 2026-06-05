@@ -73,7 +73,7 @@ public class PaymentApplicationService {
 
     public PaymentResponse getPayment(String paymentNo) {
         return paymentRepository.findByPaymentNo(paymentNo)
-                .map(p -> new PaymentResponse(p.getPaymentNo(), p.getOrderNo(), p.getStatus(), p.getPaidAt()))
+                .map(p -> new PaymentResponse(p.getPaymentNo(), p.getOrderNo(), p.getChannel(), p.getAmount(), p.getCurrency(), p.getStatus(), p.getCreatedAt(), p.getPaidAt()))
                 .orElseThrow(() -> new IllegalArgumentException("Payment not found: " + paymentNo));
     }
 }

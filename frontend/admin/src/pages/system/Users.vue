@@ -44,6 +44,25 @@
       </n-form>
     </n-modal>
 
+    <n-modal v-model:show="showRecharge" preset="card" title="余额充值" class="modal-card" :mask-closable="false" style="width: 480px;">
+      <n-form label-placement="top">
+        <n-form-item label="用户">
+          <span style="font-weight: 600;">{{ rechargeForm.username }}</span>
+          <span style="color: #64748b; margin-left: 8px;">(ID: {{ rechargeForm.userId }})</span>
+        </n-form-item>
+        <n-form-item label="充值金额（元）">
+          <n-input-number v-model:value="rechargeForm.amount" :min="0" :precision="2" placeholder="请输入充值金额" style="width: 200px" />
+        </n-form-item>
+        <n-form-item label="备注">
+          <n-input v-model:value="rechargeForm.remark" placeholder="选填" />
+        </n-form-item>
+        <n-space justify="end" style="margin-top: 8px;">
+          <n-button @click="showRecharge = false">取消</n-button>
+          <n-button type="primary" :loading="recharging" @click="submitRecharge">确认充值</n-button>
+        </n-space>
+      </n-form>
+    </n-modal>
+
     <n-modal v-model:show="showEdit" preset="card" title="编辑用户" class="modal-card" :mask-closable="false">
       <n-form label-placement="top">
         <n-form-item label="昵称"><n-input v-model:value="editForm.nickname" /></n-form-item>
@@ -74,10 +93,10 @@
 
 <script setup lang="ts">
 import { computed, h, onMounted, reactive, ref, watch } from 'vue'
-import { NButton, NCard, NCheckbox, NCheckboxGroup, NForm, NFormItem, NIcon, NInput, NModal, NSelect, NSpace, NTag, useMessage } from 'naive-ui'
+import { NButton, NCard, NCheckbox, NCheckboxGroup, NForm, NFormItem, NIcon, NInput, NInputNumber, NModal, NSelect, NSpace, NTag, useMessage } from 'naive-ui'
 import type { DataTableColumns, SelectOption } from 'naive-ui'
 import CommonTable from '../../components/CommonTable.vue'
-import { listUsers, createUser, updateUser, deleteUser, listRoles, getUserRoles, setUserRoles, type UserInfo, type RoleInfo } from '../../api/system'
+import { listUsers, createUser, updateUser, deleteUser, listRoles, getUserRoles, setUserRoles, rechargeBalance, type UserInfo, type RoleInfo } from '../../api/system'
 import { useConfirm } from '../../composables/useConfirm'
 import { formatDate } from '../../utils/format'
 
@@ -111,9 +130,13 @@ watch(searchQuery, () => {
 
 const showCreate = ref(false)
 const showEdit = ref(false)
+const showRecharge = ref(false)
 const creating = ref(false)
 const saving = ref(false)
+const recharging = ref(false)
 const editingId = ref<number | null>(null)
+
+const rechargeForm = reactive({ userId: 0, username: '', amount: 0, remark: '' })
 
 const createForm = reactive({ username: '', password: '', nickname: '', email: '' })
 const editForm = reactive({ nickname: '', email: '', status: 'enabled' })
@@ -152,11 +175,12 @@ const columns: DataTableColumns<UserInfo> = [
     }
   },
   {
-    title: '操作', key: 'actions', width: 150,
+    title: '操作', key: 'actions', width: 250,
     render(row) {
       return h(NSpace, null, {
         default: () => [
           h(NButton, { size: 'small', type: 'primary', quaternary: true, onClick: () => openEdit(row) }, { default: () => '编辑' }),
+          h(NButton, { size: 'small', type: 'warning', quaternary: true, onClick: () => openRecharge(row) }, { default: () => '充值' }),
           h(NButton, { size: 'small', type: 'error', quaternary: true, onClick: () => handleDelete(row.id) }, { default: () => '删除' })
         ]
       })
@@ -206,6 +230,35 @@ async function submitCreate() {
     message.error(error instanceof Error ? error.message : '创建失败')
   } finally {
     creating.value = false
+  }
+}
+
+function openRecharge(user: UserInfo) {
+  rechargeForm.userId = user.id
+  rechargeForm.username = user.username
+  rechargeForm.amount = 0
+  rechargeForm.remark = ''
+  showRecharge.value = true
+}
+
+async function submitRecharge() {
+  if (rechargeForm.amount <= 0) {
+    message.warning('请输入有效的充值金额')
+    return
+  }
+  recharging.value = true
+  try {
+    await rechargeBalance(rechargeForm.userId, {
+      amount: rechargeForm.amount,
+      remark: rechargeForm.remark || undefined
+    })
+    message.success('充值成功')
+    showRecharge.value = false
+    await loadData()
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : '充值失败')
+  } finally {
+    recharging.value = false
   }
 }
 

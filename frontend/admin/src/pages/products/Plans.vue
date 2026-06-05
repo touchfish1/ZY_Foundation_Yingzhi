@@ -132,7 +132,7 @@ const columns = [
   },
   { title: '状态', key: 'status', width: 80,
     render(row: PlanRow) {
-      return h(NTag, { type: row.status === 'ACTIVE' ? 'success' : 'warning', size: 'small', bordered: false }, { default: () => row.status })
+      return h(NTag, { type: row.status?.toLowerCase() === 'active' ? 'success' : 'warning', size: 'small', bordered: false }, { default: () => row.status })
     }
   },
   {

@@ -7,6 +7,7 @@ public class CmsPage {
 
     private Long id;
     private String slug;
+    private String pageType = "custom";
     private String defaultLocale;
     private boolean enabled;
     private List<PageTranslation> translations;
@@ -14,9 +15,10 @@ public class CmsPage {
     private Instant createdAt;
     private Instant updatedAt;
 
-    public CmsPage(String slug, String defaultLocale, Long createdBy) {
+    public CmsPage(String slug, String defaultLocale, String pageType, Long createdBy) {
         this.slug = normalizeSlug(slug);
         this.defaultLocale = defaultLocale;
+        this.pageType = pageType != null ? pageType : "custom";
         this.createdBy = createdBy;
         this.enabled = true;
         this.translations = new ArrayList<>();
@@ -46,8 +48,14 @@ public class CmsPage {
     public void disable() { this.enabled = false; }
     public void enable() { this.enabled = true; }
 
+    public void changeType(String pageType) {
+        this.pageType = pageType != null ? pageType : "custom";
+        this.updatedAt = Instant.now();
+    }
+
     public Long getId() { return id; }
     public String getSlug() { return slug; }
+    public String getPageType() { return pageType; }
     public String getDefaultLocale() { return defaultLocale; }
     public boolean isEnabled() { return enabled; }
     public List<PageTranslation> getTranslations() { return Collections.unmodifiableList(translations); }

@@ -1,12 +1,12 @@
 package com.zhangyuan;
 
-import com.zhangyuan.modules.asset.repository.AssetFileRepository;
+import com.zhangyuan.modules.asset.adapter.out.persistence.AssetFileJpaRepository;
 import com.zhangyuan.modules.cms.repository.CmsBlockDefinitionRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageTranslationRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageVersionRepository;
 import com.zhangyuan.modules.cms.repository.CmsPublishRecordRepository;
-import com.zhangyuan.modules.order.repository.OrderMainRepository;
+import com.zhangyuan.modules.order.adapter.out.persistence.OrderMainEntityRepository;
 import com.zhangyuan.modules.payment.adapter.out.persistence.PaymentTransactionJpaRepository;
 import com.zhangyuan.modules.product.repository.ProductFeatureRepository;
 import com.zhangyuan.modules.product.repository.ProductPlanGroupRepository;
@@ -33,7 +33,7 @@ import org.springframework.test.context.ActiveProfiles;
 class ZhangyuanApplicationTests {
 
     @MockBean
-    private AssetFileRepository assetFileRepository;
+    private AssetFileJpaRepository assetFileRepository;
 
     @MockBean
     private CmsPageRepository cmsPageRepository;
@@ -63,7 +63,7 @@ class ZhangyuanApplicationTests {
     private ProductFeatureRepository productFeatureRepository;
 
     @MockBean
-    private OrderMainRepository orderMainRepository;
+    private OrderMainEntityRepository orderMainRepository;
 
     @MockBean
     private PaymentTransactionJpaRepository paymentTransactionJpaRepository;

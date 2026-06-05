@@ -1,8 +1,8 @@
 package com.zhangyuan.modules.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zhangyuan.modules.order.domain.OrderMain;
-import com.zhangyuan.modules.order.repository.OrderMainRepository;
+import com.zhangyuan.modules.order.adapter.out.persistence.OrderMainEntity;
+import com.zhangyuan.modules.order.adapter.out.persistence.OrderMainEntityRepository;
 import com.zhangyuan.modules.payment.adapter.out.persistence.PaymentTransactionEntity;
 import com.zhangyuan.modules.payment.adapter.out.persistence.PaymentTransactionJpaRepository;
 import com.zhangyuan.modules.payment.application.service.PaymentApplicationService;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 class PaymentServiceTest {
 
     private final PaymentTransactionJpaRepository paymentTransactionJpaRepository = mock(PaymentTransactionJpaRepository.class);
-    private final OrderMainRepository orderMainRepository = mock(OrderMainRepository.class);
+    private final OrderMainEntityRepository orderMainRepository = mock(OrderMainEntityRepository.class);
     private final PaymentRepository paymentRepository = mock(PaymentRepository.class);
     private final PaymentDomainService paymentDomainService = mock(PaymentDomainService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -39,7 +39,7 @@ class PaymentServiceTest {
     @Test
     void checkoutCreatesPaymentForPendingOrder() {
         CheckoutRequest request = new CheckoutRequest("ORD123", "mock");
-        OrderMain order = mock(OrderMain.class);
+        OrderMainEntity order = mock(OrderMainEntity.class);
         when(order.getId()).thenReturn(1L);
         when(order.getOrderNo()).thenReturn("ORD123");
         when(order.getAmount()).thenReturn(BigDecimal.valueOf(29));
@@ -72,7 +72,7 @@ class PaymentServiceTest {
     @Test
     void checkoutThrowsWhenOrderNotPending() {
         CheckoutRequest request = new CheckoutRequest("ORD123", "mock");
-        OrderMain order = mock(OrderMain.class);
+        OrderMainEntity order = mock(OrderMainEntity.class);
         when(order.getStatus()).thenReturn("paid");
         when(orderMainRepository.findByOrderNo("ORD123")).thenReturn(Optional.of(order));
 
@@ -96,7 +96,7 @@ class PaymentServiceTest {
         when(payment.getStatus()).thenReturn("pending");
         when(paymentTransactionJpaRepository.findByPaymentNo("PAY123")).thenReturn(Optional.of(payment));
 
-        OrderMain order = mock(OrderMain.class);
+        OrderMainEntity order = mock(OrderMainEntity.class);
         when(order.getOrderNo()).thenReturn("ORD123");
         when(orderMainRepository.findById(1L)).thenReturn(Optional.of(order));
 
@@ -117,7 +117,7 @@ class PaymentServiceTest {
         when(payment.getPaidAt()).thenReturn(Instant.now());
         when(paymentTransactionJpaRepository.findByPaymentNo("PAY123")).thenReturn(Optional.of(payment));
 
-        OrderMain order = mock(OrderMain.class);
+        OrderMainEntity order = mock(OrderMainEntity.class);
         when(order.getOrderNo()).thenReturn("ORD123");
         when(orderMainRepository.findById(1L)).thenReturn(Optional.of(order));
 
@@ -139,7 +139,7 @@ class PaymentServiceTest {
     void listPaymentsReturnsAll() {
         PaymentTransactionEntity tx = new PaymentTransactionEntity("PAY1", 1L, "mock", BigDecimal.TEN, "CNY", "{}");
         when(paymentTransactionJpaRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(tx));
-        when(orderMainRepository.findById(1L)).thenReturn(Optional.of(mock(OrderMain.class)));
+        when(orderMainRepository.findById(1L)).thenReturn(Optional.of(mock(OrderMainEntity.class)));
 
         List<PaymentResponse> payments = paymentService.listPayments();
 

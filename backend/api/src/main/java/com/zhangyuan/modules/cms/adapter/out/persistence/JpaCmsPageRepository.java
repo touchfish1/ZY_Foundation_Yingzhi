@@ -2,6 +2,7 @@ package com.zhangyuan.modules.cms.adapter.out.persistence;
 
 import com.zhangyuan.modules.cms.domain.model.CmsPage;
 import com.zhangyuan.modules.cms.domain.repository.CmsPageRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -39,10 +40,11 @@ public class JpaCmsPageRepository implements CmsPageRepository {
                     .orElseThrow(() -> new IllegalArgumentException("Page not found: " + page.getId()));
             entity.setSlug(page.getSlug());
             entity.setDefaultLocale(page.getDefaultLocale());
+            entity.setPageType(page.getPageType());
             entity.touch();
         } else {
             entity = new com.zhangyuan.modules.cms.adapter.out.persistence.CmsPage(
-                    page.getSlug(), page.getDefaultLocale(), page.getCreatedBy());
+                    page.getSlug(), page.getDefaultLocale(), page.getPageType(), page.getCreatedBy());
         }
         entity = jpaRepository.save(entity);
         return toDomain(entity);
@@ -58,8 +60,14 @@ public class JpaCmsPageRepository implements CmsPageRepository {
         return jpaRepository.existsBySlug(slug);
     }
 
+    @Override
+    public List<CmsPage> findByPageTypeAndStatus(String pageType, String status) {
+        return jpaRepository.findByPageTypeAndStatus(pageType, status, PageRequest.of(0, Integer.MAX_VALUE))
+                .stream().map(this::toDomain).toList();
+    }
+
     private CmsPage toDomain(com.zhangyuan.modules.cms.adapter.out.persistence.CmsPage entity) {
-        CmsPage page = new CmsPage(entity.getSlug(), entity.getDefaultLocale(), null);
+        CmsPage page = new CmsPage(entity.getSlug(), entity.getDefaultLocale(), entity.getPageType(), entity.getCreatedBy());
         return page;
     }
 }

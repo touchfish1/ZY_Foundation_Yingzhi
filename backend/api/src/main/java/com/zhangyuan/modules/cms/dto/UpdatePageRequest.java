@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record UpdatePageRequest(
     @NotBlank String slug,
-    String defaultLocale
+    String defaultLocale,
+    String pageType
 ) {
 }

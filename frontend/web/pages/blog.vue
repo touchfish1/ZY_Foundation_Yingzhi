@@ -12,22 +12,23 @@
     <section class="blog-list section-paper">
       <AnimReveal animation="fade-up">
         <div class="blog-filters">
-          <button class="filter active">全部</button>
-          <button class="filter">更新公告</button>
-          <button class="filter">技术分享</button>
-          <button class="filter">行业资讯</button>
+          <button
+            v-for="filter in filters"
+            :key="filter"
+            class="filter"
+            :class="{ active: activeFilter === filter }"
+            @click="activeFilter = filter"
+          >{{ filter }}</button>
         </div>
       </AnimReveal>
 
       <div class="posts">
-        <AnimReveal v-for="(post, i) in posts" :key="i" animation="fade-up" :delay="i * 80">
-          <article class="post-card">
-            <div class="post-tag">{{ post.tag }}</div>
+        <AnimReveal v-for="(post, i) in filteredPosts" :key="post.id" animation="fade-up" :delay="i * 80">
+          <article class="post-card" @click="navigateTo(post.slug)">
+            <div class="post-tag">{{ extractTag(post.slug) }}</div>
             <h3>{{ post.title }}</h3>
-            <p>{{ post.excerpt }}</p>
             <div class="post-meta">
-              <span class="post-date">{{ post.date }}</span>
-              <span class="post-read">{{ post.readTime }} 分钟阅读</span>
+              <span class="post-date">{{ post.createdAt.slice(0, 10) }}</span>
             </div>
           </article>
         </AnimReveal>
@@ -40,14 +41,47 @@
 definePageMeta({ layout: 'default' })
 usePageMeta('博客动态 — 卡米 API', '卡米 API 最新动态、产品更新与技术分享')
 
-const posts = [
-  { tag: '更新公告', title: 'GPT-5.5 旗舰模型正式上线', excerpt: '全新 GPT-5.5 旗舰模型已接入平台，推理能力大幅提升，支持 128K 上下文窗口，价格与 GPT-5.4 保持一致。', date: '2026-06-01', readTime: 3 },
-  { tag: '技术分享', title: 'API 缓存命中率优化实践', excerpt: '如何将缓存命中率从 60% 提升至 90%+？本文分享我们在缓存策略、预热机制和过期策略上的实践经验。', date: '2026-05-25', readTime: 8 },
-  { tag: '更新公告', title: 'Claude 系列模型同步接入', excerpt: 'Claude Opus 和 Claude Sonnet 现已同步接入平台，支持官网所有功能，价格更具竞争力。', date: '2026-05-18', readTime: 2 },
-  { tag: '行业资讯', title: '2026 Q2 AI 模型价格趋势分析', excerpt: '主流 AI 模型价格持续走低，推理成本同比下降 60%。我们整理了详细的对比数据与趋势预测。', date: '2026-05-10', readTime: 12 },
-  { tag: '技术分享', title: '多模型路由的最佳实践', excerpt: '根据任务类型自动路由到最优模型，兼顾性能与成本。本文介绍基于规则的动态路由方案。', date: '2026-04-28', readTime: 6 },
-  { tag: '更新公告', title: '周卡余额四分特惠上线', excerpt: '新用户周卡余额四分特惠活动已开启，高频试用用户可大幅降低测试成本。', date: '2026-04-20', readTime: 2 },
-]
+interface BlogPost {
+  id: number
+  slug: string
+  title: string
+  pageType: string
+  status: string
+  createdAt: string
+  updatedAt: string
+}
+
+const config = useRuntimeConfig()
+const allPosts = ref<BlogPost[]>([])
+const activeFilter = ref('全部')
+const filters = ['全部', '更新公告', '技术分享', '行业资讯']
+
+const tagMap: Record<string, string> = {
+  announcements: '更新公告',
+  tech: '技术分享',
+  industry: '行业资讯'
+}
+
+function extractTag(slug: string): string {
+  const parts = slug.replace(/^\/blog\//, '').split('/')
+  return (parts[0] && tagMap[parts[0]]) || '更新公告'
+}
+
+const filteredPosts = computed(() => {
+  if (activeFilter.value === '全部') return allPosts.value
+  return allPosts.value.filter(p => extractTag(p.slug) === activeFilter.value)
+})
+
+onMounted(async () => {
+  try {
+    const res: any = await $fetch(`${config.public.apiBase}/api/cms/pages/list?type=blog&page=1&pageSize=20`)
+    if (res.code === 0) {
+      allPosts.value = res.data.items
+    }
+  } catch (e) {
+    console.error('Failed to fetch blog posts', e)
+  }
+})
 </script>
 
 <style scoped>

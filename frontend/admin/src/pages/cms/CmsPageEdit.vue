@@ -61,6 +61,7 @@
         <n-card title="页面信息" size="small" :bordered="false" class="info-card editor-card">
           <div class="info-row"><span class="info-label">状态</span><n-tag :type="detail.status === 'enabled' ? 'success' : 'default'" size="small" :bordered="false">{{ detail.status }}</n-tag></div>
           <div class="info-row"><span class="info-label">默认语言</span><span>{{ detail.defaultLocale }}</span></div>
+          <div class="info-row"><span class="info-label">页面类型</span><span>{{ pageTypeLabel(detail.pageType) }}</span></div>
         </n-card>
       </div>
     </div>
@@ -87,6 +88,7 @@ const detail = ref<{
   slug: string
   defaultLocale: string
   status: string
+  pageType: string
   translations: Array<{
     locale: string
     title: string
@@ -108,6 +110,16 @@ const blockDefinitions = ref<BlockDefinition[]>([])
 const blocks = ref<PageBlock[]>([])
 const saving = ref(false)
 const publishing = ref(false)
+
+const pageTypeLabels: Record<string, string> = {
+  custom: '自定义页面',
+  blog: '博客文章',
+  doc: '文档文章'
+}
+
+function pageTypeLabel(type: string): string {
+  return pageTypeLabels[type] || type
+}
 
 async function loadPage() {
   detail.value = await getPage(pageId)

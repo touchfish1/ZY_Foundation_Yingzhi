@@ -7,10 +7,16 @@ export interface PaymentItem {
   amount: string
   status: string
   createdAt: string
+  currency?: string
+  paidAt?: string
 }
 
 // 获取支付交易记录列表
 export function listPayments() {
-  console.log('[API] listPayments')
   return request<PaymentItem[]>('/admin/payments')
+}
+
+// 获取支付详情
+export function getPayment(paymentNo: string) {
+  return request<PaymentItem>(`/admin/payments/${paymentNo}`)
 }

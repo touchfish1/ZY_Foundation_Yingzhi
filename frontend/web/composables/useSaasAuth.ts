@@ -91,7 +91,17 @@ export const useSaasAuth = () => {
     navigateTo('/login')
   }
 
+  async function authFetch<T>(url: string, options: Record<string, any> = {}): Promise<T> {
+    const headers = new Headers(options.headers || {})
+    headers.set('Authorization', `Bearer ${token.value}`)
+    headers.set('Content-Type', 'application/json')
+    return $fetch<T>(`${apiBase}${url}`, {
+      ...options,
+      headers
+    })
+  }
+
   const isLoggedIn = computed(() => !!token.value)
 
-  return { user, token, loading, isLoggedIn, register, login, logout, fetchProfile }
+  return { user, token, loading, isLoggedIn, register, login, logout, fetchProfile, authFetch }
 }

@@ -17,4 +17,6 @@ public interface CmsPageRepository {
     void deleteById(Long id);
 
     boolean existsBySlug(String slug);
+
+    List<CmsPage> findByPageTypeAndStatus(String pageType, String status);
 }

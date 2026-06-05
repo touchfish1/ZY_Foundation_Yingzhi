@@ -120,4 +120,14 @@ public class CmsPageTranslation {
         this.status = STATUS_PUBLISHED;
         this.updatedAt = Instant.now();
     }
+
+    public void clearDraftVersionId() {
+        this.draftVersionId = null;
+        this.updatedAt = Instant.now();
+    }
+
+    public void clearPublishedVersionId() {
+        this.publishedVersionId = null;
+        this.updatedAt = Instant.now();
+    }
 }

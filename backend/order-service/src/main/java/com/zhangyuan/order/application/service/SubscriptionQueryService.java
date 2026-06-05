@@ -25,4 +25,9 @@ public class SubscriptionQueryService {
     public List<UserSubscription> findByUser(Long userId) {
         return subscriptionRepository.findByUserId(userId);
     }
+
+    @Transactional(readOnly = true)
+    public List<UserSubscription> listAll() {
+        return subscriptionRepository.findAll();
+    }
 }

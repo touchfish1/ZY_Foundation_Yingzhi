@@ -40,7 +40,7 @@ class CmsServiceEdgeCasesTest {
 
     @Test
     void createPageWithCustomSlug() {
-        CreatePageRequest request = new CreatePageRequest("/custom-page", "Custom", "en-US");
+        CreatePageRequest request = new CreatePageRequest("/custom-page", "Custom", "en-US", "custom");
         when(pageRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(pageRepository.existsBySlug("/custom-page")).thenReturn(false);
         when(translationRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -54,7 +54,7 @@ class CmsServiceEdgeCasesTest {
 
     @Test
     void createPageThrowsOnDuplicateSlug() {
-        CreatePageRequest request = new CreatePageRequest("/existing", "Existing", "zh-CN");
+        CreatePageRequest request = new CreatePageRequest("/existing", "Existing", "zh-CN", "custom");
         when(pageRepository.existsBySlug("/existing")).thenReturn(true);
 
         assertThatThrownBy(() -> cmsService.createPage(request))
@@ -64,7 +64,7 @@ class CmsServiceEdgeCasesTest {
 
     @Test
     void saveDraftCreatesTranslationIfMissing() {
-        CmsPage page = new CmsPage("/test", "zh-CN", 1L);
+        CmsPage page = new CmsPage("/test", "zh-CN", "custom", 1L);
         when(pageRepository.findById(1L)).thenReturn(Optional.of(page));
         when(translationRepository.findByPageIdAndLocale(1L, "en-US")).thenReturn(Optional.empty());
         Map<String, Object> content = Map.of("layout", "default", "blocks", List.of());
@@ -83,7 +83,7 @@ class CmsServiceEdgeCasesTest {
 
     @Test
     void saveDraftIncrementsVersion() {
-        CmsPage page = new CmsPage("/test", "zh-CN", 1L);
+        CmsPage page = new CmsPage("/test", "zh-CN", "custom", 1L);
         when(pageRepository.findById(1L)).thenReturn(Optional.of(page));
         CmsPageTranslation translation = new CmsPageTranslation(1L, "zh-CN", "Test");
         when(translationRepository.findByPageIdAndLocale(1L, "zh-CN")).thenReturn(Optional.of(translation));
@@ -107,7 +107,7 @@ class CmsServiceEdgeCasesTest {
 
     @Test
     void publishThrowsWhenNoDraft() {
-        when(pageRepository.findById(1L)).thenReturn(Optional.of(new CmsPage("/test", "zh-CN", 1L)));
+        when(pageRepository.findById(1L)).thenReturn(Optional.of(new CmsPage("/test", "zh-CN", "custom", 1L)));
         CmsPageTranslation translation = new CmsPageTranslation(1L, "zh-CN", "Test");
         when(translationRepository.findByPageIdAndLocale(1L, "zh-CN")).thenReturn(Optional.of(translation));
 

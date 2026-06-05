@@ -7,5 +7,6 @@ import java.util.Optional;
 public interface SubscriptionRepository {
     Optional<UserSubscription> findByUserIdAndActive(Long userId);
     List<UserSubscription> findByUserId(Long userId);
+    List<UserSubscription> findAll();
     UserSubscription save(UserSubscription subscription);
 }

@@ -5,6 +5,8 @@ export interface CmsPageListItem {
   slug: string
   defaultLocale: string
   status: string
+  pageType: string
+  createdAt: string
   updatedAt: string
 }
 
@@ -13,6 +15,7 @@ export interface CmsPageDetail {
   slug: string
   defaultLocale: string
   status: string
+  pageType: string
   translations: Array<{
     locale: string
     title: string
@@ -32,8 +35,8 @@ export function listPages() {
   return request<CmsPageListItem[]>('/admin/cms/pages')
 }
 
-// 创建新页面：指定路径（slug）、标题和默认语言
-export function createPage(payload: { slug: string; title: string; defaultLocale: string }) {
+// 创建新页面：指定路径（slug）、标题、默认语言和页面类型
+export function createPage(payload: { slug: string; title: string; defaultLocale: string; pageType?: string }) {
   console.log('[API] createPage', payload)
   return request<CmsPageDetail>('/admin/cms/pages', {
     method: 'POST',

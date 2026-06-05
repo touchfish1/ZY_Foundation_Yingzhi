@@ -1,7 +1,8 @@
 package com.zhangyuan.modules.asset.adapter.out.persistence;
 
+import com.zhangyuan.modules.asset.adapter.out.persistence.AssetFileEntity;
+import com.zhangyuan.modules.asset.adapter.out.persistence.AssetFileJpaRepository;
 import com.zhangyuan.modules.asset.domain.model.AssetFile;
-import com.zhangyuan.modules.asset.repository.AssetFileRepository;
 import org.junit.jupiter.api.Test;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -10,12 +11,12 @@ import static org.mockito.Mockito.when;
 
 class JpaAssetRepositoryTest {
 
-    private final AssetFileRepository jpaRepository = mock(AssetFileRepository.class);
+    private final AssetFileJpaRepository jpaRepository = mock(AssetFileJpaRepository.class);
     private final JpaAssetRepository repository = new JpaAssetRepository(jpaRepository);
 
     @Test
     void findByIdDelegates() {
-        com.zhangyuan.modules.asset.domain.AssetFile entity = new com.zhangyuan.modules.asset.domain.AssetFile(
+        AssetFileEntity entity = new AssetFileEntity(
                 "bucket", "key", "file.png", "image/png", 1024L, "url", 1L, java.time.Instant.now());
         when(jpaRepository.findById(1L)).thenReturn(Optional.of(entity));
 

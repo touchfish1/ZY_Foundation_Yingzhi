@@ -83,7 +83,7 @@ public class CmsBootstrap implements ApplicationRunner {
         }
 
         String locale = "zh-CN";
-        CmsPage page = pageRepository.save(new CmsPage(slug, locale, null));
+        CmsPage page = pageRepository.save(new CmsPage(slug, locale, "custom", null));
         int versionNo = versionRepository.findFirstByPageIdAndLocaleOrderByVersionNoDesc(page.getId(), locale)
                 .map(v -> v.getVersionNo() + 1)
                 .orElse(1);

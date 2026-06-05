@@ -24,7 +24,7 @@
       </div>
 
       <div class="sidebar-search" v-if="!collapsed">
-        <n-input size="small" placeholder="搜索菜单..." clearable>
+        <n-input size="small" placeholder="搜索菜单..." clearable v-model:value="menuSearch">
           <template #prefix>
             <n-icon>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -119,6 +119,30 @@ const themeStore = useThemeStore()
 const permissionStore = usePermissionStore()
 
 const collapsed = ref(false)
+const menuSearch = ref('')
+
+const fallbackMenus: MenuItem[] = [
+  { id: 1, parentId: null, name: '仪表盘', path: '/', icon: 'Dashboard', menuType: 'page', sortOrder: 1, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
+  { id: 2, parentId: null, name: '订单管理', path: '/orders', icon: 'Cart', menuType: 'page', sortOrder: 6, status: 'enabled', permissionCodes: [], children: [
+    { id: 21, parentId: 2, name: '订单列表', path: '/orders', icon: null, menuType: 'page', sortOrder: 1, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
+    { id: 22, parentId: 2, name: '订阅管理', path: '/orders/subscriptions', icon: null, menuType: 'page', sortOrder: 2, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' }
+  ], createdAt: '', updatedAt: '' },
+  { id: 3, parentId: null, name: '支付记录', path: '/payments/transactions', icon: 'Wallet', menuType: 'page', sortOrder: 7, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
+  { id: 4, parentId: null, name: '页面管理', path: '/cms/pages', icon: 'FileText', menuType: 'page', sortOrder: 3, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
+  { id: 5, parentId: null, name: '资产管理', path: '/assets', icon: 'Image', menuType: 'page', sortOrder: 4, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
+  { id: 6, parentId: null, name: '产品中心', path: '/products/plan-groups', icon: 'Layers', menuType: 'page', sortOrder: 5, status: 'enabled', permissionCodes: [], children: [
+    { id: 61, parentId: 6, name: '套餐分组', path: '/products/plan-groups', icon: null, menuType: 'page', sortOrder: 1, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
+    { id: 62, parentId: 6, name: '套餐列表', path: '/products/plans', icon: null, menuType: 'page', sortOrder: 2, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' }
+  ], createdAt: '', updatedAt: '' },
+  { id: 7, parentId: null, name: '系统管理', path: '/system/users', icon: 'Settings', menuType: 'page', sortOrder: 10, status: 'enabled', permissionCodes: [], children: [
+    { id: 71, parentId: 7, name: '用户管理', path: '/system/users', icon: null, menuType: 'page', sortOrder: 1, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
+    { id: 72, parentId: 7, name: '角色管理', path: '/system/roles', icon: null, menuType: 'page', sortOrder: 2, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
+    { id: 73, parentId: 7, name: '权限管理', path: '/system/permissions', icon: null, menuType: 'page', sortOrder: 3, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
+    { id: 74, parentId: 7, name: '菜单管理', path: '/system/menus', icon: null, menuType: 'page', sortOrder: 4, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
+    { id: 75, parentId: 7, name: '系统监控', path: '/system/monitor', icon: null, menuType: 'page', sortOrder: 5, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
+    { id: 76, parentId: 7, name: '系统设置', path: '/system/settings', icon: null, menuType: 'page', sortOrder: 6, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' }
+  ], createdAt: '', updatedAt: '' }
+]
 
 // Icon mapping using @vicons/ionicons5
 const iconMap: Record<string, any> = {
@@ -154,7 +178,30 @@ function renderIcon(iconName: string | null) {
 }
 
 const menuOptions = computed<MenuOption[]>(() => {
-  return buildMenuOptions(permissionStore.menus)
+  const menus = permissionStore.menus.length > 0 ? permissionStore.menus : fallbackMenus
+  if (!menuSearch.value) {
+    return buildMenuOptions(menus)
+  }
+  const q = menuSearch.value.toLowerCase()
+  function filterTree(items: MenuItem[]): MenuItem[] {
+    return items
+      .filter(item => item.menuType !== 'button' && item.status === 'enabled')
+      .filter(item => {
+        if (item.name?.toLowerCase().includes(q)) return true
+        if (item.children && item.children.length > 0) {
+          const filtered = filterTree(item.children)
+          if (filtered.length > 0) return true
+        }
+        return false
+      })
+      .map(item => {
+        if (item.children && item.children.length > 0) {
+          return { ...item, children: filterTree(item.children) }
+        }
+        return item
+      })
+  }
+  return buildMenuOptions(filterTree(menus))
 })
 
 function buildMenuOptions(items: MenuItem[]): MenuOption[] {

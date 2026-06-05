@@ -1,8 +1,9 @@
 package com.zhangyuan.modules.order.adapter.out.persistence;
 
+import com.zhangyuan.modules.order.adapter.out.persistence.OrderMainEntity;
+import com.zhangyuan.modules.order.adapter.out.persistence.OrderMainEntityRepository;
 import com.zhangyuan.modules.order.domain.model.Order;
 import com.zhangyuan.modules.order.domain.model.OrderNumber;
-import com.zhangyuan.modules.order.repository.OrderMainRepository;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -16,13 +17,13 @@ import static org.mockito.Mockito.when;
 
 class JpaOrderRepositoryTest {
 
-    private final OrderMainRepository jpaRepository = mock(OrderMainRepository.class);
+    private final OrderMainEntityRepository jpaRepository = mock(OrderMainEntityRepository.class);
     private final JpaOrderRepository repository = new JpaOrderRepository(jpaRepository);
 
     @Test
     void saveNewOrder() {
         Order order = new Order(OrderNumber.generate(), 1L, 1L, BigDecimal.valueOf(29), "CNY", "{}");
-        com.zhangyuan.modules.order.domain.OrderMain entity = new com.zhangyuan.modules.order.domain.OrderMain(
+        OrderMainEntity entity = new OrderMainEntity(
                 order.getOrderNo().value(), 1L, 1L, BigDecimal.valueOf(29), "CNY", "{}");
         when(jpaRepository.save(any())).thenReturn(entity);
 
@@ -34,7 +35,7 @@ class JpaOrderRepositoryTest {
 
     @Test
     void findByOrderNoDelegates() {
-        com.zhangyuan.modules.order.domain.OrderMain entity = new com.zhangyuan.modules.order.domain.OrderMain(
+        OrderMainEntity entity = new OrderMainEntity(
                 "ORD123", 1L, 1L, BigDecimal.valueOf(29), "CNY", "{}");
         when(jpaRepository.findByOrderNo("ORD123")).thenReturn(Optional.of(entity));
 

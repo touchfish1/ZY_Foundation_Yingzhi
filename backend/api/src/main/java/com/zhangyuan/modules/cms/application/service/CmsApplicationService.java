@@ -6,6 +6,7 @@ import com.zhangyuan.modules.cms.adapter.out.persistence.CmsPage;
 import com.zhangyuan.modules.cms.adapter.out.persistence.CmsPageTranslation;
 import com.zhangyuan.modules.cms.adapter.out.persistence.CmsPageVersion;
 import com.zhangyuan.modules.cms.adapter.out.persistence.CmsPublishRecord;
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.cms.dto.BlockDefinitionResponse;
 import com.zhangyuan.modules.cms.dto.CreatePageRequest;
 import com.zhangyuan.modules.cms.dto.PageDetailResponse;
@@ -16,6 +17,8 @@ import com.zhangyuan.modules.cms.dto.RenderPageResponse;
 import com.zhangyuan.modules.cms.dto.SaveDraftRequest;
 import com.zhangyuan.modules.cms.dto.UpdatePageRequest;
 import com.zhangyuan.modules.cms.dto.VersionResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.zhangyuan.modules.cms.repository.CmsBlockDefinitionRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageTranslationRepository;
@@ -68,8 +71,18 @@ public class CmsApplicationService {
     @Transactional(readOnly = true)
     public List<PageListItemResponse> listPages() {
         return pageRepository.findAll().stream()
-                .map(page -> new PageListItemResponse(page.getId(), page.getSlug(), page.getDefaultLocale(), page.getStatus(), page.getUpdatedAt()))
+                .map(page -> new PageListItemResponse(page.getId(), page.getSlug(), page.getPageType(), page.getDefaultLocale(), page.getStatus(), page.getUpdatedAt()))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<PageListItemResponse> listPublishedByType(String type, int page, int pageSize) {
+        String resolvedType = type == null || type.isBlank() ? "custom" : type;
+        Page<CmsPage> pageResult = pageRepository.findByPageTypeAndStatus(resolvedType, CmsPage.STATUS_ENABLED, PageRequest.of(page - 1, pageSize));
+        List<PageListItemResponse> items = pageResult.getContent().stream()
+                .map(p -> new PageListItemResponse(p.getId(), p.getSlug(), p.getPageType(), p.getDefaultLocale(), p.getStatus(), p.getUpdatedAt()))
+                .toList();
+        return PageResponse.of(items, page, pageSize, pageResult.getTotalElements());
     }
 
     @Transactional
@@ -81,7 +94,8 @@ public class CmsApplicationService {
             throw new IllegalArgumentException("CMS page slug already exists");
         }
         String locale = request.defaultLocale() == null || request.defaultLocale().isBlank() ? "zh-CN" : request.defaultLocale();
-        CmsPage page = pageRepository.save(new CmsPage(slug, locale, currentUserId()));
+        String pageType = request.pageType() == null || request.pageType().isBlank() ? "custom" : request.pageType();
+        CmsPage page = pageRepository.save(new CmsPage(slug, locale, pageType, currentUserId()));
         CmsPageTranslation translation = translationRepository.save(new CmsPageTranslation(page.getId(), locale, request.title()));
         log.info("CMS page created: id={}, slug={}", page.getId(), page.getSlug());
         return toDetail(page, List.of(translation));
@@ -105,6 +119,9 @@ public class CmsApplicationService {
         if (request.defaultLocale() != null && !request.defaultLocale().isBlank()) {
             page.setDefaultLocale(request.defaultLocale());
         }
+        if (request.pageType() != null && !request.pageType().isBlank()) {
+            page.setPageType(request.pageType());
+        }
         page.touch();
         return toDetail(page, translationRepository.findByPageId(pageId));
     }
@@ -115,8 +132,10 @@ public class CmsApplicationService {
         CmsPage page = requirePage(pageId);
         List<CmsPageTranslation> translations = translationRepository.findByPageId(pageId);
         for (CmsPageTranslation t : translations) {
-            versionRepository.deleteByPageIdAndLocale(pageId, t.getLocale());
             publishRecordRepository.deleteByPageIdAndLocale(pageId, t.getLocale());
+            t.clearDraftVersionId();
+            t.clearPublishedVersionId();
+            versionRepository.deleteByPageIdAndLocale(pageId, t.getLocale());
         }
         translationRepository.deleteByPageId(pageId);
         pageRepository.delete(page);
@@ -367,6 +386,7 @@ public class CmsApplicationService {
         return new PageDetailResponse(
                 page.getId(),
                 page.getSlug(),
+                page.getPageType(),
                 page.getDefaultLocale(),
                 page.getStatus(),
                 translations.stream().map(this::toTranslation).toList()

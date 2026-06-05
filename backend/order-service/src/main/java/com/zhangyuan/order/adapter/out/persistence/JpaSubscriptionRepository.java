@@ -23,6 +23,11 @@ public class JpaSubscriptionRepository implements SubscriptionRepository {
     }
 
     @Override
+    public List<UserSubscription> findAll() {
+        return repo.findAll().stream().map(this::toDomain).toList();
+    }
+
+    @Override
     public UserSubscription save(UserSubscription sub) {
         SubscriptionEntity entity;
         if (sub.getId() != null) {

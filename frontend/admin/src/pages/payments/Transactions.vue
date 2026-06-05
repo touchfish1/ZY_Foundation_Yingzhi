@@ -31,16 +31,25 @@
 
 <script setup lang="ts">
 import { computed, h, onMounted, reactive, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { NButton, NCard, NEmpty, NIcon, NInput, NNumberAnimation, NTag, useMessage } from 'naive-ui'
 import CommonTable from '../../components/CommonTable.vue'
 import type { DataTableColumns } from 'naive-ui'
 import { listPayments, type PaymentItem } from '../../api/payment'
 import { formatDate } from '../../utils/format'
 
+const router = useRouter()
 const message = useMessage()
 const payments = ref<PaymentItem[]>([])
 const loading = ref(false)
 const searchQuery = ref('')
+
+function statusType(status: string) {
+  return status === 'paid' || status === 'success' || status === 'PAID' || status === 'SUCCESS' ? 'success'
+    : status === 'pending' || status === 'PENDING' ? 'warning'
+    : status === 'cancelled' || status === 'failed' || status === 'CANCELLED' || status === 'FAILED' ? 'error'
+    : 'default'
+}
 
 const paginationReactive = reactive({
   page: 1,
@@ -79,8 +88,7 @@ const columns: DataTableColumns<PaymentItem> = [
   {
     title: '状态', key: 'status', width: 100,
     render(row) {
-      const type = row.status === 'success' || row.status === 'paid' ? 'success' : row.status === 'pending' ? 'warning' : row.status === 'cancelled' || row.status === 'failed' ? 'error' : 'default'
-      return h(NTag, { type, size: 'small', bordered: false }, { default: () => row.status })
+      return h(NTag, { type: statusType(row.status), size: 'small', bordered: false }, { default: () => row.status })
     }
   },
   {
@@ -93,8 +101,12 @@ const columns: DataTableColumns<PaymentItem> = [
     title: '操作',
     key: 'actions',
     width: 100,
-    render() {
-      return h(NButton, { size: 'small', type: 'primary' }, { default: () => '详情' })
+    render(row) {
+      return h(NButton, {
+        size: 'small',
+        type: 'primary',
+        onClick: () => router.push(`/payments/${row.paymentNo}`)
+      }, { default: () => '详情' })
     }
   }
 ]

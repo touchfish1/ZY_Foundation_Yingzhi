@@ -41,7 +41,7 @@
 <script setup lang="ts">
 import { h, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NButton, NCard, NDataTable, NEmpty, NForm, NFormItem, NIcon, NInput, NModal, NSpace, useMessage } from 'naive-ui'
+import { NButton, NCard, NDataTable, NEmpty, NForm, NFormItem, NIcon, NInput, NModal, NSpace, NTag, useMessage } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { getPage, type CmsPageDetail } from '../../api/cms'
 import { getVersions, getPreviewContent, rollbackVersion } from '../../api/block'
@@ -64,7 +64,15 @@ const rollingBack = ref(false)
 
 const columns: DataTableColumns<any> = [
   { title: '版本号', key: 'id', width: 100 },
-  { title: '状态', key: 'status', width: 100 },
+  {
+    title: '状态', key: 'status', width: 100,
+    render(row) {
+      const type = row.status === 'published' || row.status === 'PUBLISHED' ? 'success'
+        : row.status === 'draft' || row.status === 'DRAFT' ? 'warning'
+        : 'default'
+      return h(NTag, { type, size: 'small', bordered: false }, { default: () => row.status })
+    }
+  },
   { title: '创建时间', key: 'createdAt', width: 180 },
   {
     title: '操作', key: 'actions', width: 180,

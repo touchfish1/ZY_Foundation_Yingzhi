@@ -112,3 +112,31 @@ export interface MonitorStats {
 export function getMonitorStats() {
   return request<MonitorStats>('/admin/system/monitor/stats')
 }
+
+export interface AuditLog {
+  id: number
+  userId: number
+  username: string
+  action: string
+  detail: string
+  ipAddress: string
+  createdAt: string
+}
+
+// 获取审计日志列表（分页）
+export function listLogs(params?: { page?: number, pageSize?: number, userId?: number, action?: string, startDate?: string, endDate?: string }) {
+  const qs = new URLSearchParams()
+  if (params?.page) qs.set('page', String(params.page))
+  if (params?.pageSize) qs.set('pageSize', String(params.pageSize))
+  if (params?.userId) qs.set('userId', String(params.userId))
+  if (params?.action) qs.set('action', params.action)
+  if (params?.startDate) qs.set('startDate', params.startDate)
+  if (params?.endDate) qs.set('endDate', params.endDate)
+  const query = qs.toString()
+  return request<PageResponse<AuditLog>>(`/api/logs${query ? '?' + query : ''}`)
+}
+
+// 用户余额充值
+export function rechargeBalance(userId: number, payload: { amount: number, remark?: string }) {
+  return request<void>(`/api/balance/${userId}/recharge`, { method: 'POST', body: JSON.stringify(payload) })
+}

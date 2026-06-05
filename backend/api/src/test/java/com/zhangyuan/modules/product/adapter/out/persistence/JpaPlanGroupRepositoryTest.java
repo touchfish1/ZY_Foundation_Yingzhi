@@ -1,5 +1,6 @@
 package com.zhangyuan.modules.product.adapter.out.persistence;
 
+import com.zhangyuan.modules.product.adapter.out.persistence.ProductPlanGroup;
 import com.zhangyuan.modules.product.domain.model.PlanGroup;
 import com.zhangyuan.modules.product.repository.ProductPlanGroupRepository;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,7 @@ class JpaPlanGroupRepositoryTest {
 
     @Test
     void findByCodeDelegates() {
-        com.zhangyuan.modules.product.domain.ProductPlanGroup entity = new com.zhangyuan.modules.product.domain.ProductPlanGroup(
+        ProductPlanGroup entity = new ProductPlanGroup(
                 "api_plans", "API Plans", "Desc", 10);
         when(jpaRepository.findByCode("api_plans")).thenReturn(Optional.of(entity));
 
@@ -32,7 +33,7 @@ class JpaPlanGroupRepositoryTest {
     @Test
     void saveNewGroup() {
         PlanGroup group = new PlanGroup("new", "New", "Desc", 5);
-        com.zhangyuan.modules.product.domain.ProductPlanGroup savedEntity = new com.zhangyuan.modules.product.domain.ProductPlanGroup(
+        ProductPlanGroup savedEntity = new ProductPlanGroup(
                 "new", "New", "Desc", 5);
         when(jpaRepository.save(any())).thenReturn(savedEntity);
 

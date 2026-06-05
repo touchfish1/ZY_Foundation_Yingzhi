@@ -123,7 +123,7 @@
 <script setup lang="ts">
 import { h, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { NButton, NCard, NEmpty, NGrid, NGridItem, NIcon, NProgress, NSpin, useMessage } from 'naive-ui'
-import { getToken } from '../../api/http'
+import { getMonitorStats } from '../../api/system'
 
 const RefreshIcon = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [
   h('polyline', { points: '23 4 23 10 17 10' }),
@@ -155,20 +155,10 @@ function progressColor(percent: number): string {
   return '#10b981'
 }
 
-async function fetchStats() {
-  const token = getToken()
-  const response = await fetch('/admin/system/monitor/stats', {
-    headers: { Authorization: token ? `Bearer ${token}` : '' }
-  })
-  const result = await response.json()
-  if (result.code === 200) return result.data
-  throw new Error(result.message || '加载失败')
-}
-
 async function loadStats() {
   loading.value = true
   try {
-    const data = await fetchStats()
+    const data = await getMonitorStats()
     Object.assign(stats, data)
     hasData.value = true
   } catch (err: any) {
@@ -183,7 +173,7 @@ let timer: ReturnType<typeof setInterval> | null = null
 onMounted(() => {
   loadStats()
   timer = setInterval(() => {
-    fetchStats()
+    getMonitorStats()
       .then(data => Object.assign(stats, data))
       .catch(() => {})
   }, 30000)

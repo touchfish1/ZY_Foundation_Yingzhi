@@ -30,6 +30,6 @@ public class CmsDomainService {
             log.warn("CMS page slug already exists: {}", normalizedSlug);
             throw new IllegalArgumentException("CMS page slug already exists: " + normalizedSlug);
         }
-        return new CmsPage(normalizedSlug, defaultLocale, createdBy);
+        return new CmsPage(normalizedSlug, defaultLocale, "custom", createdBy);
     }
 }

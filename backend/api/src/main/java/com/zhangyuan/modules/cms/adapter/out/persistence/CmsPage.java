@@ -43,9 +43,10 @@ public class CmsPage {
     protected CmsPage() {
     }
 
-    public CmsPage(String slug, String defaultLocale, Long createdBy) {
+    public CmsPage(String slug, String defaultLocale, String pageType, Long createdBy) {
         this.slug = normalizeSlug(slug);
         this.defaultLocale = defaultLocale;
+        this.pageType = pageType != null ? pageType : "custom";
         this.createdBy = createdBy;
     }
 
@@ -69,12 +70,20 @@ public class CmsPage {
         return status;
     }
 
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
     public Instant getUpdatedAt() {
         return updatedAt;
     }
 
     public void setSlug(String slug) {
         this.slug = slug;
+    }
+
+    public void setPageType(String pageType) {
+        this.pageType = pageType;
     }
 
     public void setDefaultLocale(String defaultLocale) {

@@ -37,16 +37,12 @@ definePageMeta({ middleware: 'auth' })
 const auth = useSaasAuth()
 const orders = ref<any[]>([])
 const loading = ref(true)
-const config = useRuntimeConfig()
-const token = import.meta.client ? localStorage.getItem('saas_token') : null
-
 onMounted(async () => {
   if (!auth.user.value) await auth.fetchProfile()
   try {
-    const res = await $fetch(`${config.public.apiBase}/api/orders`, {
-      params: { userId: auth.user.value?.id },
-      headers: { Authorization: `Bearer ${token}` }
-    }) as any
+    const res = await auth.authFetch<any>('/api/orders', {
+      params: { userId: auth.user.value?.id }
+    })
     orders.value = res?.data?.items || res?.data || []
   } catch (e) {
     console.error('Failed to load orders', e)

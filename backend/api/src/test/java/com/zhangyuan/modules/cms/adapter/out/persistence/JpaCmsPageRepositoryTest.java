@@ -1,6 +1,5 @@
 package com.zhangyuan.modules.cms.adapter.out.persistence;
 
-import com.zhangyuan.modules.cms.domain.model.CmsPage;
 import com.zhangyuan.modules.cms.repository.CmsPageRepository;
 import org.junit.jupiter.api.Test;
 import java.util.Optional;
@@ -15,10 +14,10 @@ class JpaCmsPageRepositoryTest {
 
     @Test
     void findBySlugDelegates() {
-        com.zhangyuan.modules.cms.domain.CmsPage entity = new com.zhangyuan.modules.cms.domain.CmsPage("/plans", "zh-CN", 1L);
+        com.zhangyuan.modules.cms.adapter.out.persistence.CmsPage entity = new com.zhangyuan.modules.cms.adapter.out.persistence.CmsPage("/plans", "zh-CN", "custom", 1L);
         when(jpaRepository.findBySlug("/plans")).thenReturn(Optional.of(entity));
 
-        Optional<CmsPage> result = repository.findBySlug("/plans");
+        Optional<com.zhangyuan.modules.cms.domain.model.CmsPage> result = repository.findBySlug("/plans");
 
         assertThat(result).isPresent();
         assertThat(result.get().getSlug()).isEqualTo("/plans");

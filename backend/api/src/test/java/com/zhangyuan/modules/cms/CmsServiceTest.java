@@ -92,7 +92,7 @@ class CmsServiceTest {
     }
 
     private CmsPageVersion preparePublishVersion(Map<String, Object> content) {
-        CmsPage page = new CmsPage("/pricing", "zh-CN", null);
+        CmsPage page = new CmsPage("/pricing", "zh-CN", "custom", null);
         CmsPageTranslation translation = new CmsPageTranslation(100L, "zh-CN", "Pricing");
         translation.updateDraft("Pricing", null, null, null, 200L);
         CmsPageVersion version = new CmsPageVersion(100L, "zh-CN", 1, content, null, null);

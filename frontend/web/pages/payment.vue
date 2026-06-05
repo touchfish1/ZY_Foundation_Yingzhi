@@ -18,7 +18,6 @@ definePageMeta({ middleware: 'auth' })
 const route = useRoute()
 const router = useRouter()
 const config = useRuntimeConfig()
-const token = import.meta.client ? localStorage.getItem('saas_token') : null
 const orderNo = ref(route.query.orderNo as string || '')
 const payUrl = ref(route.query.payUrl ? decodeURIComponent(route.query.payUrl as string) : '')
 const verifying = ref(false)

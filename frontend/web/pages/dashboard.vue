@@ -17,6 +17,10 @@
           <span class="nav-icon">📋</span>
           <span class="nav-label">订单记录</span>
         </NuxtLink>
+        <NuxtLink to="/dashboard/transactions" class="nav-item">
+          <span class="nav-icon">💰</span>
+          <span class="nav-label">交易记录</span>
+        </NuxtLink>
         <NuxtLink to="/dashboard/keys" class="nav-item">
           <span class="nav-icon">🔑</span>
           <span class="nav-label">API Keys</span>
@@ -91,6 +95,40 @@
       </div>
 
       <div class="section">
+        <h2>订阅历史</h2>
+        <div class="table-card" v-if="subscriptions.length">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>套餐名称</th>
+                <th>金额</th>
+                <th>周期</th>
+                <th>开始时间</th>
+                <th>结束时间</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="sub in subscriptions" :key="sub.id">
+                <td>{{ sub.planName || sub.planId }}</td>
+                <td>{{ sub.amount }} {{ sub.currency }}</td>
+                <td>{{ sub.period || '-' }}</td>
+                <td>{{ formatDate(sub.startDate) }}</td>
+                <td>{{ formatDate(sub.endDate) }}</td>
+                <td>
+                  <span class="badge" :class="subStatusClass(sub.status)">{{ sub.status }}</span>
+                </td>
+              </tr>
+              <tr v-if="!subscriptions.length">
+                <td colspan="6" class="empty-text">暂无订阅记录</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p v-else class="empty-text">{{ loadingSubscriptions ? '加载中...' : '暂无订阅记录' }}</p>
+      </div>
+
+      <div class="section">
         <h2>快速开始</h2>
         <div class="quickstart-card">
           <p>使用你的 API Key 调用接口：</p>
@@ -106,7 +144,6 @@ definePageMeta({ middleware: 'auth' })
 const auth = useSaasAuth()
 const { user } = auth
 const config = useRuntimeConfig()
-const token = import.meta.client ? localStorage.getItem('saas_token') : null
 const userId = computed(() => auth.user.value?.id)
 
 const balance = ref(0)
@@ -116,11 +153,18 @@ const subscriptionStatus = ref('')
 const loadingSubscription = ref(true)
 const recentOrders = ref<any[]>([])
 const loadingOrders = ref(true)
+const subscriptions = ref<any[]>([])
+const loadingSubscriptions = ref(true)
 
 const subscriptionStatusClass = computed(() => {
   const map: Record<string, string> = { active: 'badge-success', expired: 'badge-error', pending: 'badge-warning' }
   return map[subscriptionStatus.value?.toLowerCase()] || 'badge-warning'
 })
+
+function subStatusClass(s: string) {
+  const map: Record<string, string> = { ACTIVE: 'badge-success', EXPIRED: 'badge-error', CANCELLED: 'badge-error', PENDING: 'badge-warning' }
+  return map[s?.toUpperCase()] || ''
+}
 
 async function fetchBalance() {
   if (!userId.value) return
@@ -133,20 +177,17 @@ async function fetchBalance() {
 async function fetchUsage() {
   if (!userId.value) return
   try {
-    const res = await $fetch(`${config.public.apiBase}/api/usage/${userId.value}/summary`, {
-      headers: { Authorization: `Bearer ${import.meta.client ? localStorage.getItem('saas_token') : ''}` }
-    }) as any
+    const res = await auth.authFetch<any>(`/api/usage/${userId.value}/summary`)
     usageSummary.value = res?.data
   } catch (e) { /* usage may not have data yet */ }
 }
 
 async function fetchSubscription() {
-  if (user.value?.id && token) {
+  if (user.value?.id) {
     try {
-      const subRes = await $fetch(`${config.public.apiBase}/api/subscriptions/active`, {
-        params: { userId: user.value.id },
-        headers: { Authorization: `Bearer ${token}` }
-      }) as any
+      const subRes = await auth.authFetch<any>('/api/subscriptions/active', {
+        params: { userId: user.value.id }
+      })
       subscriptionStatus.value = subRes?.data?.status || subRes?.status || 'none'
     } catch {
       subscriptionStatus.value = 'none'
@@ -156,13 +197,27 @@ async function fetchSubscription() {
   }
 }
 
-async function fetchOrders() {
-  if (user.value?.id && token) {
+async function fetchSubscriptions() {
+  if (user.value?.id) {
     try {
-      const orderRes = await $fetch(`${config.public.apiBase}/api/orders`, {
-        params: { userId: user.value.id },
-        headers: { Authorization: `Bearer ${token}` }
-      }) as any
+      const res = await auth.authFetch<any>('/api/subscriptions', {
+        params: { userId: user.value.id }
+      })
+      subscriptions.value = res?.data?.items || res?.data || []
+    } catch {
+      // silently fail
+    } finally { loadingSubscriptions.value = false }
+  } else {
+    loadingSubscriptions.value = false
+  }
+}
+
+async function fetchOrders() {
+  if (user.value?.id) {
+    try {
+      const orderRes = await auth.authFetch<any>('/api/orders', {
+        params: { userId: user.value.id }
+      })
       recentOrders.value = (orderRes?.data?.items || orderRes?.data || []).slice(0, 5)
     } catch {
       // silently fail
@@ -178,7 +233,8 @@ onMounted(async () => {
     fetchBalance(),
     fetchSubscription(),
     fetchOrders(),
-    fetchUsage()
+    fetchUsage(),
+    fetchSubscriptions()
   ])
 })
 

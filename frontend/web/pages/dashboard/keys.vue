@@ -34,8 +34,18 @@ async function copyKey() {
 
 async function regenerateKey() {
   if (!confirm('确定要重新生成 API Key？旧的 Key 将立即失效。')) return
-  // TODO: call API to regenerate
-  alert('API Key 已重新生成')
+  try {
+    const res = await auth.authFetch<any>('/api/auth/keys/regenerate', { method: 'PUT' })
+    if (auth.user.value) {
+      auth.user.value.apiKey = res.data.apiKey
+      if (import.meta.client) {
+        localStorage.setItem('saas_user', JSON.stringify(auth.user.value))
+      }
+    }
+    alert('API Key 已重新生成')
+  } catch (e: any) {
+    alert(e?.data?.message || '重新生成失败')
+  }
 }
 </script>
 

@@ -21,7 +21,7 @@ definePageMeta({ middleware: 'auth' })
 const route = useRoute()
 const router = useRouter()
 const config = useRuntimeConfig()
-const token = import.meta.client ? localStorage.getItem('saas_token') : null
+const auth = useSaasAuth()
 const plan = ref<any>(null)
 const loading = ref(false)
 const amount = ref('0')
@@ -45,19 +45,17 @@ onMounted(async () => {
 async function submitOrder() {
   loading.value = true; error.value = ''
   try {
-    const orderRes = await $fetch(`${config.public.apiBase}/api/orders`, {
+    const orderRes = await auth.authFetch<any>('/api/orders', {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: { planCode: plan.value.code, billingCycle: 'monthly', currency: 'CNY' }
-    }) as any
+    })
     const orderNo = orderRes?.data?.orderNo
     if (!orderNo) { throw new Error('创建订单失败') }
     // Create payment
-    const payRes = await $fetch(`${config.public.apiBase}/api/payments/checkout`, {
+    const payRes = await auth.authFetch<any>('/api/payments/checkout', {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: { orderNo, channel: 'mock' }
-    }) as any
+    })
     const payUrl = payRes?.data?.mockPayUrl
     // Redirect to mock payment
     if (payUrl) navigateTo(`/payment?orderNo=${orderNo}&payUrl=${encodeURIComponent(payUrl)}`)

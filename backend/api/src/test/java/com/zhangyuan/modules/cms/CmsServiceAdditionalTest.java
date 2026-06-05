@@ -37,7 +37,7 @@ class CmsServiceAdditionalTest {
 
     @Test
     void previewReturnsSpecificVersion() {
-        CmsPage page = new CmsPage("/test", "zh-CN", null);
+        CmsPage page = new CmsPage("/test", "zh-CN", "custom", null);
         when(pageRepository.findById(1L)).thenReturn(Optional.of(page));
         Map<String, Object> content = Map.of("blocks", List.of());
         CmsPageVersion version = new CmsPageVersion(1L, "zh-CN", 1, content, null, null);
@@ -50,7 +50,7 @@ class CmsServiceAdditionalTest {
 
     @Test
     void previewWithoutVersionIdReturnsLatestDraft() {
-        CmsPage page = new CmsPage("/test", "zh-CN", null);
+        CmsPage page = new CmsPage("/test", "zh-CN", "custom", null);
         when(pageRepository.findById(1L)).thenReturn(Optional.of(page));
         CmsPageTranslation translation = new CmsPageTranslation(1L, "zh-CN", "Test");
         translation.updateDraft("Test", null, null, null, 55L);
@@ -66,7 +66,7 @@ class CmsServiceAdditionalTest {
 
     @Test
     void previewThrowsWhenNoDraftVersion() {
-        CmsPage page = new CmsPage("/test", "zh-CN", null);
+        CmsPage page = new CmsPage("/test", "zh-CN", "custom", null);
         when(pageRepository.findById(1L)).thenReturn(Optional.of(page));
         CmsPageTranslation translation = new CmsPageTranslation(1L, "zh-CN", "Test");
         when(translationRepository.findByPageIdAndLocale(1L, "zh-CN")).thenReturn(Optional.of(translation));
@@ -77,12 +77,12 @@ class CmsServiceAdditionalTest {
 
     @Test
     void updatePageChangesSlug() {
-        CmsPage page = new CmsPage("/old-slug", "zh-CN", null);
+        CmsPage page = new CmsPage("/old-slug", "zh-CN", "custom", null);
         when(pageRepository.findById(1L)).thenReturn(Optional.of(page));
         when(pageRepository.existsBySlug("/new-slug")).thenReturn(false);
         when(translationRepository.findByPageId(1L)).thenReturn(List.of(new CmsPageTranslation(1L, "zh-CN", "Test")));
 
-        var response = cmsService.updatePage(1L, new UpdatePageRequest("/new-slug", null));
+        var response = cmsService.updatePage(1L, new UpdatePageRequest("/new-slug", null, null));
 
         assertThat(response.slug()).isEqualTo("/new-slug");
         verify(pageRepository).findById(1L);
@@ -90,17 +90,17 @@ class CmsServiceAdditionalTest {
 
     @Test
     void updatePageThrowsOnDuplicateSlug() {
-        CmsPage page = new CmsPage("/old-slug", "zh-CN", null);
+        CmsPage page = new CmsPage("/old-slug", "zh-CN", "custom", null);
         when(pageRepository.findById(1L)).thenReturn(Optional.of(page));
         when(pageRepository.existsBySlug("/existing")).thenReturn(true);
 
-        assertThatThrownBy(() -> cmsService.updatePage(1L, new UpdatePageRequest("/existing", null)))
+        assertThatThrownBy(() -> cmsService.updatePage(1L, new UpdatePageRequest("/existing", null, null)))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void deletePageRemovesAllRelatedData() {
-        CmsPage page = new CmsPage("/test", "zh-CN", null);
+        CmsPage page = new CmsPage("/test", "zh-CN", "custom", null);
         when(pageRepository.findById(1L)).thenReturn(Optional.of(page));
         CmsPageTranslation translation = new CmsPageTranslation(1L, "zh-CN", "Test");
         when(translationRepository.findByPageId(1L)).thenReturn(List.of(translation));
@@ -115,7 +115,7 @@ class CmsServiceAdditionalTest {
 
     @Test
     void rollbackCreatesNewVersionFromSource() {
-        CmsPage page = new CmsPage("/test", "zh-CN", null);
+        CmsPage page = new CmsPage("/test", "zh-CN", "custom", null);
         when(pageRepository.findById(1L)).thenReturn(Optional.of(page));
         CmsPageTranslation translation = new CmsPageTranslation(1L, "zh-CN", "Test");
         translation.updateDraft("Test", null, null, null, 55L);

@@ -69,6 +69,21 @@ spring:
           uri: lb://order-service
           predicates:
             - Path=/api/orders/**
+        # Order service - subscriptions (public)
+        - id: order-subscriptions
+          uri: lb://order-service
+          predicates:
+            - Path=/api/subscriptions/**
+        # Order service - subscriptions (admin)
+        - id: order-admin-subscriptions
+          uri: lb://order-service
+          predicates:
+            - Path=/admin/subscriptions/**
+        # Order service - usage
+        - id: order-usage
+          uri: lb://order-service
+          predicates:
+            - Path=/api/usage/**
         # Payment service
         - id: payment-service
           uri: lb://payment-service

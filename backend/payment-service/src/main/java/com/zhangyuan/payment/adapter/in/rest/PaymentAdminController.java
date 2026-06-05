@@ -21,4 +21,9 @@ public class PaymentAdminController {
     public ApiResponse<List<PaymentResponse>> listPayments() {
         return ApiResponse.ok(List.of());
     }
+
+    @GetMapping("/{paymentNo}")
+    public ApiResponse<PaymentResponse> getPayment(@PathVariable String paymentNo) {
+        return ApiResponse.ok(paymentApplicationService.getPayment(paymentNo));
+    }
 }

@@ -52,6 +52,17 @@ public class SaasUserApplicationService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found")));
     }
 
+    @Transactional
+    public void changePassword(Long userId, PasswordChangeRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        if (!passwordEncoder.matches(request.oldPassword(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("旧密码错误");
+        }
+        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+    }
+
     public ApiResponse<Long> verifyApiKey(String apiKey) {
         return userRepository.findByApiKey(apiKey)
                 .map(user -> {
@@ -61,6 +72,15 @@ public class SaasUserApplicationService {
                     return ApiResponse.<Long>ok(user.getId());
                 })
                 .orElse(ApiResponse.<Long>error(404, "API Key not found"));
+    }
+
+    @Transactional
+    public UserResponse regenerateApiKey(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setApiKey("sk-" + UUID.randomUUID().toString().replace("-", ""));
+        user = userRepository.save(user);
+        return toResponse(user);
     }
 
     private UserResponse toResponse(User user) {

@@ -9,7 +9,7 @@ class CmsPageTest {
 
     @Test
     void createPage() {
-        CmsPage page = new CmsPage("/plans", "zh-CN", 1L);
+        CmsPage page = new CmsPage("/plans", "zh-CN", "custom", 1L);
         assertThat(page.getSlug()).isEqualTo("/plans");
         assertThat(page.getDefaultLocale()).isEqualTo("zh-CN");
         assertThat(page.isEnabled()).isTrue();
@@ -17,7 +17,7 @@ class CmsPageTest {
 
     @Test
     void addTranslation() {
-        CmsPage page = new CmsPage("/plans", "zh-CN", 1L);
+        CmsPage page = new CmsPage("/plans", "zh-CN", "custom", 1L);
         page.addTranslation("en-US", "Plans");
         assertThat(page.getTranslations()).hasSize(1);
         assertThat(page.getTranslation("en-US").getTitle()).isEqualTo("Plans");
@@ -25,14 +25,14 @@ class CmsPageTest {
 
     @Test
     void changeSlug() {
-        CmsPage page = new CmsPage("/old", "zh-CN", 1L);
+        CmsPage page = new CmsPage("/old", "zh-CN", "custom", 1L);
         page.changeSlug("/new");
         assertThat(page.getSlug()).isEqualTo("/new");
     }
 
     @Test
     void disableAndEnable() {
-        CmsPage page = new CmsPage("/test", "zh-CN", 1L);
+        CmsPage page = new CmsPage("/test", "zh-CN", "custom", 1L);
         page.disable();
         assertThat(page.isEnabled()).isFalse();
         page.enable();

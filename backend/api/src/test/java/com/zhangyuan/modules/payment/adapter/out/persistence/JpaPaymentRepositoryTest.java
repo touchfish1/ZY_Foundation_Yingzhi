@@ -1,7 +1,8 @@
 package com.zhangyuan.modules.payment.adapter.out.persistence;
 
+import com.zhangyuan.modules.payment.adapter.out.persistence.PaymentTransactionEntity;
+import com.zhangyuan.modules.payment.adapter.out.persistence.PaymentTransactionJpaRepository;
 import com.zhangyuan.modules.payment.domain.model.Payment;
-import com.zhangyuan.modules.payment.repository.PaymentTransactionRepository;
 import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -11,12 +12,12 @@ import static org.mockito.Mockito.when;
 
 class JpaPaymentRepositoryTest {
 
-    private final PaymentTransactionRepository jpaRepository = mock(PaymentTransactionRepository.class);
+    private final PaymentTransactionJpaRepository jpaRepository = mock(PaymentTransactionJpaRepository.class);
     private final JpaPaymentRepository repository = new JpaPaymentRepository(jpaRepository);
 
     @Test
     void findByPaymentNoDelegates() {
-        com.zhangyuan.modules.payment.domain.PaymentTransaction entity = new com.zhangyuan.modules.payment.domain.PaymentTransaction(
+        PaymentTransactionEntity entity = new PaymentTransactionEntity(
                 "PAY123", 1L, "mock", BigDecimal.valueOf(29), "CNY", "{}");
         when(jpaRepository.findByPaymentNo("PAY123")).thenReturn(Optional.of(entity));
 

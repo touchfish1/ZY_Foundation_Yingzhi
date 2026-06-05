@@ -41,7 +41,8 @@ public class CmsPageController {
         String slug = (String) body.get("slug");
         String defaultLocale = (String) body.getOrDefault("defaultLocale", "zh-CN");
         String title = (String) body.getOrDefault("title", slug);
-        CreatePageRequest request = new CreatePageRequest(slug, title, defaultLocale);
+        String pageType = (String) body.getOrDefault("pageType", "custom");
+        CreatePageRequest request = new CreatePageRequest(slug, title, defaultLocale, pageType);
         log.info("Creating CMS page with slug: {}", slug);
         return ApiResponse.ok(cmsApplicationService.createPage(request));
     }
