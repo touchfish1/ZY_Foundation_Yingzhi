@@ -12,7 +12,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 echo "Logging in to Nacos..."
 TOKEN=$(curl -s -X POST "http://${NACOS_HOST}:${NACOS_PORT}/v1/auth/users/login" \
   -d "username=${NACOS_USER}&password=${NACOS_PASS}" | \
-  python3 -c "import sys,json; print(json.load(sys.stdin).get('accessToken',''))" 2>/dev/null)
+  python -c "import sys,json; print(json.load(sys.stdin).get('accessToken',''))" 2>/dev/null)
 
 if [ -z "$TOKEN" ]; then
   echo "ERROR: Failed to authenticate with Nacos"

@@ -16,12 +16,12 @@ fi
 
 login
 
-E2E_UID="saas-e2e-$RANDOM"
+E2E_UID=$(python -c "import random; print('saas-' + str(random.randint(10000,99999)))" 2>/dev/null || echo "saas-e2e-$$")
 
-R=$(post_json "/api/auth/register" '{"username":"'$E2E_UID'","password":"Test1234","email":"'$E2E_UID'@e2e.com"}' "")
+R=$(post_json "/api/auth/register" '{"email":"'$E2E_UID'@e2e.com","password":"Test1234","nickname":"E2E User"}' "")
 assert_code "H01 注册" "0" "$R"
 
-R=$(post_json "/api/auth/login" '{"username":"'$E2E_UID'","password":"Test1234"}' "")
+R=$(post_json "/api/auth/login" '{"email":"'$E2E_UID'@e2e.com","password":"Test1234"}' "")
 assert_code "H02 SaaS登录" "0" "$R"
 SAAS_TOKEN=$(echo "$R" | python -c "import sys,json;d=json.load(sys.stdin);print(d.get('data',{}).get('accessToken','') or d.get('token',''))" 2>/dev/null)
 echo "  SaaS Token: ${SAAS_TOKEN:0:20}..."
