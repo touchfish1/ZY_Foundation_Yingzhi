@@ -25,7 +25,7 @@ if [ -n "$PAGE_ID" ]; then
   assert_code "F2.3 发布" "0" "$R"
 
   echo "Step 4: 前台渲染"
-  R=$(get "/api/cms/pages/render?slug=$SLUG" "")
+  R=$(get "/api/cms/pages/render?path=$SLUG" "")
   assert_code "F2.4 前台渲染" "0" "$R"
 
   echo "Step 5: 清理"

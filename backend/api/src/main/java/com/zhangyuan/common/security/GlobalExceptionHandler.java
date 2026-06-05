@@ -1,6 +1,7 @@
 package com.zhangyuan.common.security;
 
 import cn.dev33.satoken.exception.NotLoginException;
+import cn.dev33.satoken.exception.NotPermissionException;
 import com.zhangyuan.common.response.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,21 @@ public class GlobalExceptionHandler {
         log.warn("未登录访问受保护资源: type={}", e.getLoginType());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.error(401, "未登录，请先登录"));
+    }
+
+    @ExceptionHandler(NotPermissionException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNotPermission(NotPermissionException e) {
+        log.warn("无权限访问: code={}", e.getCode());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(403, "无权限访问"));
+    }
+
+    @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMissingParam(
+            org.springframework.web.bind.MissingServletRequestParameterException e) {
+        log.warn("缺少请求参数: {}", e.getParameterName());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(400, "缺少请求参数: " + e.getParameterName()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

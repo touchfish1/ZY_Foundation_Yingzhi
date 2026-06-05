@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/cms/block-definitions")
-@SaCheckPermission("cms:blocks")
+@SaCheckPermission("cms:manage")
 public class CmsBlockDefinitionController {
 
     private static final Logger log = LoggerFactory.getLogger(CmsBlockDefinitionController.class);

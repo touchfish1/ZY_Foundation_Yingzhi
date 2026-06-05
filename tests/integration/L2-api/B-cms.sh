@@ -64,7 +64,7 @@ R=$(get "/admin/cms/block-definitions" "$ADMIN_TOKEN")
 assert_code "B12 区块定义" "0" "$R"
 
 echo "--- B13-B14: 公开 CMS API ---"
-R=$(get "/api/cms/pages/render?slug=/" "")
+R=$(get "/api/cms/pages/render?path=/" "")
 assert_code "B13 前台渲染" "0" "$R"
 
 R=$(get "/api/cms/pages/list" "")

@@ -8,6 +8,7 @@ spring:
     nacos:
       discovery:
         server-addr: ${NACOS_HOST:100.125.148.23}:${NACOS_PORT:8848}
+        ip: ${NACOS_DISCOVERY_IP:127.0.0.1}
         username: ${NACOS_USERNAME:nacos}
         password: ${NACOS_PASSWORD:chengccn}
       config:
@@ -17,121 +18,124 @@ spring:
         file-extension: yaml
         import-check:
           enabled: false
+    # In dev mode, use direct URIs since Nacos may cache stale IPs from previous registrations.
+    # lb:// URIs rely on Nacos service discovery which can resolve to wrong IPs on Windows/WSL.
+    # For production, switch back to lb:// and ensure proper network configuration.
     gateway:
       routes:
         # Auth service - login and current user
         - id: auth-admin
-          uri: lb://auth-service
+          uri: ${AUTH_SERVICE_URI:http://127.0.0.1:8082}
           predicates:
             - Path=/admin/auth/**
         # Auth service - user management
         - id: auth-users
-          uri: lb://auth-service
+          uri: ${AUTH_SERVICE_URI:http://127.0.0.1:8082}
           predicates:
             - Path=/admin/system/users/**
         # Auth service - role management
         - id: auth-roles
-          uri: lb://auth-service
+          uri: ${AUTH_SERVICE_URI:http://127.0.0.1:8082}
           predicates:
             - Path=/admin/system/roles/**
         # Auth service - permission management
         - id: auth-permissions
-          uri: lb://auth-service
+          uri: ${AUTH_SERVICE_URI:http://127.0.0.1:8082}
           predicates:
             - Path=/admin/system/permissions/**
         # Auth service - menu management
         - id: auth-menus
-          uri: lb://auth-service
+          uri: ${AUTH_SERVICE_URI:http://127.0.0.1:8082}
           predicates:
             - Path=/admin/system/menus/**
         # Auth service - DDD auth APIs
         - id: auth-ddd
-          uri: lb://auth-service
+          uri: ${AUTH_SERVICE_URI:http://127.0.0.1:8082}
           predicates:
             - Path=/api/ddd/auth/**
         # System service admin API
         - id: system-admin
-          uri: lb://system-service
+          uri: ${SYSTEM_SERVICE_URI:http://127.0.0.1:8081}
           predicates:
             - Path=/admin/system/**
         # System service public API
         - id: system-api
-          uri: lb://system-service
+          uri: ${SYSTEM_SERVICE_URI:http://127.0.0.1:8081}
           predicates:
             - Path=/api/system/**
         # System service DDD settings (CMS seed data)
         - id: system-ddd
-          uri: lb://system-service
+          uri: ${SYSTEM_SERVICE_URI:http://127.0.0.1:8081}
           predicates:
             - Path=/api/ddd/settings/**
         # Order service
         - id: order-service
-          uri: lb://order-service
+          uri: ${ORDER_SERVICE_URI:http://127.0.0.1:8083}
           predicates:
             - Path=/api/orders/**
         # Order service - subscriptions (public)
         - id: order-subscriptions
-          uri: lb://order-service
+          uri: ${ORDER_SERVICE_URI:http://127.0.0.1:8083}
           predicates:
             - Path=/api/subscriptions/**
         # Order service - subscriptions (admin)
         - id: order-admin-subscriptions
-          uri: lb://order-service
+          uri: ${ORDER_SERVICE_URI:http://127.0.0.1:8083}
           predicates:
             - Path=/admin/subscriptions/**
         # Order service - usage
         - id: order-usage
-          uri: lb://order-service
+          uri: ${ORDER_SERVICE_URI:http://127.0.0.1:8083}
           predicates:
             - Path=/api/usage/**
         # Payment service
         - id: payment-service
-          uri: lb://payment-service
+          uri: ${PAYMENT_SERVICE_URI:http://127.0.0.1:8084}
           predicates:
             - Path=/api/payments/**
         # Payment service admin
         - id: payment-admin
-          uri: lb://payment-service
+          uri: ${PAYMENT_SERVICE_URI:http://127.0.0.1:8084}
           predicates:
             - Path=/admin/payments/**
         # Main API — admin routes
         - id: api-admin
-          uri: lb://zhangyuan-api
+          uri: ${API_SERVICE_URI:http://127.0.0.1:8088}
           predicates:
             - Path=/admin/**
         # User service - auth
         - id: user-auth
-          uri: lb://user-service
+          uri: ${USER_SERVICE_URI:http://127.0.0.1:8085}
           predicates:
             - Path=/api/auth/**
         # User service - balance
         - id: user-balance
-          uri: lb://user-service
+          uri: ${USER_SERVICE_URI:http://127.0.0.1:8085}
           predicates:
             - Path=/api/balance/**
         # User service - logs
         - id: user-logs
-          uri: lb://user-service
+          uri: ${USER_SERVICE_URI:http://127.0.0.1:8085}
           predicates:
             - Path=/api/logs/**
         # User service - admin users
         - id: user-admin
-          uri: lb://user-service
+          uri: ${USER_SERVICE_URI:http://127.0.0.1:8085}
           predicates:
             - Path=/api/users/**
         # Main API — public routes
         - id: api-public
-          uri: lb://zhangyuan-api
+          uri: ${API_SERVICE_URI:http://127.0.0.1:8088}
           predicates:
             - Path=/api/**
         # Main API — actuator
         - id: api-actuator
-          uri: lb://zhangyuan-api
+          uri: ${API_SERVICE_URI:http://127.0.0.1:8088}
           predicates:
             - Path=/actuator/**
         # Web frontend (Nuxt, direct URI — not registered with Nacos)
         - id: web
-          uri: http://web:3000
+          uri: ${WEB_SERVICE_URI:http://127.0.0.1:3000}
           predicates:
             - Path=/**
 
