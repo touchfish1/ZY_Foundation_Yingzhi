@@ -87,9 +87,9 @@ onMounted(async () => {
 <style scoped>
 .blog-page {
   min-height: 100vh;
-  background: #f4f0e8;
-  color: #050505;
-  font-family: Georgia, "Times New Roman", "Noto Serif SC", SimSun, serif;
+  background: var(--vp-c-bg-alt);
+  color: var(--vp-c-text);
+  font-family: var(--vp-font-family-base);
 }
 
 .section-paper {
@@ -104,7 +104,7 @@ onMounted(async () => {
   display: grid;
   place-items: center;
   text-align: center;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid var(--vp-c-divider);
   overflow: hidden;
 }
 
@@ -118,14 +118,14 @@ onMounted(async () => {
 .lead {
   max-width: 560px;
   margin: 0 auto;
-  color: rgba(0,0,0,0.48);
+  color: var(--vp-c-text-2);
   font-size: 20px;
 }
 
 .mono {
-  font-family: "Courier New", monospace;
+  font-family: var(--vp-font-family-mono);
   letter-spacing: 0.42em;
-  color: rgba(0,0,0,0.58);
+  color: var(--vp-c-text-3);
   font-size: 12px;
   text-transform: uppercase;
 }
@@ -134,8 +134,8 @@ onMounted(async () => {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0,0,0,0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.035) 1px, transparent 1px);
+    linear-gradient(var(--vp-c-divider-light) 1px, transparent 1px),
+    linear-gradient(90deg, var(--vp-c-divider-light) 1px, transparent 1px);
   background-size: 72px 72px;
   pointer-events: none;
 }
@@ -153,24 +153,25 @@ onMounted(async () => {
 
 .filter {
   padding: 8px 20px;
-  border: 1px solid rgba(0,0,0,0.14);
+  border: 1px solid var(--vp-c-border);
   border-radius: 999px;
   background: transparent;
-  font: 13px Georgia, serif;
-  color: rgba(0,0,0,0.5);
+  font-size: 13px;
+  font-family: var(--vp-font-family-base);
+  color: var(--vp-c-text-2);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .filter:hover {
-  border-color: rgba(0,0,0,0.3);
-  color: #050505;
+  border-color: var(--vp-c-border);
+  color: var(--vp-c-text);
 }
 
 .filter.active {
-  background: #050505;
-  color: #f4f0e8;
-  border-color: #050505;
+  background: var(--vp-c-text);
+  color: var(--vp-c-bg-alt);
+  border-color: var(--vp-c-text);
 }
 
 .posts {
@@ -180,27 +181,27 @@ onMounted(async () => {
 
 .post-card {
   padding: 32px;
-  border: 1px solid rgba(0,0,0,0.12);
-  background: rgba(244,240,232,0.6);
+  border: 1px solid var(--vp-c-border);
+  background: var(--vp-c-bg-soft);
   transition: all 0.25s ease;
   cursor: pointer;
 }
 
 .post-card:hover {
   transform: translateY(-3px);
-  border-color: rgba(0,0,0,0.25);
+  border-color: var(--vp-c-border);
   box-shadow: 0 8px 24px rgba(0,0,0,0.06);
 }
 
 .post-tag {
   display: inline-block;
   padding: 4px 10px;
-  font-family: "Courier New", monospace;
+  font-family: var(--vp-font-family-mono);
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(0,0,0,0.4);
-  border: 1px solid rgba(0,0,0,0.12);
+  color: var(--vp-c-text-2);
+  border: 1px solid var(--vp-c-border);
   margin-bottom: 12px;
 }
 
@@ -212,7 +213,7 @@ onMounted(async () => {
 }
 
 .post-card p {
-  color: rgba(0,0,0,0.45);
+  color: var(--vp-c-text-2);
   font-size: 15px;
   line-height: 1.7;
   margin-bottom: 16px;
@@ -221,9 +222,9 @@ onMounted(async () => {
 .post-meta {
   display: flex;
   gap: 20px;
-  font-family: "Courier New", monospace;
+  font-family: var(--vp-font-family-mono);
   font-size: 11px;
-  color: rgba(0,0,0,0.35);
+  color: var(--vp-c-text-3);
   letter-spacing: 0.06em;
 }
 

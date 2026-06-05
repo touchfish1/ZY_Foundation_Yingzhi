@@ -80,19 +80,19 @@ function formatDate(ts: string) {
 .dashboard-page { padding: 32px; }
 .page-header { margin-bottom: 24px; }
 .page-header h2 { font-size: 20px; font-weight: 700; margin: 0; }
-.table-card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); overflow: hidden; }
+.table-card { background: var(--vp-c-bg); border-radius: 12px; box-shadow: var(--vp-shadow-1); overflow: hidden; }
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th, .data-table td { padding: 12px 16px; text-align: left; font-size: 14px; }
-.data-table th { background: #f8fafc; font-weight: 600; color: #475569; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
-.data-table tr:not(:last-child) td { border-bottom: 1px solid #f1f5f9; }
-.data-table tr:hover td { background: #f8fafc; }
-.mono { font-family: monospace; font-size: 13px; }
-.empty { text-align: center; padding: 40px; color: #94a3b8; }
+.data-table th { background: var(--vp-c-bg-soft); font-weight: 600; color: var(--vp-c-text-2); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+.data-table tr:not(:last-child) td { border-bottom: 1px solid var(--vp-c-bg-mute); }
+.data-table tr:hover td { background: var(--vp-c-bg-soft); }
+.mono { font-family: var(--vp-font-family-mono); font-size: 13px; }
+.empty { text-align: center; padding: 40px; color: var(--vp-c-text-3); }
 .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-.badge-success { background: #dcfce7; color: #16a34a; }
-.badge-warning { background: #fef3c7; color: #d97706; }
-.badge-error { background: #fee2e2; color: #dc2626; }
-.loading-state { text-align: center; padding: 60px; color: #94a3b8; }
-.amount-positive { color: #16a34a; }
-.amount-negative { color: #dc2626; }
+.badge-success { background: var(--vp-c-success-soft); color: var(--vp-c-success); }
+.badge-warning { background: var(--vp-c-warning-soft); color: var(--vp-c-warning); }
+.badge-error { background: var(--vp-c-danger-soft); color: var(--vp-c-danger); }
+.loading-state { text-align: center; padding: 60px; color: var(--vp-c-text-3); }
+.amount-positive { color: var(--vp-c-success); }
+.amount-negative { color: var(--vp-c-danger); }
 </style>

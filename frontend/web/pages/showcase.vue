@@ -123,9 +123,9 @@ const cases = [
 <style scoped>
 .showcase-page {
   min-height: 100vh;
-  background: #f4f0e8;
-  color: #050505;
-  font-family: Georgia, "Times New Roman", "Noto Serif SC", SimSun, serif;
+  background: var(--vp-c-bg-alt);
+  color: var(--vp-c-text);
+  font-family: var(--vp-font-family-base);
 }
 
 .section-paper {
@@ -141,7 +141,7 @@ const cases = [
   place-items: center;
   text-align: center;
   overflow: hidden;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid var(--vp-c-divider);
 }
 
 .showcase-hero::after {
@@ -150,8 +150,8 @@ const cases = [
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(0,0,0,0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.035) 1px, transparent 1px);
+    linear-gradient(var(--vp-c-divider-light) 1px, transparent 1px),
+    linear-gradient(90deg, var(--vp-c-divider-light) 1px, transparent 1px);
   background-size: 72px 72px;
 }
 
@@ -163,13 +163,13 @@ const cases = [
 }
 
 .lead {
-  color: rgba(0,0,0,0.48);
+  color: var(--vp-c-text-2);
   font-size: 20px;
 }
 
 .rings {
   position: absolute;
-  border: 1px solid rgba(0,0,0,0.14);
+  border: 1px solid var(--vp-c-border);
   border-radius: 50%;
 }
 
@@ -177,16 +177,16 @@ const cases = [
 .rings-b { width: 440px; height: 86px; right: 12%; top: 38%; opacity: 0.4; }
 
 .mono {
-  font-family: "Courier New", monospace;
+  font-family: var(--vp-font-family-mono);
   letter-spacing: 0.42em;
-  color: rgba(0,0,0,0.58);
+  color: var(--vp-c-text-3);
   font-size: 12px;
   text-transform: uppercase;
 }
 
 .comparison {
   padding: 80px 0;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid var(--vp-c-divider);
 }
 
 .comparison h2,
@@ -199,7 +199,7 @@ const cases = [
 }
 
 .compare-table {
-  border: 1px solid rgba(0,0,0,0.16);
+  border: 1px solid var(--vp-c-border);
   overflow: hidden;
 }
 
@@ -207,19 +207,19 @@ const cases = [
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr 1fr;
   padding: 16px 24px;
-  font-family: "Courier New", monospace;
+  font-family: var(--vp-font-family-mono);
   font-size: 11px;
   letter-spacing: 0.12em;
-  color: rgba(0,0,0,0.4);
-  background: rgba(0,0,0,0.03);
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  color: var(--vp-c-text-2);
+  background: var(--vp-c-bg-soft);
+  border-bottom: 1px solid var(--vp-c-divider);
 }
 
 .compare-row {
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr 1fr;
   padding: 20px 24px;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  border-bottom: 1px solid var(--vp-c-divider-light);
   font-size: 15px;
   align-items: center;
 }
@@ -229,7 +229,7 @@ const cases = [
 }
 
 .compare-row.featured {
-  background: rgba(168,50,43,0.04);
+  background: var(--vp-c-danger-soft);
 }
 
 .row-label {
@@ -237,17 +237,17 @@ const cases = [
 }
 
 .bad-cost {
-  color: #a8322b;
+  color: var(--vp-c-danger);
 }
 
 .good-cost {
-  color: #2b6e3b;
+  color: var(--vp-c-success);
   font-weight: 600;
 }
 
 .cases {
   padding: 80px 0;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid var(--vp-c-divider);
 }
 
 .cases-grid {
@@ -258,8 +258,8 @@ const cases = [
 
 .case-card {
   padding: 32px;
-  border: 1px solid rgba(0,0,0,0.14);
-  background: rgba(244,240,232,0.6);
+  border: 1px solid var(--vp-c-border);
+  background: var(--vp-c-bg-soft);
   transition: transform 0.25s ease;
 }
 
@@ -273,12 +273,12 @@ const cases = [
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #050505;
-  color: #f4f0e8;
+  background: var(--vp-c-text);
+  color: var(--vp-c-bg-alt);
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  font-family: Georgia, serif;
+  font-family: var(--vp-font-family-base);
 }
 
 .case-card h3 {
@@ -288,15 +288,15 @@ const cases = [
 }
 
 .case-role {
-  color: rgba(0,0,0,0.4);
+  color: var(--vp-c-text-2);
   font-size: 13px;
   margin-bottom: 16px;
-  font-family: "Courier New", monospace;
+  font-family: var(--vp-font-family-mono);
   letter-spacing: 0.06em;
 }
 
 blockquote {
-  color: rgba(0,0,0,0.55);
+  color: var(--vp-c-text-2);
   font-size: 15px;
   line-height: 1.7;
   font-style: italic;
@@ -307,28 +307,28 @@ blockquote {
   display: flex;
   gap: 16px;
   font-size: 13px;
-  color: rgba(0,0,0,0.45);
+  color: var(--vp-c-text-2);
 }
 
 .case-stats strong {
-  color: #2b6e3b;
+  color: var(--vp-c-success);
   font-weight: 600;
 }
 
 .feature-compare {
   padding: 80px 0;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid var(--vp-c-divider);
 }
 
 .feat-table {
-  border: 1px solid rgba(0,0,0,0.16);
+  border: 1px solid var(--vp-c-border);
 }
 
 .feat-row {
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr;
   padding: 16px 24px;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  border-bottom: 1px solid var(--vp-c-divider-light);
   font-size: 15px;
   align-items: center;
 }
@@ -338,25 +338,25 @@ blockquote {
 }
 
 .feat-row.header {
-  font-family: "Courier New", monospace;
+  font-family: var(--vp-font-family-mono);
   font-size: 11px;
   letter-spacing: 0.12em;
-  color: rgba(0,0,0,0.4);
-  background: rgba(0,0,0,0.03);
+  color: var(--vp-c-text-2);
+  background: var(--vp-c-bg-soft);
 }
 
 .our-col {
-  color: #050505;
+  color: var(--vp-c-text);
   font-weight: 600;
 }
 
 .no {
-  color: #a8322b;
+  color: var(--vp-c-danger);
   font-size: 13px;
 }
 
 .yes {
-  color: #2b6e3b;
+  color: var(--vp-c-success);
   font-weight: 600;
   font-size: 13px;
 }
@@ -368,9 +368,9 @@ blockquote {
 
 .cta-box {
   padding: 64px 40px;
-  border: 1px solid rgba(0,0,0,0.18);
-  outline: 12px solid rgba(0,0,0,0.035);
-  background: radial-gradient(circle, rgba(0,0,0,0.055) 1px, transparent 1px) 0 0 / 7px 7px, #e8e4dc;
+  border: 1px solid var(--vp-c-border);
+  outline: 12px solid var(--vp-c-divider-light);
+  background: radial-gradient(circle, var(--vp-c-divider-light) 1px, transparent 1px) 0 0 / 7px 7px, var(--vp-c-bg-mute);
 }
 
 .cta-box h2 {
@@ -381,7 +381,7 @@ blockquote {
 }
 
 .cta-box p {
-  color: rgba(0,0,0,0.5);
+  color: var(--vp-c-text-2);
   font-size: 18px;
   margin-bottom: 32px;
 }
@@ -389,9 +389,9 @@ blockquote {
 .cta-btn {
   display: inline-block;
   padding: 14px 36px;
-  background: #050505;
-  color: #f4f0e8;
-  font-family: "Courier New", monospace;
+  background: var(--vp-c-text);
+  color: var(--vp-c-bg-alt);
+  font-family: var(--vp-font-family-mono);
   font-size: 14px;
   letter-spacing: 0.16em;
   text-decoration: none;

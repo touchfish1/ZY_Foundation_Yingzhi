@@ -80,7 +80,8 @@ function resolveBlock(type: CmsBlock['type']) {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--vp-c-bg);
+  font-family: var(--vp-font-family-base);
 }
 
 .page-content {

@@ -59,25 +59,25 @@ async function handleRegister() {
   padding: 40px 20px;
 }
 .auth-card {
-  background: var(--card-bg, #fff);
+  background: var(--card-bg, var(--vp-c-bg));
   border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  box-shadow: var(--vp-shadow-3);
   padding: 40px;
   width: 100%;
   max-width: 420px;
 }
 .auth-header { text-align: center; margin-bottom: 32px; }
-.auth-header h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; }
-.auth-header p { color: #64748b; font-size: 14px; }
+.auth-header h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; color: var(--vp-c-text); }
+.auth-header p { color: var(--vp-c-text-2); font-size: 14px; }
 .form-group { margin-bottom: 20px; }
-.form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #334155; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--vp-c-text); }
 .form-input {
-  width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;
-  font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;
+  width: 100%; padding: 10px 14px; border: 1px solid var(--vp-c-border); border-radius: 8px;
+  font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box; color: var(--vp-c-text); background: var(--vp-c-bg);
 }
-.form-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
-.form-error { color: #ef4444; font-size: 13px; margin-bottom: 12px; }
+.form-input:focus { border-color: var(--vp-c-brand); box-shadow: 0 0 0 3px var(--vp-c-brand-dimmer); }
+.form-error { color: var(--vp-c-danger); font-size: 13px; margin-bottom: 12px; }
 .auth-btn { width: 100%; padding: 12px; font-size: 15px; }
-.auth-footer { text-align: center; margin-top: 24px; font-size: 14px; color: #64748b; }
-.auth-footer a { color: #6366f1; font-weight: 600; text-decoration: none; }
+.auth-footer { text-align: center; margin-top: 24px; font-size: 14px; color: var(--vp-c-text-2); }
+.auth-footer a { color: var(--vp-c-brand); font-weight: 600; text-decoration: none; }
 </style>
