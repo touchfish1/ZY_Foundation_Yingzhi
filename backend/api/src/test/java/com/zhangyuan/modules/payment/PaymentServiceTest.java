@@ -1,11 +1,10 @@
 package com.zhangyuan.modules.payment;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zhangyuan.modules.order.adapter.out.persistence.OrderMainEntity;
-import com.zhangyuan.modules.order.adapter.out.persistence.OrderMainEntityRepository;
-import com.zhangyuan.modules.payment.adapter.out.persistence.PaymentTransactionEntity;
-import com.zhangyuan.modules.payment.adapter.out.persistence.PaymentTransactionJpaRepository;
+import com.zhangyuan.modules.order.domain.model.Order;
+import com.zhangyuan.modules.order.domain.model.OrderNumber;
+import com.zhangyuan.modules.order.domain.repository.OrderRepository;
 import com.zhangyuan.modules.payment.application.service.PaymentApplicationService;
+import com.zhangyuan.modules.payment.domain.model.Payment;
 import com.zhangyuan.modules.payment.domain.repository.PaymentRepository;
 import com.zhangyuan.modules.payment.domain.service.PaymentDomainService;
 import com.zhangyuan.modules.payment.dto.CheckoutRequest;
@@ -28,42 +27,36 @@ import static org.mockito.Mockito.when;
 
 class PaymentServiceTest {
 
-    private final PaymentTransactionJpaRepository paymentTransactionJpaRepository = mock(PaymentTransactionJpaRepository.class);
-    private final OrderMainEntityRepository orderMainRepository = mock(OrderMainEntityRepository.class);
     private final PaymentRepository paymentRepository = mock(PaymentRepository.class);
+    private final OrderRepository orderRepository = mock(OrderRepository.class);
     private final PaymentDomainService paymentDomainService = mock(PaymentDomainService.class);
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final PaymentApplicationService paymentService = new PaymentApplicationService(
-            paymentRepository, paymentDomainService, paymentTransactionJpaRepository, orderMainRepository, objectMapper);
+            paymentRepository, paymentDomainService, orderRepository);
 
     @Test
     void checkoutCreatesPaymentForPendingOrder() {
         CheckoutRequest request = new CheckoutRequest("ORD123", "mock");
-        OrderMainEntity order = mock(OrderMainEntity.class);
+        Order order = mock(Order.class);
         when(order.getId()).thenReturn(1L);
-        when(order.getOrderNo()).thenReturn("ORD123");
+        when(order.getOrderNo()).thenReturn(new OrderNumber("ORD123"));
         when(order.getAmount()).thenReturn(BigDecimal.valueOf(29));
         when(order.getCurrency()).thenReturn("CNY");
-        when(order.getStatus()).thenReturn("pending");
-        when(orderMainRepository.findByOrderNo("ORD123")).thenReturn(Optional.of(order));
-        when(paymentTransactionJpaRepository.save(any())).thenAnswer(invocation -> {
-            PaymentTransactionEntity saved = invocation.getArgument(0);
-            return new PaymentTransactionEntity(saved.getPaymentNo(), saved.getOrderId(), saved.getChannel(),
-                    saved.getAmount(), saved.getCurrency(), saved.getRequestJson());
-        });
+        when(order.isPending()).thenReturn(true);
+        when(orderRepository.findByOrderNo(new OrderNumber("ORD123"))).thenReturn(Optional.of(order));
+        when(paymentRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         CheckoutResponse response = paymentService.checkout(request);
 
         assertThat(response.status()).isEqualTo("pending");
         assertThat(response.mockPayUrl()).contains("/api/payments/mock/");
         assertThat(response.checkoutUrl()).contains("/api/payments/mock/");
-        verify(paymentTransactionJpaRepository).save(any());
+        verify(paymentRepository).save(any());
     }
 
     @Test
     void checkoutThrowsWhenOrderNotFound() {
         CheckoutRequest request = new CheckoutRequest("INVALID", "mock");
-        when(orderMainRepository.findByOrderNo("INVALID")).thenReturn(Optional.empty());
+        when(orderRepository.findByOrderNo(new OrderNumber("INVALID"))).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> paymentService.checkout(request))
                 .hasMessageContaining("Order not found");
@@ -72,9 +65,9 @@ class PaymentServiceTest {
     @Test
     void checkoutThrowsWhenOrderNotPending() {
         CheckoutRequest request = new CheckoutRequest("ORD123", "mock");
-        OrderMainEntity order = mock(OrderMainEntity.class);
-        when(order.getStatus()).thenReturn("paid");
-        when(orderMainRepository.findByOrderNo("ORD123")).thenReturn(Optional.of(order));
+        Order order = mock(Order.class);
+        when(order.isPending()).thenReturn(false);
+        when(orderRepository.findByOrderNo(new OrderNumber("ORD123"))).thenReturn(Optional.of(order));
 
         assertThatThrownBy(() -> paymentService.checkout(request))
                 .hasMessageContaining("Order is not payable");
@@ -90,46 +83,49 @@ class PaymentServiceTest {
 
     @Test
     void mockSuccessMarksPaymentAndOrderAsPaid() {
-        PaymentTransactionEntity payment = mock(PaymentTransactionEntity.class);
+        Payment payment = mock(Payment.class);
         when(payment.getPaymentNo()).thenReturn("PAY123");
         when(payment.getOrderId()).thenReturn(1L);
-        when(payment.getStatus()).thenReturn("pending");
-        when(paymentTransactionJpaRepository.findByPaymentNo("PAY123")).thenReturn(Optional.of(payment));
+        when(payment.isSuccess()).thenReturn(false);
+        when(payment.getStatus()).thenReturn(com.zhangyuan.modules.payment.domain.model.PaymentStatus.SUCCESS);
+        when(payment.getPaidAt()).thenReturn(Instant.now());
+        when(paymentRepository.findByPaymentNo("PAY123")).thenReturn(Optional.of(payment));
 
-        OrderMainEntity order = mock(OrderMainEntity.class);
-        when(order.getOrderNo()).thenReturn("ORD123");
-        when(orderMainRepository.findById(1L)).thenReturn(Optional.of(order));
+        Order order = mock(Order.class);
+        when(order.getOrderNo()).thenReturn(new OrderNumber("ORD123"));
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
 
         PaymentResponse response = paymentService.mockSuccess("PAY123");
 
         assertThat(response.paymentNo()).isEqualTo("PAY123");
         assertThat(response.orderNo()).isEqualTo("ORD123");
-        verify(payment).markPaid(any(), any());
-        verify(order).markPaid(any());
+        verify(payment).markSuccess();
+        verify(order).markPaid();
     }
 
     @Test
     void mockSuccessIdempotentWhenAlreadyPaid() {
-        PaymentTransactionEntity payment = mock(PaymentTransactionEntity.class);
+        Payment payment = mock(Payment.class);
         when(payment.getPaymentNo()).thenReturn("PAY123");
         when(payment.getOrderId()).thenReturn(1L);
-        when(payment.getStatus()).thenReturn("paid");
+        when(payment.isSuccess()).thenReturn(true);
+        when(payment.getStatus()).thenReturn(com.zhangyuan.modules.payment.domain.model.PaymentStatus.SUCCESS);
         when(payment.getPaidAt()).thenReturn(Instant.now());
-        when(paymentTransactionJpaRepository.findByPaymentNo("PAY123")).thenReturn(Optional.of(payment));
+        when(paymentRepository.findByPaymentNo("PAY123")).thenReturn(Optional.of(payment));
 
-        OrderMainEntity order = mock(OrderMainEntity.class);
-        when(order.getOrderNo()).thenReturn("ORD123");
-        when(orderMainRepository.findById(1L)).thenReturn(Optional.of(order));
+        Order order = mock(Order.class);
+        when(order.getOrderNo()).thenReturn(new OrderNumber("ORD123"));
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
 
         PaymentResponse response = paymentService.mockSuccess("PAY123");
 
-        assertThat(response.status()).isEqualTo("paid");
-        verify(payment, times(2)).getStatus();
+        assertThat(response.status()).isEqualTo("success");
+        verify(payment, times(1)).isSuccess();
     }
 
     @Test
     void mockSuccessThrowsWhenPaymentNotFound() {
-        when(paymentTransactionJpaRepository.findByPaymentNo("INVALID")).thenReturn(Optional.empty());
+        when(paymentRepository.findByPaymentNo("INVALID")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> paymentService.mockSuccess("INVALID"))
                 .hasMessageContaining("Payment not found");
@@ -137,9 +133,16 @@ class PaymentServiceTest {
 
     @Test
     void listPaymentsReturnsAll() {
-        PaymentTransactionEntity tx = new PaymentTransactionEntity("PAY1", 1L, "mock", BigDecimal.TEN, "CNY", "{}");
-        when(paymentTransactionJpaRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(tx));
-        when(orderMainRepository.findById(1L)).thenReturn(Optional.of(mock(OrderMainEntity.class)));
+        Payment payment = mock(Payment.class);
+        when(payment.getPaymentNo()).thenReturn("PAY1");
+        when(payment.getOrderId()).thenReturn(1L);
+        when(payment.getStatus()).thenReturn(com.zhangyuan.modules.payment.domain.model.PaymentStatus.PENDING);
+        when(payment.getPaidAt()).thenReturn(null);
+        when(paymentRepository.findAllOrderByCreatedAtDesc()).thenReturn(List.of(payment));
+
+        Order order = mock(Order.class);
+        when(order.getOrderNo()).thenReturn(new OrderNumber("ORD1"));
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
 
         List<PaymentResponse> payments = paymentService.listPayments();
 

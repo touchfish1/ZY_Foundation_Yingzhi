@@ -1,11 +1,8 @@
 package com.zhangyuan.modules.payment.application.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zhangyuan.modules.order.adapter.out.persistence.OrderMainEntity;
-import com.zhangyuan.modules.order.adapter.out.persistence.OrderMainEntityRepository;
-import com.zhangyuan.modules.payment.adapter.out.persistence.PaymentTransactionEntity;
-import com.zhangyuan.modules.payment.adapter.out.persistence.PaymentTransactionJpaRepository;
+import com.zhangyuan.modules.order.domain.model.Order;
+import com.zhangyuan.modules.order.domain.model.OrderNumber;
+import com.zhangyuan.modules.order.domain.repository.OrderRepository;
 import com.zhangyuan.modules.payment.domain.model.Payment;
 import com.zhangyuan.modules.payment.domain.repository.PaymentRepository;
 import com.zhangyuan.modules.payment.domain.service.PaymentDomainService;
@@ -22,7 +19,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,20 +29,14 @@ public class PaymentApplicationService {
 
     private final PaymentRepository paymentRepository;
     private final PaymentDomainService paymentDomainService;
-    private final PaymentTransactionJpaRepository paymentTransactionJpaRepository;
-    private final OrderMainEntityRepository orderMainRepository;
-    private final ObjectMapper objectMapper;
+    private final OrderRepository orderRepository;
 
     public PaymentApplicationService(PaymentRepository paymentRepository,
                                      PaymentDomainService paymentDomainService,
-                                     PaymentTransactionJpaRepository paymentTransactionJpaRepository,
-                                     OrderMainEntityRepository orderMainRepository,
-                                     ObjectMapper objectMapper) {
+                                     OrderRepository orderRepository) {
         this.paymentRepository = paymentRepository;
         this.paymentDomainService = paymentDomainService;
-        this.paymentTransactionJpaRepository = paymentTransactionJpaRepository;
-        this.orderMainRepository = orderMainRepository;
-        this.objectMapper = objectMapper;
+        this.orderRepository = orderRepository;
     }
 
     @Transactional
@@ -93,23 +83,22 @@ public class PaymentApplicationService {
             log.warn("Only mock payment channel is supported, got: {}", request.channel());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only mock payment channel is supported");
         }
-        OrderMainEntity order = orderMainRepository.findByOrderNo(request.orderNo().trim())
+        Order order = orderRepository.findByOrderNo(new OrderNumber(request.orderNo().trim()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
-        if (!"pending".equals(order.getStatus())) {
+        if (!order.isPending()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order is not payable");
         }
 
-        PaymentTransactionEntity payment = new PaymentTransactionEntity(
+        Payment payment = new Payment(
                 nextPaymentNo(),
                 order.getId(),
                 "mock",
                 order.getAmount(),
-                order.getCurrency(),
-                json(Map.of("orderNo", order.getOrderNo(), "channel", "mock", "createdAt", Instant.now().toString()))
+                order.getCurrency()
         );
-        payment = paymentTransactionJpaRepository.save(payment);
+        payment = paymentRepository.save(payment);
         String mockPayUrl = "/api/payments/mock/" + payment.getPaymentNo() + "/success";
-        return new CheckoutResponse(payment.getPaymentNo(), payment.getStatus(), mockPayUrl, mockPayUrl);
+        return new CheckoutResponse(payment.getPaymentNo(), payment.getStatus().name().toLowerCase(), mockPayUrl, mockPayUrl);
     }
 
     /**
@@ -118,16 +107,15 @@ public class PaymentApplicationService {
     @Transactional
     public PaymentResponse mockSuccess(String paymentNo) {
         log.info("Mock payment success: {}", paymentNo);
-        PaymentTransactionEntity payment = paymentTransactionJpaRepository.findByPaymentNo(paymentNo)
+        Payment payment = paymentRepository.findByPaymentNo(paymentNo)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Payment not found"));
-        OrderMainEntity order = orderMainRepository.findById(payment.getOrderId())
+        Order order = orderRepository.findById(payment.getOrderId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
-        if (!"paid".equals(payment.getStatus())) {
-            Instant now = Instant.now();
-            payment.markPaid(json(Map.of("mockResult", "success", "paidAt", now.toString())), now);
-            order.markPaid(now);
+        if (!payment.isSuccess()) {
+            order.markPaid();
+            payment.markSuccess();
         }
-        return new PaymentResponse(payment.getPaymentNo(), order.getOrderNo(), payment.getStatus(), payment.getPaidAt());
+        return new PaymentResponse(payment.getPaymentNo(), order.getOrderNo().value(), payment.getStatus().name().toLowerCase(), payment.getPaidAt());
     }
 
     /**
@@ -135,28 +123,20 @@ public class PaymentApplicationService {
      */
     @Transactional(readOnly = true)
     public List<PaymentResponse> listPayments() {
-        return paymentTransactionJpaRepository.findAllByOrderByCreatedAtDesc().stream()
+        return paymentRepository.findAllOrderByCreatedAtDesc().stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    private PaymentResponse toResponse(PaymentTransactionEntity transaction) {
-        OrderMainEntity order = orderMainRepository.findById(transaction.getOrderId())
+    private PaymentResponse toResponse(Payment payment) {
+        Order order = orderRepository.findById(payment.getOrderId())
                 .orElse(null);
         return new PaymentResponse(
-                transaction.getPaymentNo(),
-                order != null ? order.getOrderNo() : null,
-                transaction.getStatus(),
-                transaction.getPaidAt()
+                payment.getPaymentNo(),
+                order != null ? order.getOrderNo().value() : null,
+                payment.getStatus().name().toLowerCase(),
+                payment.getPaidAt()
         );
-    }
-
-    private String json(Map<String, ?> value) {
-        try {
-            return objectMapper.writeValueAsString(value);
-        } catch (JsonProcessingException ex) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Serialize payment payload failed", ex);
-        }
     }
 
     private String nextPaymentNo() {

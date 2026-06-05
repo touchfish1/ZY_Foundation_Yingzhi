@@ -8,10 +8,9 @@ import com.zhangyuan.modules.order.domain.repository.OrderRepository;
 import com.zhangyuan.modules.order.domain.service.OrderDomainService;
 import com.zhangyuan.modules.order.dto.CreateOrderRequest;
 import com.zhangyuan.modules.order.dto.OrderResponse;
-import com.zhangyuan.modules.product.adapter.out.persistence.ProductPlan;
-import com.zhangyuan.modules.product.adapter.out.persistence.ProductPrice;
-import com.zhangyuan.modules.product.repository.ProductPlanRepository;
-import com.zhangyuan.modules.product.repository.ProductPriceRepository;
+import com.zhangyuan.modules.product.domain.model.Plan;
+import com.zhangyuan.modules.product.domain.model.Price;
+import com.zhangyuan.modules.product.domain.repository.PlanGroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -36,19 +35,16 @@ public class OrderApplicationService {
 
     private final OrderRepository orderRepository;
     private final OrderDomainService orderDomainService;
-    private final ProductPlanRepository productPlanRepository;
-    private final ProductPriceRepository productPriceRepository;
+    private final PlanGroupRepository planGroupRepository;
     private final ObjectMapper objectMapper;
 
     public OrderApplicationService(OrderRepository orderRepository,
                                    OrderDomainService orderDomainService,
-                                   ProductPlanRepository productPlanRepository,
-                                   ProductPriceRepository productPriceRepository,
+                                   PlanGroupRepository planGroupRepository,
                                    ObjectMapper objectMapper) {
         this.orderRepository = orderRepository;
         this.orderDomainService = orderDomainService;
-        this.productPlanRepository = productPlanRepository;
-        this.productPriceRepository = productPriceRepository;
+        this.planGroupRepository = planGroupRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -73,12 +69,15 @@ public class OrderApplicationService {
         String currency = request.currency().trim().toUpperCase();
         String billingCycle = request.billingCycle().trim();
 
-        ProductPlan plan = productPlanRepository.findByCode(request.planCode().trim())
-                .filter(item -> "enabled".equals(item.getStatus()))
+        Plan plan = planGroupRepository.findAllOrdered().stream()
+                .flatMap(pg -> pg.getPlans().stream())
+                .filter(p -> p.getCode().equals(request.planCode().trim()) && p.isEnabled())
+                .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product plan not found"));
 
-        ProductPrice price = productPriceRepository
-                .findFirstByPlanIdAndBillingCycleAndCurrencyAndStatus(plan.getId(), billingCycle, currency, "enabled")
+        Price price = plan.getPrices().stream()
+                .filter(p -> p.getBillingCycle().equals(billingCycle) && p.getCurrency().equals(currency) && p.isEnabled())
+                .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product price not found"));
 
         String snapshotJson = snapshot(plan, price);
@@ -162,7 +161,7 @@ public class OrderApplicationService {
     /**
      * 生成产品和价格的快照 JSON。
      */
-    private String snapshot(ProductPlan plan, ProductPrice price) {
+    private String snapshot(Plan plan, Price price) {
         try {
             Map<String, Object> planSnapshot = new LinkedHashMap<>();
             planSnapshot.put("id", plan.getId());

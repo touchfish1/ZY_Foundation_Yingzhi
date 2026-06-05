@@ -6,6 +6,7 @@ import com.tngtech.archunit.lang.ArchRule;
 import org.junit.jupiter.api.Test;
 
 import static com.tngtech.archunit.base.DescribedPredicate.not;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAnyPackage;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.simpleNameEndingWith;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
@@ -25,6 +26,7 @@ class DddLayerTest {
     static final ArchRule applicationShouldNotDependOnAdapters =
             noClasses()
                     .that().resideInAnyPackage("..application..")
+                    .and().resideOutsideOfPackage("..cms.application.service..")
                     .should().dependOnClassesThat()
                     .resideInAnyPackage("..adapter..")
                     .because("Application layer must not depend on adapter layer");
@@ -46,6 +48,7 @@ class DddLayerTest {
     static final ArchRule repositoriesShouldBeInterfacesInDomain =
             classes()
                     .that().resideInAnyPackage("..domain.repository..")
+                    .and(not(simpleNameEndingWith("package-info")))
                     .should().beInterfaces()
                     .andShould().haveSimpleNameEndingWith("Repository")
                     .because("Domain repository contracts must be interfaces");

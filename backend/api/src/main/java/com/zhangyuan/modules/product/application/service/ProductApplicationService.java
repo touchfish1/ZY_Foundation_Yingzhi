@@ -1,10 +1,9 @@
 package com.zhangyuan.modules.product.application.service;
 
-import com.zhangyuan.modules.product.adapter.out.persistence.ProductFeature;
-import com.zhangyuan.modules.product.adapter.out.persistence.ProductPlan;
-import com.zhangyuan.modules.product.adapter.out.persistence.ProductPlanGroup;
-import com.zhangyuan.modules.product.adapter.out.persistence.ProductPrice;
+import com.zhangyuan.modules.product.domain.model.Feature;
+import com.zhangyuan.modules.product.domain.model.Plan;
 import com.zhangyuan.modules.product.domain.model.PlanGroup;
+import com.zhangyuan.modules.product.domain.model.Price;
 import com.zhangyuan.modules.product.domain.repository.PlanGroupRepository;
 import com.zhangyuan.modules.product.domain.service.ProductDomainService;
 import com.zhangyuan.modules.product.dto.CreateFeatureRequest;
@@ -15,15 +14,12 @@ import com.zhangyuan.modules.product.dto.FeatureResponse;
 import com.zhangyuan.modules.product.dto.PlanGroupResponse;
 import com.zhangyuan.modules.product.dto.PlanResponse;
 import com.zhangyuan.modules.product.dto.PriceResponse;
-import com.zhangyuan.modules.product.repository.ProductFeatureRepository;
-import com.zhangyuan.modules.product.repository.ProductPlanGroupRepository;
-import com.zhangyuan.modules.product.repository.ProductPlanRepository;
-import com.zhangyuan.modules.product.repository.ProductPriceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,23 +30,11 @@ public class ProductApplicationService {
 
     private final PlanGroupRepository planGroupRepository;
     private final ProductDomainService productDomainService;
-    private final ProductPlanGroupRepository groupJpaRepository;
-    private final ProductPlanRepository planJpaRepository;
-    private final ProductPriceRepository priceJpaRepository;
-    private final ProductFeatureRepository featureJpaRepository;
 
     public ProductApplicationService(PlanGroupRepository planGroupRepository,
-                                     ProductDomainService productDomainService,
-                                     ProductPlanGroupRepository groupJpaRepository,
-                                     ProductPlanRepository planJpaRepository,
-                                     ProductPriceRepository priceJpaRepository,
-                                     ProductFeatureRepository featureJpaRepository) {
+                                     ProductDomainService productDomainService) {
         this.planGroupRepository = planGroupRepository;
         this.productDomainService = productDomainService;
-        this.groupJpaRepository = groupJpaRepository;
-        this.planJpaRepository = planJpaRepository;
-        this.priceJpaRepository = priceJpaRepository;
-        this.featureJpaRepository = featureJpaRepository;
     }
 
     // ---- PlanGroup (domain-based) ----
@@ -92,102 +76,126 @@ public class ProductApplicationService {
 
     @Transactional(readOnly = true)
     public List<PlanGroupResponse> listGroups() {
-        return groupJpaRepository.findAllByOrderBySortOrderAsc().stream().map(this::toGroupResponse).toList();
+        return planGroupRepository.findAllOrdered().stream().map(this::toGroupResponse).toList();
     }
 
     @Transactional(readOnly = true)
     public PlanGroupResponse getGroupByCode(String code) {
-        return groupJpaRepository.findByCode(code)
+        return planGroupRepository.findByCode(code)
                 .map(this::toGroupResponse)
                 .orElseThrow(() -> new IllegalArgumentException("Product plan group not found"));
     }
 
     @Transactional(readOnly = true)
     public Optional<PlanGroupResponse> findGroupByCode(String code) {
-        return groupJpaRepository.findByCode(code).map(this::toGroupResponse);
+        return planGroupRepository.findByCode(code).map(this::toGroupResponse);
     }
 
     @Transactional
     public PlanGroupResponse createGroup(CreatePlanGroupRequest request) {
-        if (groupJpaRepository.existsByCode(request.code())) {
+        if (planGroupRepository.existsByCode(request.code())) {
             throw new IllegalArgumentException("Product plan group code already exists");
         }
-        return toGroupResponse(groupJpaRepository.save(new ProductPlanGroup(request.code(), request.name(), request.description(), request.sortOrder())));
+        PlanGroup group = new PlanGroup(request.code(), request.name(), request.description(),
+                request.sortOrder() != null ? request.sortOrder() : 0);
+        return toGroupResponse(planGroupRepository.save(group));
     }
 
     @Transactional
     public PlanResponse createPlan(CreatePlanRequest request) {
-        if (!groupJpaRepository.existsById(request.groupId())) {
-            throw new IllegalArgumentException("Product plan group not found");
-        }
-        if (planJpaRepository.existsByCode(request.code())) {
+        PlanGroup group = planGroupRepository.findById(request.groupId())
+                .orElseThrow(() -> new IllegalArgumentException("Product plan group not found"));
+        boolean codeExists = planGroupRepository.findAllOrdered().stream()
+                .flatMap(pg -> pg.getPlans().stream())
+                .anyMatch(p -> p.getCode().equals(request.code()));
+        if (codeExists) {
             throw new IllegalArgumentException("Product plan code already exists");
         }
-        ProductPlan plan = planJpaRepository.save(new ProductPlan(request.groupId(), request.code(), request.name(), request.description(), request.badge(), request.sortOrder()));
+        Plan plan = group.addPlan(request.code(), request.name(), request.description(), request.badge(),
+                request.sortOrder() != null ? request.sortOrder() : 0);
+        planGroupRepository.save(group);
         return toPlanResponse(plan);
     }
 
     @Transactional
     public PriceResponse createPrice(CreatePriceRequest request) {
-        if (!planJpaRepository.existsById(request.planId())) {
-            throw new IllegalArgumentException("Product plan not found");
-        }
-        ProductPrice price = priceJpaRepository.save(new ProductPrice(request.planId(), request.currency(), request.billingCycle(), request.amount(), request.originalAmount()));
+        PlanGroup group = planGroupRepository.findAllOrdered().stream()
+                .filter(pg -> pg.getPlans().stream().anyMatch(p -> p.getId().equals(request.planId())))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Product plan not found"));
+        Plan plan = group.getPlans().stream()
+                .filter(p -> p.getId().equals(request.planId()))
+                .findFirst().get();
+        Price price = plan.addPrice(request.currency(), request.billingCycle(), request.amount(), request.originalAmount());
+        planGroupRepository.save(group);
         return toPriceResponse(price);
     }
 
     @Transactional
     public FeatureResponse createFeature(CreateFeatureRequest request) {
-        if (!planJpaRepository.existsById(request.planId())) {
-            throw new IllegalArgumentException("Product plan not found");
-        }
-        ProductFeature feature = featureJpaRepository.save(new ProductFeature(request.planId(), request.featureName(), request.featureValue(), request.included(), request.sortOrder()));
+        PlanGroup group = planGroupRepository.findAllOrdered().stream()
+                .filter(pg -> pg.getPlans().stream().anyMatch(p -> p.getId().equals(request.planId())))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Product plan not found"));
+        Plan plan = group.getPlans().stream()
+                .filter(p -> p.getId().equals(request.planId()))
+                .findFirst().get();
+        Feature feature = plan.addFeature(request.featureName(), request.featureValue(),
+                request.included() == null || request.included(), request.sortOrder() != null ? request.sortOrder() : 0);
+        planGroupRepository.save(group);
         return toFeatureResponse(feature);
     }
 
     @Transactional(readOnly = true)
     public List<PlanResponse> listPlans() {
-        return planJpaRepository.findAllByOrderBySortOrderAsc().stream()
+        return planGroupRepository.findAllOrdered().stream()
+                .flatMap(pg -> pg.getPlans().stream())
+                .sorted(Comparator.comparingInt(Plan::getSortOrder))
                 .map(this::toPlanResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public List<PriceResponse> listPrices() {
-        return priceJpaRepository.findAllByOrderByPlanIdAsc().stream()
+        return planGroupRepository.findAllOrdered().stream()
+                .flatMap(pg -> pg.getPlans().stream())
+                .flatMap(p -> p.getPrices().stream())
+                .sorted(Comparator.comparingLong(p -> p.getPlan().getId()))
                 .map(this::toPriceResponse)
                 .toList();
     }
 
     // ---- mapping helpers ----
 
-    private PlanGroupResponse toGroupResponse(ProductPlanGroup group) {
-        List<PlanResponse> plans = planJpaRepository.findByGroupIdOrderBySortOrderAsc(group.getId()).stream()
+    private PlanGroupResponse toGroupResponse(PlanGroup group) {
+        List<PlanResponse> plans = group.getPlans().stream()
                 .map(this::toPlanResponse)
                 .toList();
-        return new PlanGroupResponse(group.getId(), group.getCode(), group.getName(), group.getDescription(), group.getStatus(), group.getSortOrder(), plans);
+        return new PlanGroupResponse(group.getId(), group.getCode(), group.getName(), group.getDescription(),
+                group.isEnabled() ? "enabled" : "disabled", group.getSortOrder(), plans);
     }
 
-    private PlanResponse toPlanResponse(ProductPlan plan) {
+    private PlanResponse toPlanResponse(Plan plan) {
         return new PlanResponse(
                 plan.getId(),
-                plan.getGroupId(),
+                plan.getGroup().getId(),
                 plan.getCode(),
                 plan.getName(),
                 plan.getDescription(),
                 plan.getBadge(),
-                plan.getStatus(),
+                plan.isEnabled() ? "enabled" : "disabled",
                 plan.getSortOrder(),
-                priceJpaRepository.findByPlanId(plan.getId()).stream().map(this::toPriceResponse).toList(),
-                featureJpaRepository.findByPlanIdOrderBySortOrderAsc(plan.getId()).stream().map(this::toFeatureResponse).toList()
+                plan.getPrices().stream().map(this::toPriceResponse).toList(),
+                plan.getFeatures().stream().map(this::toFeatureResponse).toList()
         );
     }
 
-    private PriceResponse toPriceResponse(ProductPrice price) {
-        return new PriceResponse(price.getId(), price.getCurrency(), price.getBillingCycle(), price.getAmount(), price.getOriginalAmount(), price.getStatus());
+    private PriceResponse toPriceResponse(Price price) {
+        return new PriceResponse(price.getId(), price.getCurrency(), price.getBillingCycle(), price.getAmount(), price.getOriginalAmount(),
+                price.isEnabled() ? "enabled" : "disabled");
     }
 
-    private FeatureResponse toFeatureResponse(ProductFeature feature) {
-        return new FeatureResponse(feature.getId(), feature.getFeatureName(), feature.getFeatureValue(), feature.getIncluded(), feature.getSortOrder());
+    private FeatureResponse toFeatureResponse(Feature feature) {
+        return new FeatureResponse(feature.getId(), feature.getFeatureName(), feature.getFeatureValue(), feature.isIncluded(), feature.getSortOrder());
     }
 }
