@@ -8,6 +8,7 @@ spring:
     nacos:
       discovery:
         server-addr: ${NACOS_HOST:100.125.148.23}:${NACOS_PORT:8848}
+        ip: ${NACOS_DISCOVERY_IP:127.0.0.1}
         username: ${NACOS_USERNAME:nacos}
         password: ${NACOS_PASSWORD:chengccn}
       config:
@@ -39,6 +40,12 @@ spring:
       password: ${REDIS_PASSWORD:}
   flyway:
     enabled: false
+
+sa-token:
+  token-name: Authorization
+  token-prefix: Bearer
+  timeout: 7200
+  is-log: false
 
 logging:
   level:
