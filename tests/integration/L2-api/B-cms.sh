@@ -49,7 +49,12 @@ fi
 
 echo "--- B10: 回滚 ---"
 EXISTING=$(get "/admin/cms/pages" "$ADMIN_TOKEN")
-FIRST_ID=$(echo "$EXISTING" | python -c "import sys,json;d=json.load(sys.stdin)['data'];print(d[0]['id'] if isinstance(d,list) and len(d)>0 else '')" 2>/dev/null)
+FIRST_ID=$(echo "$EXISTING" | python3 -c "
+import sys,json
+d=json.load(sys.stdin)['data']
+items = d if isinstance(d, list) else d.get('items', [])
+print(items[0]['id'] if items else '')
+" 2>/dev/null || true)
 if [ -n "$FIRST_ID" ]; then
   R=$(post_json "/admin/cms/pages/$FIRST_ID/translations/zh-CN/publish" '{}' "$ADMIN_TOKEN")
   VERSION_ID=$(get_field "$R" "versionNumber")

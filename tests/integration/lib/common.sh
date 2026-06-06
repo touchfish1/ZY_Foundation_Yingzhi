@@ -12,7 +12,7 @@ login() {
   local resp=$(curl -s "$BASE_URL/admin/auth/login" \
     -X POST -H "Content-Type: application/json" \
     -d '{"username":"admin","password":"admin123"}')
-  ADMIN_TOKEN=$(echo "$resp" | python -c "import sys,json;print(json.load(sys.stdin)['data']['accessToken'])" 2>/dev/null)
+  ADMIN_TOKEN=$(echo "$resp" | python3 -c "import sys,json;print(json.load(sys.stdin)['data']['accessToken'])" 2>/dev/null)
   if [ -z "$ADMIN_TOKEN" ]; then
     echo "FATAL: Cannot obtain admin token (response: $resp)"
     exit 1
@@ -53,12 +53,12 @@ delete() {
 }
 
 get_code() {
-  echo "$1" | python -c "import sys,json;print(json.load(sys.stdin).get('code', -1))" 2>/dev/null
+  echo "$1" | python3 -c "import sys,json;print(json.load(sys.stdin).get('code', -1))" 2>/dev/null
 }
 
 get_field() {
   local json="$1" field="$2"
-  echo "$json" | python -c "import sys,json;d=json.load(sys.stdin);print(d.get('data',{}).get('$field','') if isinstance(d.get('data'), dict) else d.get('$field',''))" 2>/dev/null
+  echo "$json" | python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('data',{}).get('$field','') if isinstance(d.get('data'), dict) else d.get('$field',''))" 2>/dev/null
 }
 
 assert_code() {
@@ -69,7 +69,7 @@ assert_code() {
     echo "  ✓ $label (code=$actual)"
   else
     FAIL=$((FAIL+1))
-    local msg=$(echo "$response" | python -c "import sys,json;print(json.load(sys.stdin).get('message',''))" 2>/dev/null)
+    local msg=$(echo "$response" | python3 -c "import sys,json;print(json.load(sys.stdin).get('message',''))" 2>/dev/null)
     ERRORS+=("$label: expected code=$expected, got code=$actual, msg=$msg")
     echo "  ✗ $label: expected $expected, got $actual (msg: $msg)"
   fi
@@ -89,7 +89,7 @@ assert_http_code() {
 
 assert_contains() {
   local label="$1" field="$2" response="$3"
-  local val=$(echo "$response" | python -c "
+  local val=$(echo "$response" | python3 -c "
 import sys,json
 d=json.load(sys.stdin)
 data = d.get('data', '')

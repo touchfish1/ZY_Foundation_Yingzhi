@@ -1,6 +1,7 @@
 package com.zhangyuan.payment.common;
 
 import cn.dev33.satoken.exception.NotLoginException;
+import cn.dev33.satoken.exception.NotPermissionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,13 @@ public class GlobalExceptionHandler {
         log.warn("未登录访问受保护资源: type={}", e.getLoginType());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.error(401, "未登录，请先登录"));
+    }
+
+    @ExceptionHandler(NotPermissionException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNotPermission(NotPermissionException e) {
+        log.warn("无权限访问: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(403, e.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

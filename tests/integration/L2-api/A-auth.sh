@@ -22,7 +22,7 @@ assert_code "A03 空请求体" "400" "$R"
 echo "--- A04-A06: 当前用户 ---"
 R=$(get "/admin/auth/me" "$ADMIN_TOKEN")
 assert_code "A04 带 Token 获取用户" "0" "$R"
-echo "$R" | python -c "import sys,json;d=json.load(sys.stdin);print('  User:', d.get('data',{}).get('username','?'))" 2>/dev/null
+echo "$R" | python3 -c "import sys,json;d=json.load(sys.stdin);print('  User:', d.get('data',{}).get('username','?'))" 2>/dev/null || true
 
 R=$(get "/admin/auth/me" "")
 assert_code "A05 无 Token" "401" "$R"

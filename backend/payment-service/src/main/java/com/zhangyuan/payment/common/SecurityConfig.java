@@ -23,7 +23,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Profile({"dev", "test"})
+    @Profile({"dev", "test", "default"})
     public SecurityFilterChain devFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
