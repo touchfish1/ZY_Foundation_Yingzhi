@@ -50,8 +50,8 @@ public class SaasUserApplicationService {
     }
 
     public UserResponse getProfile(Long userId) {
-        return toResponse(userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found")));
+        return UserResponse.masked(toResponse(userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"))));
     }
 
     @Transactional
