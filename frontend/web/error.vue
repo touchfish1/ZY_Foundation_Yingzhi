@@ -24,7 +24,8 @@ const handleError = () => clearError({ redirect: '/' })
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  background: #fff;
+  background: var(--vp-c-bg);
+  font-family: var(--vp-font-family-base);
 }
 
 .error-content {
@@ -35,7 +36,7 @@ const handleError = () => clearError({ redirect: '/' })
 .error-code {
   font-size: 96px;
   font-weight: 800;
-  color: #e2e8f0;
+  color: var(--vp-c-divider);
   line-height: 1;
   margin-bottom: 16px;
 }
@@ -44,12 +45,12 @@ const handleError = () => clearError({ redirect: '/' })
   font-size: 24px;
   font-weight: 700;
   margin: 0 0 12px;
-  color: #0a0a0a;
+  color: var(--vp-c-text);
 }
 
 .error-desc {
   font-size: 16px;
-  color: #64748b;
+  color: var(--vp-c-text-2);
   margin: 0 0 32px;
   line-height: 1.6;
 }
@@ -57,8 +58,8 @@ const handleError = () => clearError({ redirect: '/' })
 .error-link {
   display: inline-block;
   padding: 12px 32px;
-  background: #0a0a0a;
-  color: #fff;
+  background: var(--vp-c-text);
+  color: var(--vp-c-bg);
   border-radius: 8px;
   font-weight: 600;
   text-decoration: none;
@@ -66,6 +67,6 @@ const handleError = () => clearError({ redirect: '/' })
 }
 
 .error-link:hover {
-  background: #334155;
+  background: var(--vp-c-text-2);
 }
 </style>

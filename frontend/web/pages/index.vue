@@ -294,17 +294,18 @@ const plans = [
 /* ===== BASE ===== */
 .landing {
   min-height: 100vh;
-  color: #0f172a;
-  background: #f8fafc;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--vp-c-text);
+  background: var(--vp-c-bg);
+  font-family: var(--vp-font-family-base);
   -webkit-font-smoothing: antialiased;
+  transition: background var(--vp-t-bg), color var(--vp-t-color);
 }
 
 .section-label {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.15em;
-  color: #6366f1;
+  color: var(--vp-c-brand);
   text-align: center;
   margin-bottom: 12px;
 }
@@ -315,7 +316,7 @@ const plans = [
   font-size: clamp(32px, 4vw, 48px);
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: #0f172a;
+  color: var(--vp-c-text);
   line-height: 1.1;
 }
 
@@ -325,7 +326,7 @@ const plans = [
   text-align: center;
   font-size: 18px;
   line-height: 1.6;
-  color: #64748b;
+  color: var(--vp-c-text-2);
 }
 
 /* ===== HERO ===== */
@@ -514,7 +515,7 @@ const plans = [
   font-size: 16px;
   font-weight: 600;
   color: #fff;
-  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  background: var(--vp-c-brand-gradient);
   border: none;
   border-radius: 12px;
   text-decoration: none;
@@ -523,12 +524,12 @@ const plans = [
   align-items: center;
   gap: 8px;
   transition: all 0.25s ease;
-  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 24px rgba(100, 108, 255, 0.3);
 }
 
 .hero-cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.45);
+  box-shadow: 0 8px 32px rgba(100, 108, 255, 0.45);
 }
 
 .hero-cta-outline {
@@ -547,8 +548,8 @@ const plans = [
 }
 
 .hero-cta-outline:hover {
-  border-color: rgba(99, 102, 241, 0.4);
-  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(100, 108, 255, 0.4);
+  background: rgba(100, 108, 255, 0.08);
   color: #fff;
   transform: translateY(-2px);
 }
@@ -570,14 +571,14 @@ const plans = [
   width: min(580px, calc(100vw - 48px));
   text-align: left;
   border-radius: 12px;
-  border: 1px solid rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(100, 108, 255, 0.15);
   background: rgba(12, 17, 29, 0.95);
   overflow: hidden;
   transition: border-color 0.3s ease;
 }
 
 .hero-terminal:hover {
-  border-color: rgba(99, 102, 241, 0.3);
+  border-color: rgba(100, 108, 255, 0.3);
 }
 
 .term-header {
@@ -608,13 +609,13 @@ const plans = [
   margin-left: 8px;
   font-size: 11px;
   color: rgba(255, 255, 255, 0.25);
-  font-family: ui-monospace, monospace;
+  font-family: var(--vp-font-family-mono);
 }
 
 .term-body {
   margin: 0;
   padding: 20px 24px;
-  font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+  font-family: var(--vp-font-family-mono);
   font-size: 13px;
   line-height: 1.75;
   color: #e2e8f0;
@@ -635,7 +636,7 @@ const plans = [
   inset: 0;
   border-radius: 12px;
   pointer-events: none;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.03), transparent 50%);
+  background: linear-gradient(135deg, rgba(100, 108, 255, 0.03), transparent 50%);
 }
 
 /* ===== MODELS ===== */
@@ -658,8 +659,8 @@ const plans = [
   gap: 18px;
   padding: 24px;
   border-radius: 16px;
-  border: 1px solid rgba(99, 102, 241, 0.08);
-  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--vp-c-brand-dimmer);
+  background: var(--vp-c-bg-elavate);
   backdrop-filter: blur(8px);
   transform-style: preserve-3d;
   perspective: 800px;
@@ -670,8 +671,8 @@ const plans = [
 
 .model-card:hover {
   transform: perspective(800px) rotateY(-2deg) rotateX(2deg) translateY(-4px);
-  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.1);
-  border-color: rgba(99, 102, 241, 0.25);
+  box-shadow: 0 12px 40px rgba(100, 108, 255, 0.1);
+  border-color: rgba(100, 108, 255, 0.25);
 }
 
 .model-icon {
@@ -706,8 +707,8 @@ const plans = [
   padding: 2px 8px;
   font-size: 11px;
   font-weight: 600;
-  color: #6366f1;
-  background: rgba(99, 102, 241, 0.08);
+  color: var(--vp-c-brand);
+  background: var(--vp-c-brand-dimmer);
   border-radius: 999px;
 }
 
@@ -715,13 +716,13 @@ const plans = [
   margin: 0 0 8px;
   font-size: 14px;
   line-height: 1.5;
-  color: #64748b;
+  color: var(--vp-c-text-2);
 }
 
 .model-price {
   font-size: 13px;
   font-weight: 600;
-  color: #6366f1;
+  color: var(--vp-c-brand);
 }
 
 /* ===== STATS ===== */
@@ -735,8 +736,8 @@ const plans = [
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(139, 92, 246, 0.03), rgba(99, 102, 241, 0.02)),
-    repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(99, 102, 241, 0.008) 2px, rgba(99, 102, 241, 0.008) 4px);
+    linear-gradient(135deg, rgba(100, 108, 255, 0.04), rgba(139, 92, 246, 0.03), rgba(100, 108, 255, 0.02)),
+    repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(100, 108, 255, 0.008) 2px, rgba(100, 108, 255, 0.008) 4px);
   background-size: 200% 200%, auto;
   animation: stats-drift 12s ease-in-out infinite alternate;
 }
@@ -768,7 +769,7 @@ const plans = [
   top: 20%;
   bottom: 20%;
   width: 1px;
-  background: linear-gradient(180deg, transparent, rgba(99, 102, 241, 0.12), transparent);
+  background: linear-gradient(180deg, transparent, rgba(100, 108, 255, 0.12), transparent);
 }
 
 .stat-item:last-child::after {
@@ -779,14 +780,14 @@ const plans = [
   font-size: clamp(36px, 5vw, 52px);
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: #6366f1;
+  color: var(--vp-c-brand);
   line-height: 1.1;
 }
 
 .stat-label {
   margin-top: 4px;
   font-size: 15px;
-  color: #64748b;
+  color: var(--vp-c-text-2);
   font-weight: 500;
 }
 
@@ -805,7 +806,7 @@ const plans = [
   left: 10%;
   right: 10%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.15), transparent);
+  background: linear-gradient(90deg, transparent, rgba(100, 108, 255, 0.15), transparent);
   pointer-events: none;
 }
 
@@ -818,8 +819,8 @@ const plans = [
 .feature-card {
   padding: 32px 28px;
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  background: #fff;
+  border: 1px solid var(--vp-c-border);
+  background: var(--vp-c-bg-elavate);
   transform-style: preserve-3d;
   perspective: 800px;
   transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
@@ -829,7 +830,7 @@ const plans = [
 .feature-card:hover {
   transform: perspective(800px) rotateY(-1.5deg) rotateX(1.5deg) translateY(-4px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
-  border-color: rgba(99, 102, 241, 0.2);
+  border-color: rgba(100, 108, 255, 0.2);
 }
 
 .feature-icon {
@@ -853,14 +854,14 @@ const plans = [
   margin: 0;
   font-size: 15px;
   line-height: 1.65;
-  color: #64748b;
+  color: var(--vp-c-text-2);
 }
 
 /* ===== PRICING ===== */
 .pricing {
   position: relative;
   padding: 80px 24px;
-  background: linear-gradient(180deg, rgba(99, 102, 241, 0.04), transparent);
+  background: linear-gradient(180deg, rgba(100, 108, 255, 0.04), transparent);
 }
 
 .pricing::before {
@@ -870,7 +871,7 @@ const plans = [
   left: 10%;
   right: 10%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.15), transparent);
+  background: linear-gradient(90deg, transparent, rgba(100, 108, 255, 0.15), transparent);
   pointer-events: none;
 }
 
@@ -887,8 +888,8 @@ const plans = [
   position: relative;
   padding: 36px 28px;
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  background: #fff;
+  border: 1px solid var(--vp-c-border);
+  background: var(--vp-c-bg-elavate);
   text-align: center;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   will-change: transform;
@@ -896,12 +897,12 @@ const plans = [
 
 .plan-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 16px 48px var(--vp-shadow-2);
 }
 
 .plan-card.featured {
   border-color: transparent;
-  box-shadow: 0 8px 40px rgba(99, 102, 241, 0.12);
+  box-shadow: 0 8px 40px rgba(100, 108, 255, 0.12);
   transform: scale(1.03);
   background-clip: padding-box;
 }
@@ -911,7 +912,7 @@ const plans = [
   position: absolute;
   inset: -1px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #6366f1, #a78bfa, #6366f1, #818cf8, #6366f1);
+  background: linear-gradient(135deg, var(--vp-c-brand), #a78bfa, var(--vp-c-brand), #818cf8, var(--vp-c-brand));
   background-size: 300% 300%;
   animation: border-shine 3s ease-in-out infinite;
   z-index: -1;
@@ -929,7 +930,7 @@ const plans = [
 
 .plan-card.featured:hover {
   transform: scale(1.03) translateY(-6px);
-  box-shadow: 0 20px 60px rgba(99, 102, 241, 0.18);
+  box-shadow: 0 20px 60px rgba(100, 108, 255, 0.18);
 }
 
 .plan-tag {
@@ -941,7 +942,7 @@ const plans = [
   font-size: 12px;
   font-weight: 700;
   color: #fff;
-  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  background: var(--vp-c-brand-gradient);
   border-radius: 999px;
 }
 
@@ -959,18 +960,18 @@ const plans = [
   font-size: 40px;
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: #0f172a;
+  color: var(--vp-c-text);
 }
 
 .plan-unit {
   font-size: 15px;
-  color: #94a3b8;
+  color: var(--vp-c-text-3);
 }
 
 .plan-desc {
   margin: 0 0 24px;
   font-size: 15px;
-  color: #64748b;
+  color: var(--vp-c-text-2);
 }
 
 .plan-features {
@@ -983,8 +984,8 @@ const plans = [
 .plan-features li {
   padding: 8px 0;
   font-size: 14px;
-  color: #334155;
-  border-bottom: 1px solid #f1f5f9;
+  color: var(--vp-c-text);
+  border-bottom: 1px solid var(--vp-c-divider);
 }
 
 .plan-features li::before {
@@ -994,7 +995,7 @@ const plans = [
   height: 6px;
   margin-right: 10px;
   border-radius: 50%;
-  background: #6366f1;
+  background: var(--vp-c-brand);
   vertical-align: middle;
 }
 
@@ -1017,26 +1018,26 @@ const plans = [
 }
 
 .btn-plan-outline {
-  color: #334155;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  color: var(--vp-c-text);
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-border);
 }
 
 .btn-plan-outline:hover {
-  border-color: #6366f1;
-  background: #eef2ff;
-  color: #6366f1;
+  border-color: var(--vp-c-brand);
+  background: var(--vp-c-brand-dimmer);
+  color: var(--vp-c-brand);
 }
 
 .btn-plan-primary {
   color: #fff;
-  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  background: var(--vp-c-brand-gradient);
   border: none;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
+  box-shadow: 0 4px 16px rgba(100, 108, 255, 0.25);
 }
 
 .btn-plan-primary:hover {
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 8px 24px rgba(100, 108, 255, 0.4);
   transform: translateY(-1px);
 }
 
@@ -1052,7 +1053,7 @@ const plans = [
   text-align: center;
   border-radius: 24px;
   background: linear-gradient(135deg, #070B14, #0f1424);
-  border: 1px solid rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(100, 108, 255, 0.15);
   position: relative;
   overflow: hidden;
 }
@@ -1063,9 +1064,9 @@ const plans = [
   inset: 0;
   border-radius: 24px;
   background:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(99, 102, 241, 0.08), transparent),
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(100, 108, 255, 0.08), transparent),
     radial-gradient(ellipse 40% 40% at 80% 80%, rgba(139, 92, 246, 0.05), transparent),
-    linear-gradient(135deg, transparent 30%, rgba(99, 102, 241, 0.06) 50%, transparent 70%);
+    linear-gradient(135deg, transparent 30%, rgba(100, 108, 255, 0.06) 50%, transparent 70%);
   background-size: 100% 100%, 100% 100%, 200% 200%;
   animation: cta-sheen 6s ease-in-out infinite;
   pointer-events: none;
@@ -1117,7 +1118,7 @@ const plans = [
 
 .btn-lg:hover {
   transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 8px 32px rgba(100, 108, 255, 0.4);
 }
 
 .cta-btn-inline:hover .btn-arrow {

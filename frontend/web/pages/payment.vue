@@ -38,12 +38,12 @@ async function verifyPayment() {
 </script>
 
 <style scoped>
-.payment-page { max-width: 500px; margin: 0 auto; padding: 80px 24px; }
-.payment-card { background: #fff; border-radius: 16px; padding: 40px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-.payment-card h2 { margin: 0 0 16px; }
-.payment-card p { color: #64748b; margin-bottom: 24px; font-size: 14px; }
+.payment-page { max-width: 500px; margin: 0 auto; padding: 80px 24px; font-family: var(--vp-font-family-base); }
+.payment-card { background: var(--vp-c-bg); border-radius: 16px; padding: 40px; text-align: center; box-shadow: var(--vp-shadow-1); }
+.payment-card h2 { margin: 0 0 16px; color: var(--vp-c-text); }
+.payment-card p { color: var(--vp-c-text-2); margin-bottom: 24px; font-size: 14px; }
 .btn-primary, .btn-secondary { display: block; width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; font-size: 15px; cursor: pointer; text-decoration: none; }
-.btn-secondary { background: #f1f5f9; color: #1e293b; border: none; }
-.success { color: #16a34a; }
-.error { color: #ef4444; }
+.btn-secondary { background: var(--vp-c-bg-mute); color: var(--vp-c-text); border: none; }
+.success { color: var(--vp-c-success); }
+.error { color: var(--vp-c-danger); }
 </style>

@@ -95,9 +95,9 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
 <style scoped>
 .about-page {
   min-height: 100vh;
-  background: #f4f0e8;
-  color: #050505;
-  font-family: Georgia, "Times New Roman", "Noto Serif SC", SimSun, serif;
+  background: var(--vp-c-bg-alt);
+  color: var(--vp-c-text);
+  font-family: var(--vp-font-family-base);
 }
 
 .section-paper {
@@ -113,7 +113,7 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
   place-items: center;
   text-align: center;
   overflow: hidden;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid var(--vp-c-divider);
 }
 
 .about-hero::after {
@@ -122,8 +122,8 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(0,0,0,0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.035) 1px, transparent 1px);
+    linear-gradient(var(--vp-c-divider-light) 1px, transparent 1px),
+    linear-gradient(90deg, var(--vp-c-divider-light) 1px, transparent 1px);
   background-size: 72px 72px;
 }
 
@@ -144,14 +144,14 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
 .lead {
   max-width: 600px;
   margin: 0 auto;
-  color: rgba(0,0,0,0.48);
+  color: var(--vp-c-text-2);
   font-size: 20px;
   line-height: 1.6;
 }
 
 .rings {
   position: absolute;
-  border: 1px solid rgba(0,0,0,0.14);
+  border: 1px solid var(--vp-c-border);
   border-radius: 50%;
 }
 
@@ -167,9 +167,9 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
 }
 
 .mono {
-  font-family: "Courier New", monospace;
+  font-family: var(--vp-font-family-mono);
   letter-spacing: 0.42em;
-  color: rgba(0,0,0,0.58);
+  color: var(--vp-c-text-3);
   font-size: 12px;
   text-transform: uppercase;
 }
@@ -178,7 +178,7 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
   width: min(1120px, calc(100% - 40px));
   margin: 0 auto;
   padding: 60px 0;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid var(--vp-c-divider);
 }
 
 .stats-grid {
@@ -197,15 +197,15 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
 }
 
 .stat-item span {
-  font-family: "Courier New", monospace;
+  font-family: var(--vp-font-family-mono);
   font-size: 12px;
-  color: rgba(0,0,0,0.48);
+  color: var(--vp-c-text-2);
   letter-spacing: 0.12em;
 }
 
 .story {
   padding: 100px 0;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid var(--vp-c-divider);
 }
 
 .story-grid {
@@ -223,7 +223,7 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
 }
 
 .story-text p {
-  color: rgba(0,0,0,0.5);
+  color: var(--vp-c-text-2);
   font-size: 18px;
   line-height: 1.7;
   margin-bottom: 16px;
@@ -232,13 +232,13 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
 .value-card {
   padding: 28px;
   margin-bottom: 20px;
-  border: 1px solid rgba(0,0,0,0.14);
-  background: rgba(244,240,232,0.8);
+  border: 1px solid var(--vp-c-border);
+  background: var(--vp-c-bg-soft);
 }
 
 .value-num {
-  font-family: "Courier New", monospace;
-  color: rgba(0,0,0,0.3);
+  font-family: var(--vp-font-family-mono);
+  color: var(--vp-c-text-3);
   font-size: 11px;
 }
 
@@ -249,7 +249,7 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
 }
 
 .value-card p {
-  color: rgba(0,0,0,0.45);
+  color: var(--vp-c-text-2);
   line-height: 1.7;
 }
 
@@ -273,8 +273,8 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
 
 .team-card {
   padding: 32px;
-  border: 1px solid rgba(0,0,0,0.14);
-  background: rgba(244,240,232,0.6);
+  border: 1px solid var(--vp-c-border);
+  background: var(--vp-c-bg-soft);
   transition: transform 0.25s ease;
 }
 
@@ -289,11 +289,11 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #050505;
-  color: #f4f0e8;
+  background: var(--vp-c-text);
+  color: var(--vp-c-bg-alt);
   font-size: 24px;
   font-weight: 600;
-  font-family: Georgia, serif;
+  font-family: var(--vp-font-family-base);
 }
 
 .team-card h3 {
@@ -303,15 +303,15 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
 }
 
 .team-card p {
-  color: rgba(0,0,0,0.5);
+  color: var(--vp-c-text-2);
   font-size: 14px;
   margin-bottom: 8px;
 }
 
 .team-card span {
-  font-family: "Courier New", monospace;
+  font-family: var(--vp-font-family-mono);
   font-size: 11px;
-  color: rgba(0,0,0,0.35);
+  color: var(--vp-c-text-3);
   letter-spacing: 0.08em;
 }
 
@@ -322,9 +322,9 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
 
 .cta-box {
   padding: 64px 40px;
-  border: 1px solid rgba(0,0,0,0.18);
-  outline: 12px solid rgba(0,0,0,0.035);
-  background: radial-gradient(circle, rgba(0,0,0,0.055) 1px, transparent 1px) 0 0 / 7px 7px, #e8e4dc;
+  border: 1px solid var(--vp-c-border);
+  outline: 12px solid var(--vp-c-divider-light);
+  background: radial-gradient(circle, var(--vp-c-divider-light) 1px, transparent 1px) 0 0 / 7px 7px, var(--vp-c-bg-mute);
 }
 
 .cta-box h2 {
@@ -335,7 +335,7 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
 }
 
 .cta-box p {
-  color: rgba(0,0,0,0.5);
+  color: var(--vp-c-text-2);
   font-size: 18px;
   margin-bottom: 32px;
 }
@@ -343,9 +343,9 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
 .cta-btn {
   display: inline-block;
   padding: 14px 36px;
-  background: #050505;
-  color: #f4f0e8;
-  font-family: "Courier New", monospace;
+  background: var(--vp-c-text);
+  color: var(--vp-c-bg-alt);
+  font-family: var(--vp-font-family-mono);
   font-size: 14px;
   letter-spacing: 0.16em;
   text-decoration: none;
