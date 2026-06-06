@@ -1,5 +1,7 @@
 package com.zhangyuan.modules.order.adapter.out.persistence;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -10,4 +12,6 @@ public interface OrderMainEntityRepository extends JpaRepository<OrderMainEntity
     Optional<OrderMainEntity> findByOrderNo(String orderNo);
 
     List<OrderMainEntity> findAllByOrderByCreatedAtDesc();
+
+    Page<OrderMainEntity> findAllByOrderByCreatedAtDesc(Pageable pageable);
 }

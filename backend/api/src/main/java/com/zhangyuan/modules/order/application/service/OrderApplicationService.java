@@ -2,6 +2,7 @@ package com.zhangyuan.modules.order.application.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.order.domain.model.Order;
 import com.zhangyuan.modules.order.domain.model.OrderNumber;
 import com.zhangyuan.modules.order.domain.repository.OrderRepository;
@@ -114,13 +115,15 @@ public class OrderApplicationService {
     }
 
     /**
-     * 获取所有订单列表（响应对象）。
+     * 获取订单列表（分页）。
      */
     @Transactional(readOnly = true)
-    public List<OrderResponse> listOrders() {
-        return orderRepository.findAllOrderByCreatedAtDesc().stream()
+    public PageResponse<OrderResponse> listOrders(int page, int pageSize) {
+        var pageResult = orderRepository.findPageByCreatedAtDesc(page, pageSize);
+        List<OrderResponse> items = pageResult.items().stream()
                 .map(this::toResponse)
                 .toList();
+        return PageResponse.of(items, pageResult.page(), pageResult.pageSize(), pageResult.total());
     }
 
     /**

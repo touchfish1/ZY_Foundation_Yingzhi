@@ -1,5 +1,6 @@
 package com.zhangyuan.modules.payment.application.service;
 
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.order.domain.model.Order;
 import com.zhangyuan.modules.order.domain.model.OrderNumber;
 import com.zhangyuan.modules.order.domain.repository.OrderRepository;
@@ -119,13 +120,15 @@ public class PaymentApplicationService {
     }
 
     /**
-     * 获取所有支付记录列表。
+     * 获取支付记录列表（分页）。
      */
     @Transactional(readOnly = true)
-    public List<PaymentResponse> listPayments() {
-        return paymentRepository.findAllOrderByCreatedAtDesc().stream()
+    public PageResponse<PaymentResponse> listPayments(int page, int pageSize) {
+        var pageResult = paymentRepository.findPageByCreatedAtDesc(page, pageSize);
+        List<PaymentResponse> items = pageResult.items().stream()
                 .map(this::toResponse)
                 .toList();
+        return PageResponse.of(items, pageResult.page(), pageResult.pageSize(), pageResult.total());
     }
 
     private PaymentResponse toResponse(Payment payment) {

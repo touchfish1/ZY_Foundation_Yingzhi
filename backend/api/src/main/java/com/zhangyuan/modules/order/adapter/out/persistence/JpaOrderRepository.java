@@ -1,8 +1,11 @@
 package com.zhangyuan.modules.order.adapter.out.persistence;
 
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.order.domain.model.Order;
 import com.zhangyuan.modules.order.domain.model.OrderNumber;
 import com.zhangyuan.modules.order.domain.repository.OrderRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -32,6 +35,15 @@ public class JpaOrderRepository implements OrderRepository {
         return jpaRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(this::toDomain)
                 .toList();
+    }
+
+    @Override
+    public PageResponse<Order> findPageByCreatedAtDesc(int page, int pageSize) {
+        Page<OrderMainEntity> pageResult = jpaRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(page - 1, pageSize));
+        List<Order> items = pageResult.getContent().stream()
+                .map(this::toDomain)
+                .toList();
+        return PageResponse.of(items, page, pageSize, pageResult.getTotalElements());
     }
 
     @Override

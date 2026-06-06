@@ -1,8 +1,11 @@
 package com.zhangyuan.modules.payment.adapter.out.persistence;
 
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.payment.domain.model.Payment;
 import com.zhangyuan.modules.payment.domain.model.PaymentStatus;
 import com.zhangyuan.modules.payment.domain.repository.PaymentRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -27,6 +30,15 @@ public class JpaPaymentRepository implements PaymentRepository {
         return jpaRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(this::toDomain)
                 .toList();
+    }
+
+    @Override
+    public PageResponse<Payment> findPageByCreatedAtDesc(int page, int pageSize) {
+        Page<PaymentTransactionEntity> pageResult = jpaRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(page - 1, pageSize));
+        List<Payment> items = pageResult.getContent().stream()
+                .map(this::toDomain)
+                .toList();
+        return PageResponse.of(items, page, pageSize, pageResult.getTotalElements());
     }
 
     @Override

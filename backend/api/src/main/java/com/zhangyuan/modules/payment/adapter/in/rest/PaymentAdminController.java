@@ -2,15 +2,15 @@ package com.zhangyuan.modules.payment.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.common.response.ApiResponse;
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.payment.application.service.PaymentApplicationService;
 import com.zhangyuan.modules.payment.dto.PaymentResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/admin/payments")
@@ -26,8 +26,10 @@ public class PaymentAdminController {
     }
 
     @GetMapping
-    public ApiResponse<List<PaymentResponse>> listPayments() {
-        log.info("Listing all payments");
-        return ApiResponse.ok(paymentApplicationService.listPayments());
+    public ApiResponse<PageResponse<PaymentResponse>> listPayments(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int pageSize) {
+        log.info("Listing payments, page={}, pageSize={}", page, pageSize);
+        return ApiResponse.ok(paymentApplicationService.listPayments(page, pageSize));
     }
 }

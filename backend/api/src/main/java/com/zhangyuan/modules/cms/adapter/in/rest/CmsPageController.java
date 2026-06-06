@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -31,9 +31,11 @@ public class CmsPageController {
     }
 
     @GetMapping("/pages")
-    public ApiResponse<List<PageListItemResponse>> listPages() {
-        log.info("Listing all CMS pages");
-        return ApiResponse.ok(cmsApplicationService.listPages());
+    public ApiResponse<com.zhangyuan.common.response.PageResponse<PageListItemResponse>> listPages(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int pageSize) {
+        log.info("Listing CMS pages, page={}, pageSize={}", page, pageSize);
+        return ApiResponse.ok(cmsApplicationService.listPages(page, pageSize));
     }
 
     @PostMapping("/pages")

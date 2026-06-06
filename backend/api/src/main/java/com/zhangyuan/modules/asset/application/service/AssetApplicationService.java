@@ -1,5 +1,6 @@
 package com.zhangyuan.modules.asset.application.service;
 
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.asset.domain.model.AssetFile;
 import com.zhangyuan.modules.asset.domain.repository.AssetRepository;
 import com.zhangyuan.modules.asset.domain.service.AssetDomainService;
@@ -77,10 +78,12 @@ public class AssetApplicationService {
      * @return 文件信息 DTO 列表
      */
     @Transactional(readOnly = true)
-    public List<AssetFileInfo> listFiles() {
-        return assetRepository.findAllOrderByCreatedAtDesc().stream()
+    public PageResponse<AssetFileInfo> listFiles(int page, int pageSize) {
+        var pageResult = assetRepository.findPageByCreatedAtDesc(page, pageSize);
+        List<AssetFileInfo> items = pageResult.items().stream()
                 .map(file -> new AssetFileInfo(file.getId(), file.getUrl(), file.getOriginalName(), file.getContentType(), file.getSizeBytes()))
                 .toList();
+        return PageResponse.of(items, pageResult.page(), pageResult.pageSize(), pageResult.total());
     }
 
     /**

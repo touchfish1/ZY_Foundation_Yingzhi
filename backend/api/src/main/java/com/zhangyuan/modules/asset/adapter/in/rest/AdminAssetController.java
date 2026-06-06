@@ -2,6 +2,7 @@ package com.zhangyuan.modules.asset.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.common.response.ApiResponse;
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.common.security.AuthUser;
 import com.zhangyuan.modules.asset.application.service.AssetApplicationService;
 import com.zhangyuan.modules.asset.dto.AssetFileInfo;
@@ -35,9 +36,11 @@ public class AdminAssetController {
 
     @GetMapping("/files")
     @SaCheckPermission("asset:list")
-    public ApiResponse<List<AssetFileInfo>> listFiles() {
-        log.info("Listing asset files");
-        return ApiResponse.ok(assetApplicationService.listFiles());
+    public ApiResponse<PageResponse<AssetFileInfo>> listFiles(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int pageSize) {
+        log.info("Listing asset files, page={}, pageSize={}", page, pageSize);
+        return ApiResponse.ok(assetApplicationService.listFiles(page, pageSize));
     }
 
     private static final long MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB

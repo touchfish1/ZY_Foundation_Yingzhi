@@ -1,7 +1,10 @@
 package com.zhangyuan.modules.asset.adapter.out.persistence;
 
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.asset.domain.model.AssetFile;
 import com.zhangyuan.modules.asset.domain.repository.AssetRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -26,6 +29,15 @@ public class JpaAssetRepository implements AssetRepository {
         return jpaRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(this::toDomain)
                 .toList();
+    }
+
+    @Override
+    public PageResponse<AssetFile> findPageByCreatedAtDesc(int page, int pageSize) {
+        Page<AssetFileEntity> pageResult = jpaRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(page - 1, pageSize));
+        List<AssetFile> items = pageResult.getContent().stream()
+                .map(this::toDomain)
+                .toList();
+        return PageResponse.of(items, page, pageSize, pageResult.getTotalElements());
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.zhangyuan.modules.cms.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.common.response.ApiResponse;
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.cms.application.service.CmsApplicationService;
 import com.zhangyuan.modules.cms.dto.CreatePageRequest;
 import com.zhangyuan.modules.cms.dto.PageDetailResponse;
@@ -40,9 +41,11 @@ public class CmsAdminController {
     }
 
     @GetMapping
-    public ApiResponse<List<PageListItemResponse>> listPages() {
-        log.info("Listing all CMS pages");
-        return ApiResponse.ok(cmsApplicationService.listPages());
+    public ApiResponse<PageResponse<PageListItemResponse>> listPages(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int pageSize) {
+        log.info("Listing CMS pages, page={}, pageSize={}", page, pageSize);
+        return ApiResponse.ok(cmsApplicationService.listPages(page, pageSize));
     }
 
     @PostMapping

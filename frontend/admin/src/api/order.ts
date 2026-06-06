@@ -1,4 +1,5 @@
 import { request } from './http'
+import type { PageResponse } from '../types/common'
 
 export interface OrderItem {
   orderNo: string
@@ -48,15 +49,8 @@ export interface UsageSummary {
   recordCount: number
 }
 
-export interface PageResponse<T> {
-  items: T[]
-  page: number
-  pageSize: number
-  total: number
-}
-
-export function listOrders() {
-  return request<OrderItem[]>('/admin/orders')
+export function listOrders(page = 1, pageSize = 20) {
+  return request<PageResponse<OrderItem>>(`/admin/orders?page=${page}&pageSize=${pageSize}`)
 }
 
 export function getOrder(orderNo: string) {

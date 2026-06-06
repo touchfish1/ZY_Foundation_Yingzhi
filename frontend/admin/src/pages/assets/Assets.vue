@@ -61,12 +61,17 @@ function formatSize(bytes: number): string {
 const paginationReactive = reactive({
   page: 1,
   pageSize: 20,
+  itemCount: 0,
   showSizePicker: true,
   pageSizes: [10, 20, 50, 100],
-  onChange: (page: number) => { paginationReactive.page = page },
+  onChange: (page: number) => {
+    paginationReactive.page = page
+    load()
+  },
   onUpdatePageSize: (size: number) => {
     paginationReactive.pageSize = size
     paginationReactive.page = 1
+    load()
   }
 })
 
@@ -134,7 +139,9 @@ async function handleUpload({ file: uploadFileInfo }: { file: UploadFileInfo }) 
 async function load() {
   loading.value = true
   try {
-    files.value = await listFiles()
+    const resp = await listFiles(paginationReactive.page, paginationReactive.pageSize)
+    files.value = resp.items
+    paginationReactive.itemCount = resp.total
   } catch (error) {
     message.error(error instanceof Error ? error.message : '加载失败')
   } finally {

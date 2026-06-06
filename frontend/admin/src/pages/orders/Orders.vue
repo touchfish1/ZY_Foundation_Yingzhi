@@ -7,21 +7,16 @@
           <p>查看和管理用户订单。</p>
         </div>
         <div class="page-head-actions">
-          <n-input v-model:value="searchQuery" placeholder="搜索订单号..." clearable style="width: 220px">
-            <template #prefix>
-              <n-icon size="14"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></n-icon>
-            </template>
-          </n-input>
         </div>
       </div>
     </div>
 
     <n-card title="订单列表" :bordered="false" class="table-card" content-style="padding: 0;">
-      <n-empty v-if="!loading && !filteredOrders.length" description="暂无订单" />
+      <n-empty v-if="!loading && !orders.length" description="暂无订单" />
       <CommonTable
         v-else
         :columns="columns"
-        :data="filteredOrders"
+        :data="orders"
         :loading="loading"
         :pagination="paginationReactive"
       />
@@ -32,9 +27,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, reactive, ref, watch } from 'vue'
+import { h, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NCard, NEmpty, NIcon, NInput, NNumberAnimation, NTag, useMessage } from 'naive-ui'
+import { NButton, NCard, NEmpty, NNumberAnimation, NTag, useMessage } from 'naive-ui'
 import CommonTable from '../../components/CommonTable.vue'
 import type { DataTableColumns } from 'naive-ui'
 import { listOrders, type OrderItem } from '../../api/order'
@@ -44,7 +39,6 @@ const router = useRouter()
 const message = useMessage()
 const orders = ref<OrderItem[]>([])
 const loading = ref(false)
-const searchQuery = ref('')
 
 function statusType(status: string) {
   return status === 'paid' || status === 'success' || status === 'PAID' || status === 'SUCCESS' ? 'success'
@@ -56,23 +50,18 @@ function statusType(status: string) {
 const paginationReactive = reactive({
   page: 1,
   pageSize: 20,
+  itemCount: 0,
   showSizePicker: true,
   pageSizes: [10, 20, 50, 100],
-  onChange: (page: number) => { paginationReactive.page = page },
+  onChange: (page: number) => {
+    paginationReactive.page = page
+    load()
+  },
   onUpdatePageSize: (size: number) => {
     paginationReactive.pageSize = size
     paginationReactive.page = 1
+    load()
   }
-})
-
-watch(searchQuery, () => {
-  paginationReactive.page = 1
-})
-
-const filteredOrders = computed(() => {
-  if (!searchQuery.value) return orders.value
-  const q = searchQuery.value.toLowerCase()
-  return orders.value.filter(o => o.orderNo.toLowerCase().includes(q))
 })
 
 const columns: DataTableColumns<OrderItem> = [
@@ -115,7 +104,9 @@ const columns: DataTableColumns<OrderItem> = [
 async function load() {
   loading.value = true
   try {
-    orders.value = await listOrders()
+    const resp = await listOrders(paginationReactive.page, paginationReactive.pageSize)
+    orders.value = resp.items
+    paginationReactive.itemCount = resp.total
   } catch (error) {
     message.error(error instanceof Error ? error.message : '加载失败')
   } finally {

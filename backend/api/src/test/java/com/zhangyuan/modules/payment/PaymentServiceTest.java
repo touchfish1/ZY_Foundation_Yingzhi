@@ -9,6 +9,7 @@ import com.zhangyuan.modules.payment.domain.repository.PaymentRepository;
 import com.zhangyuan.modules.payment.domain.service.PaymentDomainService;
 import com.zhangyuan.modules.payment.dto.CheckoutRequest;
 import com.zhangyuan.modules.payment.dto.CheckoutResponse;
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.payment.dto.PaymentResponse;
 import org.junit.jupiter.api.Test;
 
@@ -138,15 +139,16 @@ class PaymentServiceTest {
         when(payment.getOrderId()).thenReturn(1L);
         when(payment.getStatus()).thenReturn(com.zhangyuan.modules.payment.domain.model.PaymentStatus.PENDING);
         when(payment.getPaidAt()).thenReturn(null);
-        when(paymentRepository.findAllOrderByCreatedAtDesc()).thenReturn(List.of(payment));
+        when(paymentRepository.findPageByCreatedAtDesc(1, 20))
+                .thenReturn(PageResponse.of(List.of(payment), 1, 20, 1));
 
         Order order = mock(Order.class);
         when(order.getOrderNo()).thenReturn(new OrderNumber("ORD1"));
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
 
-        List<PaymentResponse> payments = paymentService.listPayments();
+        var result = paymentService.listPayments(1, 20);
 
-        assertThat(payments).hasSize(1);
-        assertThat(payments.getFirst().paymentNo()).isEqualTo("PAY1");
+        assertThat(result.items()).hasSize(1);
+        assertThat(result.items().getFirst().paymentNo()).isEqualTo("PAY1");
     }
 }

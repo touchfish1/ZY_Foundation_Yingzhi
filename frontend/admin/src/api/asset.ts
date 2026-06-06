@@ -1,4 +1,5 @@
 import { request, getToken } from './http'
+import type { PageResponse } from '../types/common'
 
 export interface AssetFile {
   id: number
@@ -23,8 +24,8 @@ export async function uploadFile(file: File): Promise<AssetFile> {
   return payload.data as AssetFile
 }
 
-// 获取已上传的文件列表
-export function listFiles() {
-  console.log('[API] listFiles')
-  return request<AssetFile[]>('/admin/assets/files')
+// 获取已上传的文件列表（分页）
+export function listFiles(page = 1, pageSize = 20) {
+  console.log('[API] listFiles', { page, pageSize })
+  return request<PageResponse<AssetFile>>(`/admin/assets/files?page=${page}&pageSize=${pageSize}`)
 }

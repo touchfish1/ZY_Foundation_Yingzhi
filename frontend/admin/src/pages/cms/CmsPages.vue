@@ -59,7 +59,8 @@ import { useRouter } from 'vue-router'
 import { NButton, NCard, NEmpty, NForm, NFormItem, NIcon, NInput, NModal, NSelect, NSpace, NTag, useMessage } from 'naive-ui'
 import CommonTable from '../../components/CommonTable.vue'
 import type { DataTableColumns, SelectOption } from 'naive-ui'
-import { createPage, deletePage, listPages, type CmsPageListItem } from '../../api/cms'
+import { createPage, deletePage, listPages } from '../../api/cms'
+import type { CmsPageListItem } from '../../api/cms'
 import { useConfirm } from '../../composables/useConfirm'
 import { formatDate } from '../../utils/format'
 
@@ -86,12 +87,17 @@ const pageTypeOptions: SelectOption[] = [
 const paginationReactive = reactive({
   page: 1,
   pageSize: 20,
+  itemCount: 0,
   showSizePicker: true,
   pageSizes: [10, 20, 50, 100],
-  onChange: (page: number) => { paginationReactive.page = page },
+  onChange: (page: number) => {
+    paginationReactive.page = page
+    load()
+  },
   onUpdatePageSize: (size: number) => {
     paginationReactive.pageSize = size
     paginationReactive.page = 1
+    load()
   }
 })
 
@@ -137,7 +143,9 @@ const columns: DataTableColumns<CmsPageListItem> = [
 async function load() {
   loading.value = true
   try {
-    pages.value = await listPages()
+    const resp = await listPages(paginationReactive.page, paginationReactive.pageSize)
+    pages.value = resp.items
+    paginationReactive.itemCount = resp.total
   } catch (error) {
     message.error(error instanceof Error ? error.message : '加载失败')
   } finally {

@@ -7,21 +7,16 @@
           <p>查看支付交易记录。</p>
         </div>
         <div class="page-head-actions">
-          <n-input v-model:value="searchQuery" placeholder="搜索支付单号..." clearable style="width: 220px">
-            <template #prefix>
-              <n-icon size="14"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></n-icon>
-            </template>
-          </n-input>
         </div>
       </div>
     </div>
 
     <n-card title="支付记录" :bordered="false" class="table-card" content-style="padding: 0;">
-      <n-empty v-if="!loading && !filteredPayments.length" description="暂无支付记录" />
+      <n-empty v-if="!loading && !payments.length" description="暂无支付记录" />
       <CommonTable
         v-else
         :columns="columns"
-        :data="filteredPayments"
+        :data="payments"
         :loading="loading"
         :pagination="paginationReactive"
       />
@@ -30,9 +25,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, reactive, ref, watch } from 'vue'
+import { h, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NCard, NEmpty, NIcon, NInput, NNumberAnimation, NTag, useMessage } from 'naive-ui'
+import { NButton, NCard, NEmpty, NNumberAnimation, NTag, useMessage } from 'naive-ui'
 import CommonTable from '../../components/CommonTable.vue'
 import type { DataTableColumns } from 'naive-ui'
 import { listPayments, type PaymentItem } from '../../api/payment'
@@ -42,7 +37,6 @@ const router = useRouter()
 const message = useMessage()
 const payments = ref<PaymentItem[]>([])
 const loading = ref(false)
-const searchQuery = ref('')
 
 function statusType(status: string) {
   return status === 'paid' || status === 'success' || status === 'PAID' || status === 'SUCCESS' ? 'success'
@@ -54,23 +48,18 @@ function statusType(status: string) {
 const paginationReactive = reactive({
   page: 1,
   pageSize: 20,
+  itemCount: 0,
   showSizePicker: true,
   pageSizes: [10, 20, 50, 100],
-  onChange: (page: number) => { paginationReactive.page = page },
+  onChange: (page: number) => {
+    paginationReactive.page = page
+    load()
+  },
   onUpdatePageSize: (size: number) => {
     paginationReactive.pageSize = size
     paginationReactive.page = 1
+    load()
   }
-})
-
-watch(searchQuery, () => {
-  paginationReactive.page = 1
-})
-
-const filteredPayments = computed(() => {
-  if (!searchQuery.value) return payments.value
-  const q = searchQuery.value.toLowerCase()
-  return payments.value.filter(p => p.paymentNo.toLowerCase().includes(q))
 })
 
 const columns: DataTableColumns<PaymentItem> = [
@@ -114,7 +103,9 @@ const columns: DataTableColumns<PaymentItem> = [
 async function load() {
   loading.value = true
   try {
-    payments.value = await listPayments()
+    const resp = await listPayments(paginationReactive.page, paginationReactive.pageSize)
+    payments.value = resp.items
+    paginationReactive.itemCount = resp.total
   } catch (error) {
     message.error(error instanceof Error ? error.message : '加载失败')
   } finally {

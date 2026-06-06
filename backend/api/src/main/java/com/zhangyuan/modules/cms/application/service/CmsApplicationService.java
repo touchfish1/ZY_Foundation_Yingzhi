@@ -69,10 +69,12 @@ public class CmsApplicationService {
     // ── Page CRUD ──────────────────────────────────────────────
 
     @Transactional(readOnly = true)
-    public List<PageListItemResponse> listPages() {
-        return pageRepository.findAll().stream()
-                .map(page -> new PageListItemResponse(page.getId(), page.getSlug(), page.getPageType(), page.getDefaultLocale(), page.getStatus(), page.getUpdatedAt()))
+    public PageResponse<PageListItemResponse> listPages(int page, int pageSize) {
+        org.springframework.data.domain.Page<CmsPage> pageResult = pageRepository.findAll(PageRequest.of(page - 1, pageSize));
+        List<PageListItemResponse> items = pageResult.getContent().stream()
+                .map(p -> new PageListItemResponse(p.getId(), p.getSlug(), p.getPageType(), p.getDefaultLocale(), p.getStatus(), p.getUpdatedAt()))
                 .toList();
+        return PageResponse.of(items, page, pageSize, pageResult.getTotalElements());
     }
 
     @Transactional(readOnly = true)

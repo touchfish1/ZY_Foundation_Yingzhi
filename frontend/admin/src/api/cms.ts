@@ -1,4 +1,5 @@
 import { request } from './http'
+import type { PageResponse } from '../types/common'
 
 export interface CmsPageListItem {
   id: number
@@ -29,10 +30,10 @@ export interface CmsPageDetail {
   }>
 }
 
-// 获取 CMS 页面列表
-export function listPages() {
-  console.log('[API] listPages')
-  return request<CmsPageListItem[]>('/admin/cms/pages')
+// 获取 CMS 页面列表（分页）
+export function listPages(page = 1, pageSize = 20) {
+  console.log('[API] listPages', { page, pageSize })
+  return request<PageResponse<CmsPageListItem>>(`/admin/cms/pages?page=${page}&pageSize=${pageSize}`)
 }
 
 // 创建新页面：指定路径（slug）、标题、默认语言和页面类型

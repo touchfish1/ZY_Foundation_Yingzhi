@@ -1,4 +1,5 @@
 import { request } from './http'
+import type { PageResponse } from '../types/common'
 
 export interface PaymentItem {
   paymentNo: string
@@ -11,9 +12,9 @@ export interface PaymentItem {
   paidAt?: string
 }
 
-// 获取支付交易记录列表
-export function listPayments() {
-  return request<PaymentItem[]>('/admin/payments')
+// 获取支付交易记录列表（分页）
+export function listPayments(page = 1, pageSize = 20) {
+  return request<PageResponse<PaymentItem>>(`/admin/payments?page=${page}&pageSize=${pageSize}`)
 }
 
 // 获取支付详情
