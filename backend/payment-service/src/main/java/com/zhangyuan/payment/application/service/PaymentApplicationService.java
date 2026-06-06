@@ -24,17 +24,20 @@ public class PaymentApplicationService {
     private final FulfillmentClient fulfillmentClient;
     private final PaymentDomainService paymentDomainService;
     private final ChannelStrategyRegistry strategyRegistry;
+    private final CompensationService compensationService;
 
     public PaymentApplicationService(PaymentRepository paymentRepository,
                                      OrderServiceClient orderServiceClient,
                                      FulfillmentClient fulfillmentClient,
                                      PaymentDomainService paymentDomainService,
-                                     ChannelStrategyRegistry strategyRegistry) {
+                                     ChannelStrategyRegistry strategyRegistry,
+                                     CompensationService compensationService) {
         this.paymentRepository = paymentRepository;
         this.orderServiceClient = orderServiceClient;
         this.fulfillmentClient = fulfillmentClient;
         this.paymentDomainService = paymentDomainService;
         this.strategyRegistry = strategyRegistry;
+        this.compensationService = compensationService;
     }
 
     @Transactional
@@ -75,11 +78,13 @@ public class PaymentApplicationService {
         strategy.processCallback(payment, java.util.Map.of());
         payment = paymentRepository.save(payment);
 
+        compensationService.createFulfillEvent(paymentNo, payment.getOrderNo());
+
         try {
             fulfillmentClient.fulfillOrder(payment.getOrderNo());
             log.info("Fulfillment triggered for order: {}", payment.getOrderNo());
         } catch (Exception e) {
-            log.error("Fulfillment failed for order: {}", payment.getOrderNo(), e);
+            log.error("Fulfillment failed for order: {}, compensation event created", payment.getOrderNo(), e);
         }
 
         return new CheckoutResponse(paymentNo, payment.getStatus(), null, null);
