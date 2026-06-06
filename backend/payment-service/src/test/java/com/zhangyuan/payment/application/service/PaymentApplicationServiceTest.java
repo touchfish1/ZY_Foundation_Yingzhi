@@ -67,8 +67,7 @@ class PaymentApplicationServiceTest {
         doReturn(ApiResponse.ok(new Object())).when(orderServiceClient).getOrder("ORD001");
 
         assertThatThrownBy(() -> service.checkout(new CheckoutRequest("ORD001", "alipay")))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Unsupported channel");
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

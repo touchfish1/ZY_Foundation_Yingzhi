@@ -54,9 +54,13 @@ public class CompensationEvent {
     public int getRetryCount() { return retryCount; }
     public void setRetryCount(int retryCount) { this.retryCount = retryCount; }
     public int getMaxRetries() { return maxRetries; }
+    public void setMaxRetries(int maxRetries) { this.maxRetries = maxRetries; }
     public String getPayloadJson() { return payloadJson; }
     public void setPayloadJson(String payloadJson) { this.payloadJson = payloadJson; }
     public String getLastError() { return lastError; }
+    public void setLastError(String lastError) { this.lastError = lastError; }
     public Instant getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
     public Instant getLastRetryAt() { return lastRetryAt; }
+    public void setLastRetryAt(Instant lastRetryAt) { this.lastRetryAt = lastRetryAt; }
 }

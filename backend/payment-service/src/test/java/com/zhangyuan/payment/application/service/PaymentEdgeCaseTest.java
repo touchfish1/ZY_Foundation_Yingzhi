@@ -4,6 +4,7 @@ import com.zhangyuan.payment.client.FulfillmentClient;
 import com.zhangyuan.payment.client.OrderServiceClient;
 import com.zhangyuan.payment.common.ApiResponse;
 import com.zhangyuan.payment.domain.model.Payment;
+import com.zhangyuan.payment.domain.repository.CompensationEventRepository;
 import com.zhangyuan.payment.domain.repository.PaymentRepository;
 import com.zhangyuan.payment.domain.service.PaymentDomainService;
 import com.zhangyuan.payment.dto.CheckoutRequest;
@@ -23,11 +24,17 @@ class PaymentEdgeCaseTest {
     private final OrderServiceClient orderServiceClient = mock(OrderServiceClient.class);
     private final FulfillmentClient fulfillmentClient = mock(FulfillmentClient.class);
     private final PaymentDomainService domainService = new PaymentDomainService();
+    private final ChannelStrategyRegistry strategyRegistry = new ChannelStrategyRegistry(
+            java.util.List.of(new MockChannelStrategy()));
+    private final CompensationEventRepository compensationEventRepo = mock(CompensationEventRepository.class);
+    private final CompensationService compensationService = new CompensationService(
+            compensationEventRepo, fulfillmentClient, null);
     private PaymentApplicationService service;
 
     @BeforeEach
     void setUp() {
-        service = new PaymentApplicationService(paymentRepository, orderServiceClient, fulfillmentClient, domainService);
+        service = new PaymentApplicationService(paymentRepository, orderServiceClient,
+                fulfillmentClient, domainService, strategyRegistry, compensationService);
     }
 
     @Test

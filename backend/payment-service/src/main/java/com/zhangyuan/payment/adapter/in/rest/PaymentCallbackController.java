@@ -30,14 +30,15 @@ public class PaymentCallbackController {
                                                @RequestParam Map<String, String> params) {
         log.info("Payment callback received for channel: {}, params: {}", channel, params);
 
-        String paymentNo = params.get("out_trade_no");
-        if (paymentNo == null) {
-            paymentNo = params.get("paymentNo");
+        String rawPaymentNo = params.get("out_trade_no");
+        if (rawPaymentNo == null) {
+            rawPaymentNo = params.get("paymentNo");
         }
-        if (paymentNo == null) {
+        if (rawPaymentNo == null) {
             log.warn("Callback missing paymentNo for channel: {}", channel);
             return ApiResponse.error(400, "Missing payment number");
         }
+        final String paymentNo = rawPaymentNo;
 
         Payment payment = paymentRepository.findByPaymentNo(paymentNo)
                 .orElseThrow(() -> new IllegalArgumentException("Payment not found: " + paymentNo));
