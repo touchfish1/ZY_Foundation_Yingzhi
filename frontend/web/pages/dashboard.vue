@@ -1,5 +1,9 @@
 <template>
-  <div class="dashboard-layout">
+  <div v-if="pageLoading" class="page-loading">
+    <div class="loading-spinner" />
+    <p>加载中...</p>
+  </div>
+  <div v-else class="dashboard-layout">
     <aside class="dashboard-sidebar">
       <div class="sidebar-user">
         <div class="user-avatar">{{ user?.nickname?.[0] || 'U' }}</div>
@@ -149,6 +153,7 @@ const userId = computed(() => auth.user.value?.id)
 const balance = ref(0)
 const usageSummary = ref<any>(null)
 
+const pageLoading = ref(true)
 const subscriptionStatus = ref('')
 const loadingSubscription = ref(true)
 const recentOrders = ref<any[]>([])
@@ -236,6 +241,7 @@ onMounted(async () => {
     fetchUsage(),
     fetchSubscriptions()
   ])
+  pageLoading.value = false
 })
 
 function orderStatusClass(s: string) {
@@ -333,6 +339,25 @@ function formatDate(ts: string) {
 .mono { font-family: var(--vp-font-family-mono); font-size: 13px; }
 .empty-text { text-align: center; padding: 24px; color: var(--vp-c-text-3); font-size: 14px; }
 .loading-text { font-size: 13px; color: var(--vp-c-text-3); }
+
+.page-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+  color: var(--vp-c-text-2);
+}
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--vp-c-border);
+  border-top-color: var(--vp-c-brand);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 .quickstart-card { background: var(--vp-c-bg-alt); border-radius: 12px; padding: 24px; color: var(--vp-c-text); }
 .quickstart-card p { margin: 0 0 12px; font-size: 14px; }
 .code-block { background: var(--vp-code-block-bg); padding: 16px; border-radius: 8px; font-size: 13px; overflow-x: auto; }

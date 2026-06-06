@@ -204,11 +204,16 @@ const menuOptions = computed<MenuOption[]>(() => {
   return buildMenuOptions(filterTree(menus))
 })
 
+function hasMenuPermission(item: MenuItem): boolean {
+  if (!item.permissionCodes || item.permissionCodes.length === 0) return true
+  return permissionStore.hasAnyPermission(item.permissionCodes)
+}
+
 function buildMenuOptions(items: MenuItem[]): MenuOption[] {
   if (!items || items.length === 0) return []
 
   return items
-    .filter(item => item.menuType !== 'button' && item.status === 'enabled')
+    .filter(item => item.menuType !== 'button' && item.status === 'enabled' && hasMenuPermission(item))
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map(item => {
       const option: MenuOption = {
@@ -222,7 +227,7 @@ function buildMenuOptions(items: MenuItem[]): MenuOption[] {
 
       if (item.children && item.children.length > 0) {
         const filteredChildren = item.children.filter(
-          c => c.menuType !== 'button' && c.status === 'enabled'
+          c => c.menuType !== 'button' && c.status === 'enabled' && hasMenuPermission(c)
         )
         if (filteredChildren.length > 0) {
           if (item.menuType === 'group') {
