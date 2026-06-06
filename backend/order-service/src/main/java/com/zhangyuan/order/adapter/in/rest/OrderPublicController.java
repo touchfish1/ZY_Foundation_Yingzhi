@@ -2,7 +2,7 @@ package com.zhangyuan.order.adapter.in.rest;
 
 import com.zhangyuan.order.application.service.FulfillmentService;
 import com.zhangyuan.order.application.service.OrderApplicationService;
-import com.zhangyuan.order.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.order.dto.CreateOrderRequest;
 import com.zhangyuan.order.dto.OrderResponse;
 import jakarta.validation.Valid;

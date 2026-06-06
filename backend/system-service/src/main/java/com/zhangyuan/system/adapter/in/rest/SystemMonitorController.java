@@ -1,7 +1,7 @@
 package com.zhangyuan.system.adapter.in.rest;
 
 import com.zhangyuan.system.adapter.out.persistence.SystemSettingJpaRepository;
-import com.zhangyuan.system.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;

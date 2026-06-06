@@ -1,7 +1,7 @@
 package com.zhangyuan.order.adapter.in.rest;
 
 import com.zhangyuan.order.application.service.SubscriptionQueryService;
-import com.zhangyuan.order.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.order.domain.model.UserSubscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

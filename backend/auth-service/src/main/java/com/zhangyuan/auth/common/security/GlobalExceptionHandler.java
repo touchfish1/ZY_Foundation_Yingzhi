@@ -1,7 +1,7 @@
 package com.zhangyuan.auth.common.security;
 
 import cn.dev33.satoken.exception.NotLoginException;
-import com.zhangyuan.auth.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

@@ -1,5 +1,6 @@
 package com.zhangyuan.payment.common;
 
+import com.zhangyuan.common.response.ApiResponse;
 import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.exception.NotPermissionException;
 import org.slf4j.Logger;

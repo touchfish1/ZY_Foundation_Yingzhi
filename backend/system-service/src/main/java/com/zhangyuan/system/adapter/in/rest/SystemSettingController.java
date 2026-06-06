@@ -1,6 +1,6 @@
 package com.zhangyuan.system.adapter.in.rest;
 
-import com.zhangyuan.system.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.system.application.service.SystemSettingApplicationService;
 import com.zhangyuan.system.domain.model.SystemSetting;
 import org.slf4j.Logger;

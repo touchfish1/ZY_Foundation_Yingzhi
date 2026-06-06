@@ -2,7 +2,7 @@ package com.zhangyuan.auth.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.auth.application.service.MenuApplicationService;
-import com.zhangyuan.auth.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.auth.dto.MenuRequest;
 import com.zhangyuan.auth.dto.MenuResponse;
 import com.zhangyuan.auth.dto.SortItem;

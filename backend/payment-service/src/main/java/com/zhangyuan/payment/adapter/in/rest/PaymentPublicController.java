@@ -1,7 +1,7 @@
 package com.zhangyuan.payment.adapter.in.rest;
 
 import com.zhangyuan.payment.application.service.PaymentApplicationService;
-import com.zhangyuan.payment.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.payment.dto.CheckoutRequest;
 import com.zhangyuan.payment.dto.CheckoutResponse;
 import jakarta.validation.Valid;

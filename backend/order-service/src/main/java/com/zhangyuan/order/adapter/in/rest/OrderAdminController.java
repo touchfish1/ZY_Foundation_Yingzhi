@@ -2,7 +2,7 @@ package com.zhangyuan.order.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.order.application.service.OrderApplicationService;
-import com.zhangyuan.order.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.order.dto.OrderResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

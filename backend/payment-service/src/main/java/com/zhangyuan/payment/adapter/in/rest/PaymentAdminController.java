@@ -2,7 +2,7 @@ package com.zhangyuan.payment.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.payment.application.service.PaymentApplicationService;
-import com.zhangyuan.payment.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.payment.dto.PaymentResponse;
 import org.springframework.web.bind.annotation.*;
 

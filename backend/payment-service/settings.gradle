@@ -7,6 +7,8 @@ pluginManagement {
 
 rootProject.name = 'payment-service'
 
+includeBuild('../common')
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {

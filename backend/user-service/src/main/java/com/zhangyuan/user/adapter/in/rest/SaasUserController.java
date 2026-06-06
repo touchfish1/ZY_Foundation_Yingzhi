@@ -1,7 +1,7 @@
 package com.zhangyuan.user.adapter.in.rest;
 
 import com.zhangyuan.user.application.service.SaasUserApplicationService;
-import com.zhangyuan.user.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.user.dto.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

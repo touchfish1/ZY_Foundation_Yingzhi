@@ -2,7 +2,7 @@ package com.zhangyuan.payment.application.service;
 
 import com.zhangyuan.payment.client.FulfillmentClient;
 import com.zhangyuan.payment.client.OrderServiceClient;
-import com.zhangyuan.payment.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.payment.domain.model.Payment;
 import com.zhangyuan.payment.domain.repository.CompensationEventRepository;
 import com.zhangyuan.payment.domain.repository.PaymentRepository;

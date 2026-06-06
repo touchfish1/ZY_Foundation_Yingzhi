@@ -1,6 +1,6 @@
 package com.zhangyuan.auth.adapter.in.rest;
 
-import com.zhangyuan.auth.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.auth.application.service.AuthApplicationService;
 import com.zhangyuan.auth.domain.model.User;
 import org.slf4j.Logger;

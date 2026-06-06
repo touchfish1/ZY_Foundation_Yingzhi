@@ -2,7 +2,7 @@ package com.zhangyuan.auth.application.service;
 
 import com.zhangyuan.auth.adapter.out.persistence.AdminPermission;
 import com.zhangyuan.auth.adapter.out.persistence.AdminRole;
-import com.zhangyuan.auth.common.PageResponse;
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.auth.domain.model.Permission;
 import com.zhangyuan.auth.domain.repository.PermissionRepository;
 import com.zhangyuan.auth.dto.PermissionRequest;

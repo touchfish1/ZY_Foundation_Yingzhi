@@ -1,6 +1,6 @@
 package com.zhangyuan.payment.client;
 
-import com.zhangyuan.payment.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;

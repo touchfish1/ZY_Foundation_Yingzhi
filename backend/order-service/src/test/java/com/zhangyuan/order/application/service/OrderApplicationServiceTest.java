@@ -2,7 +2,7 @@ package com.zhangyuan.order.application.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhangyuan.order.client.ProductServiceClient;
-import com.zhangyuan.order.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.order.domain.model.OrderNumber;
 import com.zhangyuan.order.domain.repository.OrderRepository;
 import com.zhangyuan.order.domain.service.OrderDomainService;

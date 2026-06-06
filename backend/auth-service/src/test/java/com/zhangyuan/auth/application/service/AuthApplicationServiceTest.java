@@ -1,7 +1,7 @@
 package com.zhangyuan.auth.application.service;
 
 import com.zhangyuan.auth.adapter.out.persistence.AdminUser;
-import com.zhangyuan.auth.common.PageResponse;
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.auth.domain.repository.UserRepository;
 import com.zhangyuan.auth.domain.service.AuthDomainService;
 import com.zhangyuan.auth.dto.UserResponse;

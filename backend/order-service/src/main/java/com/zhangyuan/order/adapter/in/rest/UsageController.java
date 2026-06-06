@@ -1,7 +1,7 @@
 package com.zhangyuan.order.adapter.in.rest;
 
 import com.zhangyuan.order.application.service.UsageService;
-import com.zhangyuan.order.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.order.dto.UsageRecordRequest;
 import com.zhangyuan.order.dto.UsageRecordResponse;
 import com.zhangyuan.order.dto.UsageSummaryResponse;

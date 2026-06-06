@@ -4,7 +4,7 @@ import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.StpUtil;
 import com.zhangyuan.auth.application.service.MenuApplicationService;
 import com.zhangyuan.auth.application.service.AuthApplicationService;
-import com.zhangyuan.auth.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.auth.dto.LoginRequest;
 import com.zhangyuan.auth.dto.LoginResponse;
 import com.zhangyuan.auth.dto.MenuResponse;

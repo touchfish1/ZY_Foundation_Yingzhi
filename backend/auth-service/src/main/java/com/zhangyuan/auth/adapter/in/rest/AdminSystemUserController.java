@@ -2,9 +2,9 @@ package com.zhangyuan.auth.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.auth.application.service.AuthApplicationService;
-import com.zhangyuan.auth.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.auth.repository.AdminUserRepository;
-import com.zhangyuan.auth.common.PageResponse;
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.auth.domain.model.User;
 import com.zhangyuan.auth.dto.CreateUserRequest;
 import com.zhangyuan.auth.dto.SetRoleRequest;

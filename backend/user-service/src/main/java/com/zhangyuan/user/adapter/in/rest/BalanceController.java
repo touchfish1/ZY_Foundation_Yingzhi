@@ -1,7 +1,7 @@
 package com.zhangyuan.user.adapter.in.rest;
 
 import com.zhangyuan.user.application.service.BalanceService;
-import com.zhangyuan.user.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.user.dto.BalanceResponse;
 import com.zhangyuan.user.dto.TransactionResponse;
 import org.slf4j.Logger;

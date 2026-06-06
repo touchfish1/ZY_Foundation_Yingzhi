@@ -1,7 +1,7 @@
 package com.zhangyuan.payment.adapter.in.rest;
 
 import com.zhangyuan.payment.application.service.ChannelStrategyRegistry;
-import com.zhangyuan.payment.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.payment.domain.model.Payment;
 import com.zhangyuan.payment.domain.repository.PaymentRepository;
 import org.slf4j.Logger;

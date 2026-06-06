@@ -1,6 +1,6 @@
 package com.zhangyuan.user.application.service;
 
-import com.zhangyuan.user.common.ApiResponse;
+import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.user.domain.model.User;
 import com.zhangyuan.user.domain.repository.UserRepository;
 import com.zhangyuan.user.dto.*;

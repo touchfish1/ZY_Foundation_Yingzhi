@@ -4,7 +4,7 @@ import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.StpUtil;
 import com.zhangyuan.auth.adapter.out.persistence.AdminRole;
 import com.zhangyuan.auth.adapter.out.persistence.AdminUser;
-import com.zhangyuan.auth.common.PageResponse;
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.auth.common.security.AuthUser;
 import com.zhangyuan.auth.common.security.AuthUserService;
 import com.zhangyuan.auth.domain.model.LoginResult;
