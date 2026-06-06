@@ -59,7 +59,7 @@ public class UserController {
     @GetMapping("/users/{id}")
     public ApiResponse<User> getUser(@PathVariable Long id) {
         log.info("Getting user by id: {}", id);
-        return authApplicationService.findByUsername(String.valueOf(id))
+        return authApplicationService.findById(id)
                 .map(ApiResponse::ok)
                 .orElse(ApiResponse.error(404, "User not found"));
     }

@@ -76,8 +76,6 @@ public class AdminSystemRoleController {
         return ApiResponse.ok(new RoleResponse(existing.getId(), existing.getCode(), existing.getName(), existing.getCreatedAt()));
     }
 
-    private final AdminUserRepository adminUserRepository;
-
     public AdminSystemRoleController(RoleRepository roleRepository,
                                      PermissionApplicationService permissionApplicationService,
                                      AdminRoleRepository adminRoleRepository,
