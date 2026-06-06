@@ -39,9 +39,7 @@ spring:
           socket_timeout: 10
 
   flyway:
-    enabled: true
-    baseline-on-migrate: true
-    baseline-version: 0
+    enabled: false
 
   data:
     redis:
@@ -71,3 +69,4 @@ sa-token:
 logging:
   level:
     root: INFO
+
