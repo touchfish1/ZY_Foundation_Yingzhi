@@ -14,6 +14,8 @@ import cn.dev33.satoken.stp.StpUtil;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.springframework.scheduling.annotation.Scheduled;
+
 @RestController
 @RequestMapping("/api/auth")
 public class SaasUserController {
@@ -34,6 +36,14 @@ public class SaasUserController {
 
     public SaasUserController(SaasUserApplicationService saasUserApplicationService) {
         this.saasUserApplicationService = saasUserApplicationService;
+    }
+
+    @Scheduled(fixedRate = 300_000)
+    public void cleanupRateLimitMap() {
+        if (lastAccessMap.size() > 10_000) {
+            lastAccessMap.clear();
+            log.info("Rate limit map cleared (size exceeded 10000)");
+        }
     }
 
     @PostMapping("/register")

@@ -24,9 +24,19 @@ export class ApiError extends Error {
   }
 }
 
+const isDev = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+
+function logApi(method: string, url: string, data?: unknown) {
+  if (isDev) console.log(`[API] ${method} ${url}`, data ?? '')
+}
+
+function logError(method: string, url: string, status: number, msg?: string) {
+  if (isDev) console.error(`[API] ${method} ${url} failed:`, status, msg)
+}
+
 // 通用 HTTP 请求封装：自动携带令牌、统一错误处理、解析统一响应格式
 export async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
-  console.log(`[API] ${options.method || 'GET'} ${url}`, options.body ? { body: JSON.parse(options.body as string) } : '')
+  logApi(options.method || 'GET', url)
   const token = getToken()
   const headers = new Headers(options.headers)
   headers.set('Content-Type', 'application/json')
@@ -38,13 +48,12 @@ export async function request<T>(url: string, options: RequestInit = {}): Promis
   const payload = await response.json().catch(() => null)
 
   if (!response.ok) {
-    console.error(`[API] ${url} failed:`, response.status, payload?.message)
+    logError(options.method || 'GET', url, response.status, payload?.message)
     throw new ApiError(response.status, payload?.message || `请求失败 (${response.status})`)
   }
   if (payload?.code !== 0) {
-    console.error(`[API] ${url} biz error:`, payload?.code, payload?.message)
+    logError(options.method || 'GET', url, payload?.code, payload?.message)
     throw new ApiError(payload?.code || -1, payload?.message || '操作失败')
   }
-  console.log(`[API] ${url} success:`, payload?.data)
   return payload.data as T
 }

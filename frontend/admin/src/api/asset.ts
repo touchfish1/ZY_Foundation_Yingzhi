@@ -1,4 +1,4 @@
-import { request } from './http'
+import { request, getToken } from './http'
 
 export interface AssetFile {
   id: number
@@ -8,22 +8,19 @@ export interface AssetFile {
   sizeBytes: number
 }
 
-// 上传文件（使用 FormData  multipart 方式）
-export function uploadFile(file: File) {
-  console.log('[API] uploadFile', { name: file.name, size: file.size, type: file.type })
+// 上传文件（使用 FormData multipart 方式，避免 JSON Content-Type）
+export async function uploadFile(file: File): Promise<AssetFile> {
   const formData = new FormData()
   formData.append('file', file)
-  const token = localStorage.getItem('zhangyuan_admin_token')
-  return fetch('/admin/assets/files', {
+  const token = getToken()
+  const res = await fetch('/admin/assets/files', {
     method: 'POST',
-    headers: { 'Authorization': token ? `Bearer ${token}` : '' },
+    headers: token ? { 'Authorization': `Bearer ${token}` } : {},
     body: formData
-  }).then(async res => {
-    const payload = await res.json()
-    if (!res.ok || payload?.code !== 0) throw new Error(payload?.message || 'Upload failed')
-    console.log('[API] uploadFile success:', payload.data)
-    return payload.data as AssetFile
   })
+  const payload = await res.json()
+  if (!res.ok || payload?.code !== 0) throw new Error(payload?.message || 'Upload failed')
+  return payload.data as AssetFile
 }
 
 // 获取已上传的文件列表
