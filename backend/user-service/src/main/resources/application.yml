@@ -34,7 +34,9 @@ spring:
       ddl-auto: update
     open-in-view: false
   flyway:
-    enabled: false
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
 
 sa-token:
   token-name: Authorization

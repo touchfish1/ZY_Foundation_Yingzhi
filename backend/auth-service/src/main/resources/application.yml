@@ -39,7 +39,9 @@ spring:
           socket_timeout: 10
 
   flyway:
-    enabled: false
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
 
   data:
     redis:
