@@ -144,6 +144,7 @@ watch(() => route.path, async (path) => {
   color: var(--vp-c-text);
   margin: 0 0 12px;
   line-height: 1.2;
+  font-family: var(--vp-font-family-display);
 }
 .index-desc {
   font-size: 16px;

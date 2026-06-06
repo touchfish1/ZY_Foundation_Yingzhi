@@ -18,7 +18,7 @@ const props = withDefaults(
   }>(),
   {
     count: 4,
-    colors: () => ['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd'],
+    colors: () => ['#3b82f6', '#06b6d4', '#60a5fa', '#93c5fd'],
   },
 )
 

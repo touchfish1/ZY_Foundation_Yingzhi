@@ -55,7 +55,7 @@ function selectPlan(plan: any) {
 <style scoped>
 .pricing-page { max-width: 1200px; margin: 0 auto; padding: 80px 24px; }
 .pricing-header { text-align: center; margin-bottom: 60px; }
-.pricing-header h1 { font-size: 36px; font-weight: 800; margin: 0 0 12px; }
+.pricing-header h1 { font-size: 36px; font-weight: 800; margin: 0 0 12px; font-family: var(--vp-font-family-display); }
 .pricing-header p { color: var(--vp-c-text-2); font-size: 16px; }
 .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
 .plan-card {

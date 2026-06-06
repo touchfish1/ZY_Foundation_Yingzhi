@@ -160,6 +160,7 @@ const cases = [
   font-size: clamp(72px, 6vw, 116px);
   font-weight: 500;
   line-height: 0.9;
+  font-family: var(--vp-font-family-display);
 }
 
 .lead {
@@ -196,6 +197,7 @@ const cases = [
   font-size: clamp(48px, 4vw, 72px);
   font-weight: 500;
   line-height: 0.95;
+  font-family: var(--vp-font-family-display);
 }
 
 .compare-table {
@@ -378,6 +380,7 @@ blockquote {
   font-weight: 500;
   line-height: 1;
   margin-bottom: 16px;
+  font-family: var(--vp-font-family-display);
 }
 
 .cta-box p {

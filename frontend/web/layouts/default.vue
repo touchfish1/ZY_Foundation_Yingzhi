@@ -325,7 +325,7 @@ html {
   transition: transform 0.15s ease, box-shadow 0.2s ease;
 }
 .cta-btn:hover {
-  box-shadow: 0 4px 16px rgba(100, 108, 255, 0.4);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
   transform: translateY(-1px);
 }
 
@@ -519,7 +519,7 @@ html {
   text-decoration: none;
   transition: box-shadow 0.2s;
 }
-.mobile-cta:hover { box-shadow: 0 4px 24px rgba(100, 108, 255, 0.5); }
+.mobile-cta:hover { box-shadow: 0 4px 24px rgba(59, 130, 246, 0.5); }
 .mobile-logout {
   font-size: 16px !important;
   color: rgba(239, 68, 68, 0.8) !important;

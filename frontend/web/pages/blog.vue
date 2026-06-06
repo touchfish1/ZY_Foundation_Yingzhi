@@ -113,6 +113,7 @@ onMounted(async () => {
   font-size: clamp(72px, 6vw, 116px);
   font-weight: 500;
   line-height: 0.9;
+  font-family: var(--vp-font-family-display);
 }
 
 .lead {

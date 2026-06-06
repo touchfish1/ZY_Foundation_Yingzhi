@@ -150,6 +150,7 @@ html { scroll-behavior: smooth; }
 
 /* ===== Typography Utilities ===== */
 .text-balance { text-wrap: balance; }
+.text-display { font-family: var(--vp-font-family-display); }
 .text-gradient {
   background: var(--vp-c-brand-gradient);
   -webkit-background-clip: text;
@@ -238,7 +239,7 @@ html { scroll-behavior: smooth; }
 }
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(100, 108, 255, 0.35);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35);
 }
 
 .btn-outline {

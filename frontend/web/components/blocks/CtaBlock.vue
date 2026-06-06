@@ -26,7 +26,7 @@ onMounted(() => {
   padding: 64px 40px;
   border-radius: 0.75rem;
   text-align: center;
-  background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
   color: #fff;
 }
 

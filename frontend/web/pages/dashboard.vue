@@ -329,7 +329,7 @@ function formatDate(ts: string) {
 .badge-warning { background: var(--vp-c-warning-soft); color: var(--vp-c-warning); }
 .badge-error { background: var(--vp-c-danger-soft); color: var(--vp-c-danger); }
 .section { margin-bottom: 32px; }
-.section h2 { font-size: 18px; font-weight: 600; margin: 0 0 16px; }
+.section h2 { font-size: 18px; font-weight: 600; margin: 0 0 16px; font-family: var(--vp-font-family-display); }
 .table-card { background: var(--vp-c-bg); border-radius: 12px; box-shadow: var(--vp-shadow-1); overflow: hidden; }
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th, .data-table td { padding: 12px 16px; text-align: left; font-size: 14px; }

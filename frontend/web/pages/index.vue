@@ -11,8 +11,8 @@
           :particle-count="35"
           :connect-distance="100"
           :line-opacity="0.06"
-          particle-color="99, 102, 241"
-          line-color="99, 102, 241"
+          particle-color="59, 130, 246"
+          line-color="59, 130, 246"
           :speed="0.2"
         />
       </div>
@@ -215,7 +215,7 @@ const models = [
     badge: '特惠',
     desc: 'OpenAI 代码专用模型，编程辅助与 Code Agent 首选',
     price: '周卡特惠 4/天',
-    icon: '<svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#6366f1"/><path d="M10 12l-4 4 4 4M22 12l4 4-4 4M19 9l-6 14" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    icon: '<svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#3b82f6"/><path d="M10 12l-4 4 4 4M22 12l4 4-4 4M19 9l-6 14" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   },
 ]
 
@@ -230,32 +230,32 @@ const features = [
   {
     title: '稳定可靠',
     desc: '多区域部署，自动故障切换，保障服务高可用',
-    icon: '<svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#eef2ff"/><path d="M20 10v8l4 4M28 20a8 8 0 11-16 0 8 8 0 0116 0z" stroke="#6366f1" stroke-width="2" stroke-linecap="round"/><path d="M12 20h2M26 20h2M20 12v2M20 26v2" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" opacity=".4"/></svg>',
+    icon: '<svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#eef2ff"/><path d="M20 10v8l4 4M28 20a8 8 0 11-16 0 8 8 0 0116 0z" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/><path d="M12 20h2M26 20h2M20 12v2M20 26v2" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" opacity=".4"/></svg>',
   },
   {
     title: '价格透明',
     desc: '按官方汇率实时计价，无隐藏费用，用量明细可查',
-    icon: '<svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#eef2ff"/><circle cx="20" cy="18" r="10" stroke="#6366f1" stroke-width="2"/><path d="M20 13v10M16 18h8" stroke="#6366f1" stroke-width="2" stroke-linecap="round"/></svg>',
+    icon: '<svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#eef2ff"/><circle cx="20" cy="18" r="10" stroke="#3b82f6" stroke-width="2"/><path d="M20 13v10M16 18h8" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/></svg>',
   },
   {
     title: '快速接入',
     desc: '标准 OpenAI SDK 兼容，3 行代码即可完成接入',
-    icon: '<svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#eef2ff"/><path d="M14 20l4 4 8-8" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    icon: '<svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#eef2ff"/><path d="M14 20l4 4 8-8" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   },
   {
     title: '技术支持',
     desc: '开发者社区 + 专属技术支持，7x24 小时响应',
-    icon: '<svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#eef2ff"/><path d="M20 10c-6 0-9 3-9 9 0 3 1.5 5.5 4 7l-1 4 4.5-2c.5.1 1 .2 1.5.2 6 0 9-3 9-9 0-6-3-9.2-9-9.2z" stroke="#6366f1" stroke-width="2"/><circle cx="16" cy="19" r="1.5" fill="#6366f1"/><circle cx="20" cy="19" r="1.5" fill="#6366f1"/><circle cx="24" cy="19" r="1.5" fill="#6366f1"/></svg>',
+    icon: '<svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#eef2ff"/><path d="M20 10c-6 0-9 3-9 9 0 3 1.5 5.5 4 7l-1 4 4.5-2c.5.1 1 .2 1.5.2 6 0 9-3 9-9 0-6-3-9.2-9-9.2z" stroke="#3b82f6" stroke-width="2"/><circle cx="16" cy="19" r="1.5" fill="#3b82f6"/><circle cx="20" cy="19" r="1.5" fill="#3b82f6"/><circle cx="24" cy="19" r="1.5" fill="#3b82f6"/></svg>',
   },
   {
     title: '持续更新',
     desc: '新模型发布后第一时间接入，始终保持最新能力',
-    icon: '<svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#eef2ff"/><path d="M20 8v6M20 26v6M8 20h6M26 20h6" stroke="#6366f1" stroke-width="2" stroke-linecap="round"/><circle cx="20" cy="20" r="5" stroke="#6366f1" stroke-width="2"/><path d="M20 15v5l3 3" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    icon: '<svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#eef2ff"/><path d="M20 8v6M20 26v6M8 20h6M26 20h6" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/><circle cx="20" cy="20" r="5" stroke="#3b82f6" stroke-width="2"/><path d="M20 15v5l3 3" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/></svg>',
   },
   {
     title: '安全可靠',
     desc: '企业级数据加密，API Key 安全隔离，日志审计完善',
-    icon: '<svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#eef2ff"/><rect x="10" y="16" width="20" height="16" rx="3" stroke="#6366f1" stroke-width="2"/><path d="M16 16v-4a4 4 0 118 0v4" stroke="#6366f1" stroke-width="2" stroke-linecap="round"/><circle cx="20" cy="24" r="2" fill="#6366f1"/></svg>',
+    icon: '<svg viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#eef2ff"/><rect x="10" y="16" width="20" height="16" rx="3" stroke="#3b82f6" stroke-width="2"/><path d="M16 16v-4a4 4 0 118 0v4" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/><circle cx="20" cy="24" r="2" fill="#3b82f6"/></svg>',
   },
 ]
 
@@ -318,6 +318,7 @@ const plans = [
   letter-spacing: -0.03em;
   color: var(--vp-c-text);
   line-height: 1.1;
+  font-family: var(--vp-font-family-display);
 }
 
 .section-sub {
@@ -338,7 +339,7 @@ const plans = [
   justify-content: center;
   overflow: hidden;
   padding: 100px 24px 80px;
-  background: #070B14;
+  background: #0c0c0e;
   clip-path: polygon(0% 0%, 100% 0%, 100% 90%, 0% 100%);
 }
 
@@ -353,8 +354,8 @@ const plans = [
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(99, 102, 241, 0.15), transparent),
-    radial-gradient(ellipse 60% 50% at 80% 40%, rgba(139, 92, 246, 0.08), transparent),
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(59, 130, 246, 0.15), transparent),
+    radial-gradient(ellipse 60% 50% at 80% 40%, rgba(6, 182, 212, 0.08), transparent),
     radial-gradient(ellipse 50% 40% at 20% 60%, rgba(59, 130, 246, 0.06), transparent);
   animation: hero-glow 8s ease-in-out infinite alternate;
 }
@@ -369,7 +370,7 @@ const plans = [
   width: 600px;
   height: 600px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.08), transparent 60%);
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.08), transparent 60%);
   top: -200px;
   right: -100px;
   animation: orb-drift 20s ease-in-out infinite alternate;
@@ -378,7 +379,7 @@ const plans = [
 .hero-gradient-orb-2 {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.06), transparent 60%);
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.06), transparent 60%);
   top: auto;
   bottom: -150px;
   left: -150px;
@@ -400,8 +401,8 @@ const plans = [
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(99, 102, 241, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(59, 130, 246, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.04) 1px, transparent 1px);
   background-size: 60px 60px;
   mask-image: radial-gradient(ellipse 50% 60% at 50% 50%, #000 20%, transparent 70%);
   -webkit-mask-image: radial-gradient(ellipse 50% 60% at 50% 50%, #000 20%, transparent 70%);
@@ -443,9 +444,9 @@ const plans = [
   padding: 7px 18px;
   font-size: 13px;
   font-weight: 600;
-  color: #a5b4fc;
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
   border-radius: 999px;
   backdrop-filter: blur(8px);
 }
@@ -467,6 +468,7 @@ const plans = [
 .hero-title {
   margin: 0 0 24px;
   line-height: 1.05;
+  font-family: var(--vp-font-family-display);
 }
 
 .hero-title-line {
@@ -479,13 +481,13 @@ const plans = [
 
 .hero-title-accent {
   letter-spacing: -0.05em;
-  background: linear-gradient(135deg, #818cf8, #a78bfa, #6366f1, #818cf8);
+  background: linear-gradient(135deg, #60a5fa, #22d3ee, #3b82f6, #60a5fa);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: accent-shimmer 6s ease-in-out infinite;
-  filter: drop-shadow(0 0 24px rgba(129, 140, 248, 0.25));
+  filter: drop-shadow(0 0 24px rgba(59, 130, 246, 0.25));
 }
 
 @keyframes accent-shimmer {
@@ -524,12 +526,12 @@ const plans = [
   align-items: center;
   gap: 8px;
   transition: all 0.25s ease;
-  box-shadow: 0 4px 24px rgba(100, 108, 255, 0.3);
+  box-shadow: 0 4px 24px rgba(59, 130, 246, 0.3);
 }
 
 .hero-cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(100, 108, 255, 0.45);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.45);
 }
 
 .hero-cta-outline {
@@ -548,8 +550,8 @@ const plans = [
 }
 
 .hero-cta-outline:hover {
-  border-color: rgba(100, 108, 255, 0.4);
-  background: rgba(100, 108, 255, 0.08);
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(59, 130, 246, 0.08);
   color: #fff;
   transform: translateY(-2px);
 }
@@ -571,14 +573,14 @@ const plans = [
   width: min(580px, calc(100vw - 48px));
   text-align: left;
   border-radius: 12px;
-  border: 1px solid rgba(100, 108, 255, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.15);
   background: rgba(12, 17, 29, 0.95);
   overflow: hidden;
   transition: border-color 0.3s ease;
 }
 
 .hero-terminal:hover {
-  border-color: rgba(100, 108, 255, 0.3);
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
 .term-header {
@@ -627,7 +629,7 @@ const plans = [
 }
 
 .tk-comment { color: #475569; }
-.tk-const   { color: #818cf8; }
+.tk-const   { color: #60a5fa; }
 .tk-flag    { color: #6b7280; }
 .tk-string  { color: #6ee7b7; }
 
@@ -636,7 +638,7 @@ const plans = [
   inset: 0;
   border-radius: 12px;
   pointer-events: none;
-  background: linear-gradient(135deg, rgba(100, 108, 255, 0.03), transparent 50%);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.03), transparent 50%);
 }
 
 /* ===== MODELS ===== */
@@ -671,8 +673,8 @@ const plans = [
 
 .model-card:hover {
   transform: perspective(800px) rotateY(-2deg) rotateX(2deg) translateY(-4px);
-  box-shadow: 0 12px 40px rgba(100, 108, 255, 0.1);
-  border-color: rgba(100, 108, 255, 0.25);
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.25);
 }
 
 .model-icon {
@@ -736,8 +738,8 @@ const plans = [
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(135deg, rgba(100, 108, 255, 0.04), rgba(139, 92, 246, 0.03), rgba(100, 108, 255, 0.02)),
-    repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(100, 108, 255, 0.008) 2px, rgba(100, 108, 255, 0.008) 4px);
+    linear-gradient(135deg, rgba(59, 130, 246, 0.04), rgba(6, 182, 212, 0.03), rgba(59, 130, 246, 0.02)),
+    repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(59, 130, 246, 0.008) 2px, rgba(59, 130, 246, 0.008) 4px);
   background-size: 200% 200%, auto;
   animation: stats-drift 12s ease-in-out infinite alternate;
 }
@@ -769,7 +771,7 @@ const plans = [
   top: 20%;
   bottom: 20%;
   width: 1px;
-  background: linear-gradient(180deg, transparent, rgba(100, 108, 255, 0.12), transparent);
+  background: linear-gradient(180deg, transparent, rgba(59, 130, 246, 0.12), transparent);
 }
 
 .stat-item:last-child::after {
@@ -806,7 +808,7 @@ const plans = [
   left: 10%;
   right: 10%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(100, 108, 255, 0.15), transparent);
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.15), transparent);
   pointer-events: none;
 }
 
@@ -830,7 +832,7 @@ const plans = [
 .feature-card:hover {
   transform: perspective(800px) rotateY(-1.5deg) rotateX(1.5deg) translateY(-4px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
-  border-color: rgba(100, 108, 255, 0.2);
+  border-color: rgba(59, 130, 246, 0.2);
 }
 
 .feature-icon {
@@ -861,7 +863,7 @@ const plans = [
 .pricing {
   position: relative;
   padding: 80px 24px;
-  background: linear-gradient(180deg, rgba(100, 108, 255, 0.04), transparent);
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.04), transparent);
 }
 
 .pricing::before {
@@ -871,7 +873,7 @@ const plans = [
   left: 10%;
   right: 10%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(100, 108, 255, 0.15), transparent);
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.15), transparent);
   pointer-events: none;
 }
 
@@ -902,7 +904,7 @@ const plans = [
 
 .plan-card.featured {
   border-color: transparent;
-  box-shadow: 0 8px 40px rgba(100, 108, 255, 0.12);
+  box-shadow: 0 8px 40px rgba(59, 130, 246, 0.12);
   transform: scale(1.03);
   background-clip: padding-box;
 }
@@ -912,7 +914,7 @@ const plans = [
   position: absolute;
   inset: -1px;
   border-radius: 16px;
-  background: linear-gradient(135deg, var(--vp-c-brand), #a78bfa, var(--vp-c-brand), #818cf8, var(--vp-c-brand));
+  background: linear-gradient(135deg, var(--vp-c-brand), #22d3ee, var(--vp-c-brand), #60a5fa, var(--vp-c-brand));
   background-size: 300% 300%;
   animation: border-shine 3s ease-in-out infinite;
   z-index: -1;
@@ -930,7 +932,7 @@ const plans = [
 
 .plan-card.featured:hover {
   transform: scale(1.03) translateY(-6px);
-  box-shadow: 0 20px 60px rgba(100, 108, 255, 0.18);
+  box-shadow: 0 20px 60px rgba(59, 130, 246, 0.18);
 }
 
 .plan-tag {
@@ -1033,11 +1035,11 @@ const plans = [
   color: #fff;
   background: var(--vp-c-brand-gradient);
   border: none;
-  box-shadow: 0 4px 16px rgba(100, 108, 255, 0.25);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
 }
 
 .btn-plan-primary:hover {
-  box-shadow: 0 8px 24px rgba(100, 108, 255, 0.4);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
   transform: translateY(-1px);
 }
 
@@ -1052,8 +1054,8 @@ const plans = [
   padding: 64px 48px;
   text-align: center;
   border-radius: 24px;
-  background: linear-gradient(135deg, #070B14, #0f1424);
-  border: 1px solid rgba(100, 108, 255, 0.15);
+  background: linear-gradient(135deg, #0c0c0e, #0f1424);
+  border: 1px solid rgba(59, 130, 246, 0.15);
   position: relative;
   overflow: hidden;
 }
@@ -1064,9 +1066,9 @@ const plans = [
   inset: 0;
   border-radius: 24px;
   background:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(100, 108, 255, 0.08), transparent),
-    radial-gradient(ellipse 40% 40% at 80% 80%, rgba(139, 92, 246, 0.05), transparent),
-    linear-gradient(135deg, transparent 30%, rgba(100, 108, 255, 0.06) 50%, transparent 70%);
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(59, 130, 246, 0.08), transparent),
+    radial-gradient(ellipse 40% 40% at 80% 80%, rgba(6, 182, 212, 0.05), transparent),
+    linear-gradient(135deg, transparent 30%, rgba(59, 130, 246, 0.06) 50%, transparent 70%);
   background-size: 100% 100%, 100% 100%, 200% 200%;
   animation: cta-sheen 6s ease-in-out infinite;
   pointer-events: none;
@@ -1118,7 +1120,7 @@ const plans = [
 
 .btn-lg:hover {
   transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 8px 32px rgba(100, 108, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.4);
 }
 
 .cta-btn-inline:hover .btn-arrow {
@@ -1172,7 +1174,7 @@ const plans = [
     animation: none !important;
   }
   .hero-title-accent {
-    background: linear-gradient(135deg, #818cf8, #a78bfa);
+    background: linear-gradient(135deg, #60a5fa, #22d3ee);
     -webkit-background-clip: text;
     background-clip: text;
   }

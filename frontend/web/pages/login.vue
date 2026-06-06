@@ -62,7 +62,7 @@ async function handleLogin() {
   max-width: 420px;
 }
 .auth-header { text-align: center; margin-bottom: 32px; }
-.auth-header h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; color: var(--vp-c-text); }
+.auth-header h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; color: var(--vp-c-text); font-family: var(--vp-font-family-display); }
 .auth-header p { color: var(--vp-c-text-2); font-size: 14px; }
 .form-group { margin-bottom: 20px; }
 .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--vp-c-text); }

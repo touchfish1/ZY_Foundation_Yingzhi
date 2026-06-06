@@ -139,6 +139,7 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
   font-weight: 500;
   line-height: 0.9;
   letter-spacing: 0.02em;
+  font-family: var(--vp-font-family-display);
 }
 
 .lead {
@@ -220,6 +221,7 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
   font-size: clamp(48px, 4vw, 72px);
   font-weight: 500;
   line-height: 0.95;
+  font-family: var(--vp-font-family-display);
 }
 
 .story-text p {
@@ -263,6 +265,7 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
   font-size: clamp(48px, 4vw, 72px);
   font-weight: 500;
   line-height: 0.95;
+  font-family: var(--vp-font-family-display);
 }
 
 .team-grid {
@@ -332,6 +335,7 @@ usePageMeta('关于我们 — 卡米 API', '了解卡米 API 的故事、团队�
   font-weight: 500;
   line-height: 1;
   margin-bottom: 16px;
+  font-family: var(--vp-font-family-display);
 }
 
 .cta-box p {
