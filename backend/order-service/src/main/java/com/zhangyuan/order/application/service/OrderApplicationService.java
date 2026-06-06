@@ -52,23 +52,26 @@ public class OrderApplicationService {
         return saved;
     }
 
-    @Transactional
     public OrderResponse createOrder(CreateOrderRequest request) {
         log.info("Creating order: planCode={}, billingCycle={}, currency={}", request.planCode(), request.billingCycle(), request.currency());
         String currency = request.currency().trim().toUpperCase();
         String billingCycle = request.billingCycle().trim();
         String planCode = request.planCode().trim();
 
-        // Verify product exists via Feign client
+        // Feign call outside transaction to avoid holding DB connection pool
         var resp = productClient.getPlanGroup(planCode);
         if (resp == null || resp.code() != 0) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product plan not found: " + planCode);
         }
 
-        // Extract pricing and build snapshot from Feign response
         SnapShotResult snapshotResult = buildSnapshotFromFeignResponse(resp.data(), planCode, billingCycle, currency);
 
-        Order order = orderDomainService.createOrder(null, null, snapshotResult.amount(), currency, snapshotResult.snapshotJson());
+        return doCreateOrder(snapshotResult.amount(), currency, snapshotResult.snapshotJson());
+    }
+
+    @Transactional
+    public OrderResponse doCreateOrder(java.math.BigDecimal amount, String currency, String snapshotJson) {
+        Order order = orderDomainService.createOrder(null, null, amount, currency, snapshotJson);
         Order saved = orderRepository.save(order);
         log.info("Order created: orderNo={}, amount={}", saved.getOrderNo(), saved.getAmount());
         return toResponse(saved);

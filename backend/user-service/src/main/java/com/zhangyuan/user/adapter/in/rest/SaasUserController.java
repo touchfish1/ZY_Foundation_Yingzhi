@@ -48,13 +48,25 @@ public class SaasUserController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<LoginResponse> register(@Valid @RequestBody RegisterRequest request) {
+    public ApiResponse<LoginResponse> register(@Valid @RequestBody RegisterRequest request,
+                                                HttpServletRequest httpReq) {
+        String ip = httpReq.getRemoteAddr();
+        if (isRateLimited(ip)) {
+            log.warn("Rate limit exceeded for register from IP: {}", ip);
+            return ApiResponse.error(429, "请求过于频繁，请稍后重试");
+        }
         log.info("User register: {}", request.email());
         return ApiResponse.ok(saasUserApplicationService.register(request));
     }
 
     @PostMapping("/login")
-    public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest request,
+                                             HttpServletRequest httpReq) {
+        String ip = httpReq.getRemoteAddr();
+        if (isRateLimited(ip)) {
+            log.warn("Rate limit exceeded for login from IP: {}", ip);
+            return ApiResponse.error(429, "请求过于频繁，请稍后重试");
+        }
         log.info("User login: {}", request.email());
         return ApiResponse.ok(saasUserApplicationService.login(request));
     }
