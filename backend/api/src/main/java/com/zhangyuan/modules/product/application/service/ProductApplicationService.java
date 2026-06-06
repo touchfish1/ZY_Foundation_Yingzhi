@@ -81,7 +81,16 @@ public class ProductApplicationService {
 
     @Transactional(readOnly = true)
     public PlanGroupResponse getGroupByCode(String code) {
-        return planGroupRepository.findByCode(code)
+        // First try to find by group code
+        Optional<PlanGroupResponse> byGroupCode = planGroupRepository.findByCode(code)
+                .map(this::toGroupResponse);
+        if (byGroupCode.isPresent()) {
+            return byGroupCode.get();
+        }
+        // Fallback: search by plan code and return its group
+        return planGroupRepository.findAllOrdered().stream()
+                .filter(pg -> pg.getPlans().stream().anyMatch(p -> p.getCode().equals(code)))
+                .findFirst()
                 .map(this::toGroupResponse)
                 .orElseThrow(() -> new IllegalArgumentException("Product plan group not found"));
     }
@@ -111,10 +120,14 @@ public class ProductApplicationService {
         if (codeExists) {
             throw new IllegalArgumentException("Product plan code already exists");
         }
-        Plan plan = group.addPlan(request.code(), request.name(), request.description(), request.badge(),
+        group.addPlan(request.code(), request.name(), request.description(), request.badge(),
                 request.sortOrder() != null ? request.sortOrder() : 0);
-        planGroupRepository.save(group);
-        return toPlanResponse(plan);
+        PlanGroup savedGroup = planGroupRepository.save(group);
+        Plan savedPlan = savedGroup.getPlans().stream()
+                .filter(p -> p.getCode().equals(request.code()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Saved plan not found"));
+        return toPlanResponse(savedPlan);
     }
 
     @Transactional
@@ -126,9 +139,16 @@ public class ProductApplicationService {
         Plan plan = group.getPlans().stream()
                 .filter(p -> p.getId().equals(request.planId()))
                 .findFirst().get();
-        Price price = plan.addPrice(request.currency(), request.billingCycle(), request.amount(), request.originalAmount());
-        planGroupRepository.save(group);
-        return toPriceResponse(price);
+        plan.addPrice(request.currency(), request.billingCycle(), request.amount(), request.originalAmount());
+        PlanGroup savedGroup = planGroupRepository.save(group);
+        Plan savedPlan = savedGroup.getPlans().stream()
+                .filter(p -> p.getId().equals(request.planId()))
+                .findFirst().get();
+        Price savedPrice = savedPlan.getPrices().stream()
+                .filter(pr -> pr.getCurrency().equals(request.currency()) && pr.getBillingCycle().equals(request.billingCycle()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Saved price not found"));
+        return toPriceResponse(savedPrice);
     }
 
     @Transactional
@@ -140,10 +160,17 @@ public class ProductApplicationService {
         Plan plan = group.getPlans().stream()
                 .filter(p -> p.getId().equals(request.planId()))
                 .findFirst().get();
-        Feature feature = plan.addFeature(request.featureName(), request.featureValue(),
+        plan.addFeature(request.featureName(), request.featureValue(),
                 request.included() == null || request.included(), request.sortOrder() != null ? request.sortOrder() : 0);
-        planGroupRepository.save(group);
-        return toFeatureResponse(feature);
+        PlanGroup savedGroup = planGroupRepository.save(group);
+        Plan savedPlan = savedGroup.getPlans().stream()
+                .filter(p -> p.getId().equals(request.planId()))
+                .findFirst().get();
+        Feature savedFeature = savedPlan.getFeatures().stream()
+                .filter(f -> f.getFeatureName().equals(request.featureName()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Saved feature not found"));
+        return toFeatureResponse(savedFeature);
     }
 
     @Transactional(readOnly = true)

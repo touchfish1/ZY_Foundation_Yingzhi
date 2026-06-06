@@ -19,6 +19,8 @@ public class SaTokenConfig implements WebMvcConfigurer {
             SaRouter.match("/admin/**").check(r -> StpUtil.checkLogin());
             SaRouter.match("/api/**")
                     .notMatch("/api/auth/**")
+                    .notMatch("/api/system/ping")
+                    .notMatch("/api/system/settings")
                     .check(r -> StpUtil.checkLogin());
         })).addPathPatterns("/**");
     }

@@ -1,5 +1,6 @@
 package com.zhangyuan.modules.payment.adapter.in.rest;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.modules.payment.application.service.PaymentApplicationService;
 import com.zhangyuan.modules.payment.dto.CheckoutRequest;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@SaIgnore
 @RequestMapping("/api/payments")
 public class PaymentPublicController {
 

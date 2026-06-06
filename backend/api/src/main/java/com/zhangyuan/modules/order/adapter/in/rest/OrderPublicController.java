@@ -1,5 +1,6 @@
 package com.zhangyuan.modules.order.adapter.in.rest;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.modules.order.application.service.OrderApplicationService;
 import com.zhangyuan.modules.order.dto.CreateOrderRequest;
@@ -17,7 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * 订单公开控制器，提供订单创建和查询接口。
  */
-@RestController("orderPublicController")
+@RestController
+@SaIgnore
 @RequestMapping("/api/orders")
 public class OrderPublicController {
 

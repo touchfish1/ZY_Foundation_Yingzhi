@@ -8,4 +8,8 @@ import java.util.List;
 public interface ProductFeatureRepository extends JpaRepository<ProductFeature, Long> {
 
     List<ProductFeature> findByPlanIdOrderBySortOrderAsc(Long planId);
+
+    List<ProductFeature> findByPlanId(Long planId);
+
+    void deleteByPlanId(Long planId);
 }

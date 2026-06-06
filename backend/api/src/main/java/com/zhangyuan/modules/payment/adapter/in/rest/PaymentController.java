@@ -1,5 +1,6 @@
 package com.zhangyuan.modules.payment.adapter.in.rest;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.modules.payment.application.service.PaymentApplicationService;
 import com.zhangyuan.modules.payment.domain.model.Payment;
@@ -14,6 +15,7 @@ import java.util.List;
  * DDD 版支付控制器，提供支付的查询接口。
  */
 @RestController("dddPaymentController")
+@SaIgnore
 @RequestMapping("/api/ddd/payments")
 public class PaymentController {
 

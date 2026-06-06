@@ -1,6 +1,9 @@
 package com.zhangyuan.payment.adapter.out.persistence;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.time.Instant;
 
 @Entity
@@ -25,6 +28,7 @@ public class CompensationEventEntity {
     @Column(name = "max_retries")
     private int maxRetries = 5;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "payload_json", columnDefinition = "jsonb")
     private String payloadJson;
 

@@ -49,16 +49,22 @@ public class PaymentApplicationService {
 
         PaymentChannelStrategy strategy = strategyRegistry.getStrategy(request.channel());
         BigDecimal amount = BigDecimal.ZERO;
+        Long orderId = 0L;
         try {
             var orderData = (java.util.Map<String, Object>) orderResp.data();
-            if (orderData != null && orderData.get("amount") != null) {
-                amount = new BigDecimal(orderData.get("amount").toString());
+            if (orderData != null) {
+                if (orderData.get("amount") != null) {
+                    amount = new BigDecimal(orderData.get("amount").toString());
+                }
+                if (orderData.get("id") != null) {
+                    orderId = ((Number) orderData.get("id")).longValue();
+                }
             }
         } catch (Exception e) {
-            log.warn("Failed to extract amount from order, using 0: {}", e.getMessage());
+            log.warn("Failed to extract order data, using defaults: {}", e.getMessage());
         }
 
-        Payment payment = paymentDomainService.createPayment(request.orderNo(), request.channel(), amount, "CNY");
+        Payment payment = paymentDomainService.createPayment(orderId, request.orderNo(), request.channel(), amount, "CNY");
         payment = paymentRepository.save(payment);
 
         return strategy.createPayment(payment, request);
@@ -77,6 +83,14 @@ public class PaymentApplicationService {
         PaymentChannelStrategy strategy = strategyRegistry.getStrategy(payment.getChannel());
         strategy.processCallback(payment, java.util.Map.of());
         payment = paymentRepository.save(payment);
+
+        // Notify order-service to mark order as paid
+        try {
+            fulfillmentClient.markPaid(payment.getOrderNo());
+            log.info("Order marked as paid: {}", payment.getOrderNo());
+        } catch (Exception e) {
+            log.error("Failed to mark order as paid: {}", payment.getOrderNo(), e);
+        }
 
         compensationService.createFulfillEvent(paymentNo, payment.getOrderNo());
 

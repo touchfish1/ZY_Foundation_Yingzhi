@@ -42,22 +42,8 @@ public class JpaUserRepositoryAdapter implements UserRepository {
     public User save(User user) {
         SaasUserEntity entity;
         if (user.getId() != null) {
-            entity = repo.findById(user.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + user.getId()));
-            entity.setVersion(user.getVersion());
-            entity.setBalance(user.getBalance());
-            entity.setStatus(user.getStatus());
-            entity.setNickname(user.getNickname());
-            entity.setAvatarUrl(user.getAvatarUrl());
-            entity.setApiKey(user.getApiKey());
-            entity.setConcurrency(user.getConcurrency());
-            entity.setRpmLimit(user.getRpmLimit());
-            entity.setRole(user.getRole());
-            entity.setTotalRecharged(user.getTotalRecharged());
-            entity.setQuotaUsed(user.getQuotaUsed());
-            entity.setQuotaLimit(user.getQuotaLimit());
-            entity.setNotes(user.getNotes());
-            entity.setLastLoginAt(user.getLastLoginAt());
+            entity = toEntity(user);  // Create detached entity from user domain
+            // Set ID explicitly to trigger merge/update in JPA
         } else {
             entity = toEntity(user);
         }
@@ -88,7 +74,8 @@ public class JpaUserRepositoryAdapter implements UserRepository {
     private SaasUserEntity toEntity(User u) {
         SaasUserEntity e = new SaasUserEntity(u.getEmail(), u.getPasswordHash(), u.getNickname());
         e.setId(u.getId());
-        e.setVersion(u.getVersion());
+        Long version = u.getVersion();
+        e.setVersion(version != null ? version : 0L);
         e.setBalance(u.getBalance());
         e.setStatus(u.getStatus());
         e.setAvatarUrl(u.getAvatarUrl());

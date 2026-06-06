@@ -67,12 +67,18 @@ public class OrderApplicationService {
 
         SnapShotResult snapshotResult = buildSnapshotFromFeignResponse(resp.data(), planCode, billingCycle, currency);
 
-        return doCreateOrder(snapshotResult.amount(), currency, snapshotResult.snapshotJson());
+        if (snapshotResult.planId() == null || snapshotResult.priceId() == null) {
+            log.error("Plan/price not found for planCode={}, billingCycle={}, currency={}", planCode, billingCycle, currency);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "No matching plan/price found for planCode=" + planCode + ", billingCycle=" + billingCycle + ", currency=" + currency);
+        }
+
+        return doCreateOrder(snapshotResult.planId(), snapshotResult.priceId(), snapshotResult.amount(), currency, snapshotResult.snapshotJson());
     }
 
     @Transactional
-    public OrderResponse doCreateOrder(java.math.BigDecimal amount, String currency, String snapshotJson) {
-        Order order = orderDomainService.createOrder(null, null, amount, currency, snapshotJson);
+    public OrderResponse doCreateOrder(Long planId, Long priceId, java.math.BigDecimal amount, String currency, String snapshotJson) {
+        Order order = orderDomainService.createOrder(planId, priceId, amount, currency, snapshotJson);
         Order saved = orderRepository.save(order);
         log.info("Order created: orderNo={}, amount={}", saved.getOrderNo(), saved.getAmount());
         return toResponse(saved);
@@ -119,6 +125,7 @@ public class OrderApplicationService {
 
     public OrderResponse toResponse(Order order) {
         return new OrderResponse(
+                order.getId(),
                 order.getOrderNo().value(),
                 order.getPlanId(),
                 order.getPriceId(),
@@ -149,6 +156,8 @@ public class OrderApplicationService {
             BigDecimal amount = BigDecimal.ZERO;
             String planName = planCode;
             int validityDays = getValidityDays(billingCycle);
+            Long planId = null;
+            Long priceId = null;
 
             if (data instanceof Map) {
                 Map<String, Object> groupMap = (Map<String, Object>) data;
@@ -160,6 +169,10 @@ public class OrderApplicationService {
                             String pCode = (String) planMap.get("code");
                             if (planCode.equals(pCode)) {
                                 planName = (String) planMap.getOrDefault("name", planCode);
+                                Object pid = planMap.get("id");
+                                if (pid instanceof Number) {
+                                    planId = ((Number) pid).longValue();
+                                }
                                 // Find matching price for the given billing cycle and currency
                                 Object pricesObj = planMap.get("prices");
                                 if (pricesObj instanceof List) {
@@ -171,6 +184,10 @@ public class OrderApplicationService {
                                                 Object amt = priceMap.get("amount");
                                                 if (amt instanceof Number) {
                                                     amount = new BigDecimal(((Number) amt).toString());
+                                                }
+                                                Object prid = priceMap.get("id");
+                                                if (prid instanceof Number) {
+                                                    priceId = ((Number) prid).longValue();
                                                 }
                                                 break;
                                             }
@@ -190,7 +207,7 @@ public class OrderApplicationService {
 
             log.debug("Built snapshot for planCode={}: planName={}, validityDays={}, amount={}",
                     planCode, planName, validityDays, amount);
-            return new SnapShotResult(objectMapper.writeValueAsString(snapshot), amount);
+            return new SnapShotResult(planId, priceId, objectMapper.writeValueAsString(snapshot), amount);
         } catch (JsonProcessingException ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Create order snapshot failed", ex);
         }
@@ -210,7 +227,7 @@ public class OrderApplicationService {
     /**
      * Internal record holding the snapshot JSON string and the extracted amount.
      */
-    private record SnapShotResult(String snapshotJson, BigDecimal amount) {}
+    private record SnapShotResult(Long planId, Long priceId, String snapshotJson, BigDecimal amount) {}
 
     @Scheduled(fixedRate = 60_000)
     @Transactional

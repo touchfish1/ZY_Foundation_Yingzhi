@@ -13,8 +13,8 @@ public class PaymentDomainService {
         return "PAY" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 8);
     }
 
-    public Payment createPayment(String orderNo, String channel, BigDecimal amount, String currency) {
+    public Payment createPayment(Long orderId, String orderNo, String channel, BigDecimal amount, String currency) {
         String paymentNo = generatePaymentNo();
-        return new Payment(paymentNo, 0L, orderNo, channel, amount, currency);
+        return new Payment(paymentNo, orderId, orderNo, channel, amount, currency);
     }
 }

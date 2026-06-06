@@ -12,4 +12,6 @@ public interface ProductPlanRepository extends JpaRepository<ProductPlan, Long> 
     boolean existsByCode(String code);
     List<ProductPlan> findByGroupIdOrderBySortOrderAsc(Long groupId);
     List<ProductPlan> findAllByOrderBySortOrderAsc();
+
+    void deleteByGroupId(Long groupId);
 }

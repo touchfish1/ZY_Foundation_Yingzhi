@@ -12,8 +12,8 @@ public class SaasUserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Version
-    private Long version;
+    @Column(name = "version")
+    private Long version = 0L;
 
     @Column(nullable = false, unique = true, length = 128)
     private String email;

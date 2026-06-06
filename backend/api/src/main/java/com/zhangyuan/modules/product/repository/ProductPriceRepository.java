@@ -13,4 +13,6 @@ public interface ProductPriceRepository extends JpaRepository<ProductPrice, Long
     Optional<ProductPrice> findFirstByPlanIdAndBillingCycleAndCurrencyAndStatus(Long planId, String billingCycle, String currency, String status);
 
     List<ProductPrice> findAllByOrderByPlanIdAsc();
+
+    void deleteByPlanId(Long planId);
 }

@@ -42,6 +42,12 @@ public class OrderPublicController {
         return ApiResponse.ok(orderApplicationService.getOrder(orderNo));
     }
 
+    @PostMapping("/{orderNo}/pay")
+    public ApiResponse<OrderResponse> markPaid(@PathVariable String orderNo) {
+        log.info("Marking order as paid: {}", orderNo);
+        return ApiResponse.ok(orderApplicationService.toResponse(orderApplicationService.markPaid(orderNo)));
+    }
+
     @PostMapping("/{orderNo}/fulfill")
     public ApiResponse<Void> fulfillOrder(@PathVariable String orderNo) {
         log.info("Fulfilling order: {}", orderNo);

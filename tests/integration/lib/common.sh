@@ -52,6 +52,21 @@ delete() {
   curl -s "$BASE_URL$path" -X DELETE -H "Authorization: Bearer $token"
 }
 
+del_json() {
+  local path="$1" data="$2" token="$3"
+  curl -s "$BASE_URL$path" -X DELETE -H "Content-Type: application/json" -H "Authorization: Bearer $token" -d "$data"
+}
+
+# POST multipart form (file upload)
+post_multipart() {
+  local path="$1" field_name="$2" file_path="$3" token="$4"
+  if [ -n "$token" ]; then
+    curl -s "$BASE_URL$path" -X POST -F "$field_name=@$file_path" -H "Authorization: Bearer $token"
+  else
+    curl -s "$BASE_URL$path" -X POST -F "$field_name=@$file_path"
+  fi
+}
+
 get_code() {
   echo "$1" | python3 -c "import sys,json;print(json.load(sys.stdin).get('code', -1))" 2>/dev/null
 }
@@ -84,6 +99,28 @@ assert_http_code() {
     FAIL=$((FAIL+1))
     ERRORS+=("$label: expected HTTP $expected, got HTTP $actual")
     echo "  ✗ $label: expected HTTP $expected, got HTTP $actual"
+  fi
+}
+
+assert_field_equals() {
+  local label="$1" field="$2" expected="$3" response="$4"
+  local actual=$(echo "$response" | python3 -c "
+import sys,json
+d=json.load(sys.stdin)
+data = d.get('data', {})
+keys = '$field'.split('.')
+v = data
+for k in keys:
+    v = v.get(k, '') if isinstance(v, dict) else ''
+print(v)
+" 2>/dev/null)
+  if [ "$actual" = "$expected" ]; then
+    PASS=$((PASS+1))
+    echo "  ✓ $label ($field=$actual)"
+  else
+    FAIL=$((FAIL+1))
+    ERRORS+=("$label: expected $field=$expected, got $actual")
+    echo "  ✗ $label: expected $field=$expected, got $actual"
   fi
 }
 

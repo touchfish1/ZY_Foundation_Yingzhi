@@ -1,6 +1,9 @@
 package com.zhangyuan.payment.adapter.out.persistence;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -23,8 +26,10 @@ public class PaymentTransactionEntity {
     private String currency = "CNY";
     @Column(length = 32)
     private String status = "PENDING";
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "request_json", columnDefinition = "jsonb")
     private String requestJson;
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "callback_json", columnDefinition = "jsonb")
     private String callbackJson;
     @Column(name = "created_at")

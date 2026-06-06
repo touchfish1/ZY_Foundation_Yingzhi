@@ -39,6 +39,8 @@ if [ "$ALL_PASS" = true ]; then
   run_suite "L2-F 支付" "$SCRIPT_DIR/L2-api/F-payment.sh"
   run_suite "L2-G 系统" "$SCRIPT_DIR/L2-api/G-system.sh"
   run_suite "L2-H 用户" "$SCRIPT_DIR/L2-api/H-user.sh"
+  run_suite "L2-J 余额" "$SCRIPT_DIR/L2-api/J-balance.sh"
+  run_suite "L2-Z 负面测试" "$SCRIPT_DIR/L2-api/Z-negative.sh"
 
   # L3: 业务流程
   run_suite "F1 用户权限" "$SCRIPT_DIR/L3-flow/F1-user-lifecycle.sh"
