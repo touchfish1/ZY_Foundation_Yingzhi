@@ -7,6 +7,23 @@
         <div class="summary-row"><span>周期</span><span>月付</span></div>
         <div class="summary-row total"><span>金额</span><span>¥{{ amount }}</span></div>
       </div>
+      <div class="channel-select">
+        <p class="channel-label">支付方式</p>
+        <div class="channel-options">
+          <label class="channel-option" :class="{ active: channel === 'alipay' }">
+            <input type="radio" v-model="channel" value="alipay" />
+            <span>支付宝</span>
+          </label>
+          <label class="channel-option" :class="{ active: channel === 'wxpay' }">
+            <input type="radio" v-model="channel" value="wxpay" />
+            <span>微信支付</span>
+          </label>
+          <label class="channel-option" :class="{ active: channel === 'mock' }">
+            <input type="radio" v-model="channel" value="mock" />
+            <span>模拟支付 (开发)</span>
+          </label>
+        </div>
+      </div>
       <button class="btn-primary checkout-btn" :disabled="loading" @click="submitOrder">
         {{ loading ? '处理中...' : '确认支付 ¥' + amount }}
       </button>
@@ -26,6 +43,7 @@ const plan = ref<any>(null)
 const loading = ref(false)
 const amount = ref('0')
 const error = ref('')
+const channel = ref('alipay')
 
 onMounted(async () => {
   const planCode = route.query.planCode as string
@@ -54,11 +72,22 @@ async function submitOrder() {
     // Create payment
     const payRes = await auth.authFetch<any>('/api/payments/checkout', {
       method: 'POST',
-      body: { orderNo, channel: 'mock' }
+      body: { orderNo, channel: channel.value }
     })
-    const payUrl = payRes?.data?.mockPayUrl
-    // Redirect to mock payment
-    if (payUrl) navigateTo(`/payment?orderNo=${orderNo}&payUrl=${encodeURIComponent(payUrl)}`)
+    const data = payRes?.data
+    const payUrl = data?.checkoutUrl || data?.mockPayUrl
+    const paymentNo = data?.paymentNo
+    if (payUrl) {
+      if (channel.value === 'alipay') {
+        document.open()
+        document.write(payUrl)
+        document.close()
+      } else if (channel.value === 'wxpay') {
+        navigateTo(`/payment?orderNo=${orderNo}&paymentNo=${paymentNo}&codeUrl=${encodeURIComponent(payUrl)}`)
+      } else {
+        navigateTo(`/payment?orderNo=${orderNo}&payUrl=${encodeURIComponent(payUrl)}&paymentNo=${paymentNo}`)
+      }
+    }
   } catch (e: any) { error.value = e?.data?.message || e?.message || '下单失败' }
   finally { loading.value = false }
 }
@@ -72,6 +101,12 @@ async function submitOrder() {
 .summary-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; color: var(--vp-c-text-2); }
 .summary-row.total { border-top: 1px solid var(--vp-c-divider); margin-top: 8px; padding-top: 16px; font-weight: 700; font-size: 18px; color: var(--vp-c-text); }
 .checkout-btn { width: 100%; padding: 14px; font-size: 16px; }
+.channel-select { margin-bottom: 20px; }
+.channel-label { font-size: 14px; color: var(--vp-c-text-2); margin-bottom: 10px; }
+.channel-options { display: flex; gap: 12px; }
+.channel-option { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border: 2px solid var(--vp-c-divider); border-radius: 10px; cursor: pointer; font-size: 14px; color: var(--vp-c-text-2); transition: all 0.2s; }
+.channel-option input { display: none; }
+.channel-option.active { border-color: var(--vp-c-brand); color: var(--vp-c-brand); background: var(--vp-c-bg-soft); }
 .error { color: var(--vp-c-danger); font-size: 13px; margin-top: 12px; text-align: center; }
 .loading-state { text-align: center; padding: 60px; color: var(--vp-c-text-3); }
 </style>

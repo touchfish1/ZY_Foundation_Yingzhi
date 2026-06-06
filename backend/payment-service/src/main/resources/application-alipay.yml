@@ -1,0 +1,10 @@
+# 支付宝支付配置（激活方式: --spring.profiles.active=alipay 或在环境变量中合并）
+payment:
+  alipay:
+    enabled: true
+    gateway-url: https://openapi.alipay.com/gateway.do
+    app-id: ${ALIPAY_APP_ID:}
+    private-key: ${ALIPAY_PRIVATE_KEY:}
+    alipay-public-key: ${ALIPAY_PUBLIC_KEY:}
+    return-url: ${ALIPAY_RETURN_URL:}
+    notify-url: ${ALIPAY_NOTIFY_URL:}

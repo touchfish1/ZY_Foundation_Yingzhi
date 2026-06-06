@@ -34,6 +34,10 @@ dependencies {
     implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery'
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
+    // Payment channel SDKs
+    implementation 'com.alipay.sdk:alipay-sdk-java:4.39.0.ALL'
+    implementation 'com.github.wechatpay-apiv3:wechatpay-java:0.2.12'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

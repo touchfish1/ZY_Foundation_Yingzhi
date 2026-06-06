@@ -1,0 +1,10 @@
+# 微信支付配置（激活方式: --spring.profiles.active=wxpay 或在环境变量中合并）
+payment:
+  wxpay:
+    enabled: true
+    app-id: ${WXPAY_APP_ID:}
+    mch-id: ${WXPAY_MCH_ID:}
+    api-v3-key: ${WXPAY_API_V3_KEY:}
+    mch-serial-no: ${WXPAY_MCH_SERIAL_NO:}
+    private-key-path: ${WXPAY_PRIVATE_KEY_PATH:}
+    notify-url: ${WXPAY_NOTIFY_URL:}
