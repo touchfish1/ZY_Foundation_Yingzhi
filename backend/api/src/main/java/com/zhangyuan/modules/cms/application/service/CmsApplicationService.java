@@ -128,17 +128,11 @@ public class CmsApplicationService {
 
     @Transactional
     public void deletePage(Long pageId) {
-        log.info("Deleting CMS page: {}", pageId);
+        log.info("Soft-deleting CMS page: {}", pageId);
         CmsPage page = requirePage(pageId);
-        List<CmsPageTranslation> translations = translationRepository.findByPageId(pageId);
-        for (CmsPageTranslation t : translations) {
-            publishRecordRepository.deleteByPageIdAndLocale(pageId, t.getLocale());
-            t.clearDraftVersionId();
-            t.clearPublishedVersionId();
-            versionRepository.deleteByPageIdAndLocale(pageId, t.getLocale());
-        }
-        translationRepository.deleteByPageId(pageId);
-        pageRepository.delete(page);
+        page.disable();
+        pageRepository.save(page);
+        log.info("CMS page soft-deleted: {} (data preserved for published versions)", pageId);
     }
 
     // ── Draft & Versioning ─────────────────────────────────────

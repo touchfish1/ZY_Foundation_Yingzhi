@@ -180,6 +180,7 @@ const columns: DataTableColumns<UserInfo> = [
       return h(NSpace, null, {
         default: () => [
           h(NButton, { size: 'small', type: 'primary', quaternary: true, onClick: () => openEdit(row) }, { default: () => '编辑' }),
+          h(NButton, { size: 'small', type: row.status === 'enabled' ? 'warning' : 'success', quaternary: true, onClick: () => toggleUserStatus(row) }, { default: () => row.status === 'enabled' ? '禁用' : '启用' }),
           h(NButton, { size: 'small', type: 'warning', quaternary: true, onClick: () => openRecharge(row) }, { default: () => '充值' }),
           h(NButton, { size: 'small', type: 'error', quaternary: true, onClick: () => handleDelete(row.id) }, { default: () => '删除' })
         ]
@@ -297,9 +298,18 @@ async function submitEdit() {
   }
 }
 
+async function toggleUserStatus(user: UserInfo) {
+  const newStatus = user.status === 'enabled' ? 'disabled' : 'enabled'
+  try {
+    await updateUser(user.id, { status: newStatus })
+    message.success(newStatus === 'disabled' ? '用户已禁用' : '用户已启用')
+    await loadData()
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : '操作失败')
+  }
+}
+
 async function handleDelete(id: number) {
-  const ok = await confirm({ content: '确定要删除此用户？' })
-  if (!ok) return
   try {
     await deleteUser(id)
     message.success('用户已删除')

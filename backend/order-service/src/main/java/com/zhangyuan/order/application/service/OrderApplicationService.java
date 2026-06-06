@@ -12,6 +12,7 @@ import com.zhangyuan.order.dto.OrderResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -210,4 +211,24 @@ public class OrderApplicationService {
      * Internal record holding the snapshot JSON string and the extracted amount.
      */
     private record SnapShotResult(String snapshotJson, BigDecimal amount) {}
+
+    @Scheduled(fixedRate = 60_000)
+    @Transactional
+    public void autoCancelExpiredOrders() {
+        Instant expireThreshold = Instant.now().minus(30, java.time.temporal.ChronoUnit.MINUTES);
+        var expiredOrders = orderRepository.findAllOrderByCreatedAtDesc().stream()
+                .filter(o -> o.getStatus() == com.zhangyuan.order.domain.model.OrderStatus.PENDING)
+                .filter(o -> o.getCreatedAt().isBefore(expireThreshold))
+                .limit(100)
+                .toList();
+        for (var order : expiredOrders) {
+            try {
+                order.cancel();
+                orderRepository.save(order);
+                log.info("Auto-cancelled expired order: {}", order.getOrderNo());
+            } catch (Exception e) {
+                log.error("Failed to auto-cancel order: {}", order.getOrderNo(), e);
+            }
+        }
+    }
 }

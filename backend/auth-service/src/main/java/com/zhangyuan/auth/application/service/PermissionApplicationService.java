@@ -74,6 +74,13 @@ public class PermissionApplicationService {
 
     @Transactional
     public void deletePermission(Long id) {
+        var rolesWithPerm = adminRoleRepository.findAll().stream()
+                .filter(r -> r.getPermissions().stream().anyMatch(p -> p.getId().equals(id)))
+                .toList();
+        for (var role : rolesWithPerm) {
+            role.getPermissions().removeIf(p -> p.getId().equals(id));
+            adminRoleRepository.save(role);
+        }
         permissionRepository.deleteById(id);
     }
 

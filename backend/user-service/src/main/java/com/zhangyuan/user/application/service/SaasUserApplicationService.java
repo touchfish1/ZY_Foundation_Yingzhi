@@ -85,6 +85,17 @@ public class SaasUserApplicationService {
         return toResponse(user);
     }
 
+    @Transactional
+    public UserResponse disableUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setStatus("disabled");
+        user = userRepository.save(user);
+        StpUtil.logout(userId);
+        log.info("User disabled and logged out: userId={}", userId);
+        return toResponse(user);
+    }
+
     private String generateApiKey() {
         byte[] bytes = new byte[32];
         SECURE_RANDOM.nextBytes(bytes);
