@@ -169,7 +169,7 @@ function subStatusClass(s: string) {
 async function fetchBalance() {
   if (!userId.value) return
   try {
-    const res = await $fetch(`${config.public.apiBase}/api/balance/${userId.value}`) as any
+    const res = await auth.authFetch<any>(`/api/balance/${userId.value}`) as any
     balance.value = res.balance || 0
   } catch (e) { console.error('Failed to load balance', e) }
 }

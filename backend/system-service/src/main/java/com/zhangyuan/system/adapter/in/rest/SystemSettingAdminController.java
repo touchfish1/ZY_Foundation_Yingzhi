@@ -1,5 +1,6 @@
 package com.zhangyuan.system.adapter.in.rest;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.system.application.service.SystemSettingApplicationService;
 import com.zhangyuan.system.dto.BatchUpdateRequest;
 import com.zhangyuan.system.dto.SettingResponse;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/system/settings")
+@SaCheckPermission("system:setting:list")
 public class SystemSettingAdminController {
 
     private static final Logger log = LoggerFactory.getLogger(SystemSettingAdminController.class);

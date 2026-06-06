@@ -18,7 +18,12 @@ export const useSaasAuth = () => {
   const config = useRuntimeConfig()
   const apiBase = config.public.apiBase
 
-  // Initialize from localStorage
+  const cookieToken = useCookie('saas_token', { maxAge: 60 * 60 * 24 * 7, sameSite: 'lax' })
+
+  // Initialize from cookie (SSR) or localStorage (client)
+  if (import.meta.server && cookieToken.value) {
+    token.value = cookieToken.value
+  }
   if (import.meta.client) {
     const savedToken = localStorage.getItem('saas_token')
     const savedUser = localStorage.getItem('saas_user')
@@ -37,6 +42,7 @@ export const useSaasAuth = () => {
       }) as any
       token.value = res.token
       user.value = res.user
+      cookieToken.value = res.token
       if (import.meta.client) {
         localStorage.setItem('saas_token', res.token)
         localStorage.setItem('saas_user', JSON.stringify(res.user))
@@ -56,6 +62,7 @@ export const useSaasAuth = () => {
       }) as any
       token.value = res.token
       user.value = res.user
+      cookieToken.value = res.token
       if (import.meta.client) {
         localStorage.setItem('saas_token', res.token)
         localStorage.setItem('saas_user', JSON.stringify(res.user))
@@ -84,6 +91,7 @@ export const useSaasAuth = () => {
   function logout() {
     token.value = null
     user.value = null
+    cookieToken.value = null
     if (import.meta.client) {
       localStorage.removeItem('saas_token')
       localStorage.removeItem('saas_user')

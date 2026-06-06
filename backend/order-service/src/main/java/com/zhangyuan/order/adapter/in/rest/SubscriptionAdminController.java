@@ -1,5 +1,6 @@
 package com.zhangyuan.order.adapter.in.rest;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.order.application.service.SubscriptionQueryService;
 import com.zhangyuan.order.common.ApiResponse;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/subscriptions")
+@SaCheckPermission("order:list")
 public class SubscriptionAdminController {
     private static final Logger log = LoggerFactory.getLogger(SubscriptionAdminController.class);
     private final SubscriptionQueryService subscriptionQueryService;

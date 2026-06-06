@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/payments")
+@SaCheckPermission("payment:list")
 public class PaymentAdminController {
     private final PaymentApplicationService paymentApplicationService;
     public PaymentAdminController(PaymentApplicationService paymentApplicationService) {

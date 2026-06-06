@@ -1,10 +1,12 @@
 package com.zhangyuan.system.adapter.in.rest;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.zhangyuan.system.client.UserServiceClient;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/admin/users")
+@SaCheckPermission("system:user:list")
 public class AdminUserController {
     private final UserServiceClient userServiceClient;
     public AdminUserController(UserServiceClient userServiceClient) { this.userServiceClient = userServiceClient; }

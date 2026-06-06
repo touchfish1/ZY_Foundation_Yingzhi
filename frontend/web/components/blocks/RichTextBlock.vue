@@ -1,16 +1,22 @@
 <template>
-  <section class="rich" v-html="String(props.content || '')" />
+  <section class="rich" v-html="sanitizedContent" />
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed } from 'vue'
 
-// 富文本内容区块组件（直接渲染 HTML）
-defineProps<{ props: Record<string, unknown> }>()
+const props = defineProps<{ props: Record<string, unknown> }>()
 
-onMounted(() => {
-  console.log('[Block] RichTextBlock mounted')
-})
+function sanitizeHtml(html: string): string {
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/\son\w+="[^"]*"/gi, '')
+    .replace(/\son\w+='[^']*'/gi, '')
+    .replace(/javascript:/gi, '')
+}
+
+const sanitizedContent = computed(() => sanitizeHtml(String(props.content || '')))
 </script>
 
 <style scoped>
