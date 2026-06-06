@@ -2,7 +2,9 @@ package com.zhangyuan.payment.application.service;
 
 import com.zhangyuan.payment.client.FulfillmentClient;
 import com.zhangyuan.payment.domain.model.CompensationEvent;
+import com.zhangyuan.payment.domain.model.Payment;
 import com.zhangyuan.payment.domain.repository.CompensationEventRepository;
+import com.zhangyuan.payment.domain.repository.PaymentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,14 +19,14 @@ public class CompensationService {
 
     private final CompensationEventRepository compensationEventRepository;
     private final FulfillmentClient fulfillmentClient;
-    private final PaymentApplicationService paymentApplicationService;
+    private final PaymentRepository paymentRepository;
 
     public CompensationService(CompensationEventRepository compensationEventRepository,
                                FulfillmentClient fulfillmentClient,
-                               PaymentApplicationService paymentApplicationService) {
+                               PaymentRepository paymentRepository) {
         this.compensationEventRepository = compensationEventRepository;
         this.fulfillmentClient = fulfillmentClient;
-        this.paymentApplicationService = paymentApplicationService;
+        this.paymentRepository = paymentRepository;
     }
 
     public CompensationEvent createFulfillEvent(String paymentNo, String orderNo) {
@@ -41,8 +43,8 @@ public class CompensationService {
 
         for (CompensationEvent event : events) {
             try {
-                var payment = paymentApplicationService.getPayment(event.getPaymentNo());
-                if (payment == null || !"SUCCESS".equals(payment.status())) {
+                var paymentOpt = paymentRepository.findByPaymentNo(event.getPaymentNo());
+                if (paymentOpt.isEmpty() || !"SUCCESS".equals(paymentOpt.get().getStatus())) {
                     event.markFailed("Payment not found or not SUCCESS");
                     compensationEventRepository.save(event);
                     continue;

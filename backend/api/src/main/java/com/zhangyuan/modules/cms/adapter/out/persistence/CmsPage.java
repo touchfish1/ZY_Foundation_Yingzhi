@@ -14,6 +14,7 @@ import java.time.Instant;
 public class CmsPage {
 
     public static final String STATUS_ENABLED = "enabled";
+    public static final String STATUS_DISABLED = "disabled";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -88,6 +89,14 @@ public class CmsPage {
 
     public void setDefaultLocale(String defaultLocale) {
         this.defaultLocale = defaultLocale;
+    }
+
+    public void disable() {
+        this.status = STATUS_DISABLED;
+    }
+
+    public void enable() {
+        this.status = STATUS_ENABLED;
     }
 
     public void touch() {

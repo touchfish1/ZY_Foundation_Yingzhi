@@ -8,10 +8,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import cn.dev33.satoken.stp.StpUtil;
+import lombok.extern.slf4j.Slf4j;
 
 import java.security.SecureRandom;
 import java.util.Base64;
 
+@Slf4j
 @Service
 public class SaasUserApplicationService {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
