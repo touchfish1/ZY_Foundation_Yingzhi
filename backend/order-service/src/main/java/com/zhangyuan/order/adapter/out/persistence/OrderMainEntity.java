@@ -51,6 +51,9 @@ public class OrderMainEntity {
     @Column(name = "paid_at")
     private Instant paidAt;
 
+    @Column(name = "fulfilled_at")
+    private Instant fulfilledAt;
+
     @Column(name = "cancelled_at")
     private Instant cancelledAt;
 
@@ -70,6 +73,11 @@ public class OrderMainEntity {
     public void markPaid(Instant paidAt) {
         this.status = "paid";
         this.paidAt = paidAt;
+    }
+
+    public void markFulfilled(Instant fulfilledAt) {
+        this.status = "fulfilled";
+        this.fulfilledAt = fulfilledAt;
     }
 
     public Long getId() { return id; }
@@ -94,6 +102,8 @@ public class OrderMainEntity {
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
     public Instant getPaidAt() { return paidAt; }
     public void setPaidAt(Instant paidAt) { this.paidAt = paidAt; }
+    public Instant getFulfilledAt() { return fulfilledAt; }
+    public void setFulfilledAt(Instant fulfilledAt) { this.fulfilledAt = fulfilledAt; }
     public Instant getCancelledAt() { return cancelledAt; }
     public void setCancelledAt(Instant cancelledAt) { this.cancelledAt = cancelledAt; }
 }

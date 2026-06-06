@@ -49,6 +49,7 @@ public class JpaOrderRepository implements OrderRepository {
             entity.setStatus(order.getStatus().name().toLowerCase());
             entity.setSnapshotJson(order.getSnapshotJson());
             entity.setPaidAt(order.getPaidAt());
+            entity.setFulfilledAt(order.getFulfilledAt());
             entity.setCancelledAt(order.getCancelledAt());
         } else {
             entity = new OrderMainEntity(
@@ -78,9 +79,12 @@ public class JpaOrderRepository implements OrderRepository {
         order.setUserId(entity.getUserId());
         order.setCreatedAt(entity.getCreatedAt());
         order.setPaidAt(entity.getPaidAt());
+        order.setFulfilledAt(entity.getFulfilledAt());
         order.setCancelledAt(entity.getCancelledAt());
 
-        if ("paid".equals(entity.getStatus())) {
+        if ("fulfilled".equals(entity.getStatus())) {
+            try { order.markFulfilled(); } catch (IllegalStateException ignored) {}
+        } else if ("paid".equals(entity.getStatus())) {
             order.markPaid();
         } else if ("cancelled".equals(entity.getStatus())) {
             try { order.cancel(); } catch (IllegalStateException ignored) {}

@@ -3,6 +3,7 @@ package com.zhangyuan.user.adapter.in.rest;
 import com.zhangyuan.user.application.service.SaasUserApplicationService;
 import com.zhangyuan.user.common.ApiResponse;
 import com.zhangyuan.user.dto.*;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,11 +11,26 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import cn.dev33.satoken.stp.StpUtil;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+
 @RestController
 @RequestMapping("/api/auth")
 public class SaasUserController {
     private static final Logger log = LoggerFactory.getLogger(SaasUserController.class);
+    private static final long RATE_LIMIT_PER_MILLIS = 100L;
+    private final ConcurrentHashMap<String, AtomicLong> lastAccessMap = new ConcurrentHashMap<>();
     private final SaasUserApplicationService saasUserApplicationService;
+
+    private boolean isRateLimited(String ip) {
+        long now = System.currentTimeMillis();
+        AtomicLong lastAccess = lastAccessMap.computeIfAbsent(ip, k -> new AtomicLong(0));
+        long last = lastAccess.get();
+        if (now - last < RATE_LIMIT_PER_MILLIS) {
+            return true;
+        }
+        return !lastAccess.compareAndSet(last, now);
+    }
 
     public SaasUserController(SaasUserApplicationService saasUserApplicationService) {
         this.saasUserApplicationService = saasUserApplicationService;
@@ -53,7 +69,12 @@ public class SaasUserController {
     }
 
     @GetMapping("/verify-key")
-    public ApiResponse<Long> verifyApiKey(@RequestParam String apiKey) {
+    public ApiResponse<Long> verifyApiKey(@RequestParam String apiKey, HttpServletRequest request) {
+        String ip = request.getRemoteAddr();
+        if (isRateLimited(ip)) {
+            log.warn("Rate limit exceeded for verify-key from IP: {}", ip);
+            return ApiResponse.error(429, "请求过于频繁，请稍后重试");
+        }
         log.info("Verifying API key");
         return saasUserApplicationService.verifyApiKey(apiKey);
     }

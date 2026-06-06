@@ -40,11 +40,31 @@ public class AdminAssetController {
         return ApiResponse.ok(assetApplicationService.listFiles());
     }
 
+    private static final long MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+    private static final java.util.Set<String> ALLOWED_TYPES = java.util.Set.of(
+            "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml",
+            "application/pdf",
+            "text/plain", "text/markdown",
+            "application/json"
+    );
+
     @PostMapping("/files")
     @SaCheckPermission("asset:list")
     public ApiResponse<AssetFileInfo> upload(@RequestParam("file") MultipartFile file) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AuthUser user = (AuthUser) authentication.getPrincipal();
+
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("文件不能为空");
+        }
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new IllegalArgumentException("文件大小超过限制(最大50MB)");
+        }
+        String contentType = file.getContentType();
+        if (contentType != null && !ALLOWED_TYPES.contains(contentType)) {
+            throw new IllegalArgumentException("不支持的文件类型: " + contentType);
+        }
+
         log.info("Uploading file: originalName={}, userId={}", file.getOriginalFilename(), user.getId());
         return ApiResponse.ok(assetApplicationService.upload(file, user.getId()));
     }

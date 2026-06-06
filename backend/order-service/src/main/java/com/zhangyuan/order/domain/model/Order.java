@@ -16,6 +16,7 @@ public class Order {
     private String snapshotJson;
     private Instant createdAt;
     private Instant paidAt;
+    private Instant fulfilledAt;
     private Instant cancelledAt;
 
     public Order(OrderNumber orderNo, Long planId, Long priceId, BigDecimal amount, String currency, String snapshotJson) {
@@ -45,8 +46,17 @@ public class Order {
         this.cancelledAt = Instant.now();
     }
 
+    public void markFulfilled() {
+        if (status != OrderStatus.PAID) {
+            throw new IllegalStateException("Only paid orders can be fulfilled. Current status: " + status);
+        }
+        this.status = OrderStatus.FULFILLED;
+        this.fulfilledAt = Instant.now();
+    }
+
     public boolean isPaid() { return status == OrderStatus.PAID; }
     public boolean isPending() { return status == OrderStatus.PENDING; }
+    public boolean isFulfilled() { return status == OrderStatus.FULFILLED; }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -70,6 +80,8 @@ public class Order {
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
     public Instant getPaidAt() { return paidAt; }
     public void setPaidAt(Instant paidAt) { this.paidAt = paidAt; }
+    public Instant getFulfilledAt() { return fulfilledAt; }
+    public void setFulfilledAt(Instant fulfilledAt) { this.fulfilledAt = fulfilledAt; }
     public Instant getCancelledAt() { return cancelledAt; }
     public void setCancelledAt(Instant cancelledAt) { this.cancelledAt = cancelledAt; }
 }

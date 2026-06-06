@@ -9,10 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import cn.dev33.satoken.stp.StpUtil;
 
-import java.util.UUID;
+import java.security.SecureRandom;
+import java.util.Base64;
 
 @Service
 public class SaasUserApplicationService {
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -31,7 +33,7 @@ public class SaasUserApplicationService {
                 passwordEncoder.encode(request.password()),
                 request.nickname() != null ? request.nickname() : request.email().split("@")[0]
         );
-        user.setApiKey("sk-" + UUID.randomUUID().toString().replace("-", ""));
+        user.setApiKey(generateApiKey());
         user = userRepository.save(user);
         StpUtil.login(user.getId());
         return new LoginResponse(StpUtil.getTokenValue(), toResponse(user));
@@ -78,9 +80,15 @@ public class SaasUserApplicationService {
     public UserResponse regenerateApiKey(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        user.setApiKey("sk-" + UUID.randomUUID().toString().replace("-", ""));
+        user.setApiKey(generateApiKey());
         user = userRepository.save(user);
         return toResponse(user);
+    }
+
+    private String generateApiKey() {
+        byte[] bytes = new byte[32];
+        SECURE_RANDOM.nextBytes(bytes);
+        return "sk-" + Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
     private UserResponse toResponse(User user) {

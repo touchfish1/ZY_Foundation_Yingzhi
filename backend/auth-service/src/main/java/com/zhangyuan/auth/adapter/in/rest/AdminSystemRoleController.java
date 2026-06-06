@@ -10,6 +10,8 @@ import com.zhangyuan.auth.dto.CreateRoleRequest;
 import com.zhangyuan.auth.dto.RoleResponse;
 import com.zhangyuan.auth.dto.SetPermissionRequest;
 import com.zhangyuan.auth.repository.AdminRoleRepository;
+import com.zhangyuan.auth.repository.AdminUserRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,14 +41,7 @@ public class AdminSystemRoleController {
     private final RoleRepository roleRepository;
     private final PermissionApplicationService permissionApplicationService;
     private final AdminRoleRepository adminRoleRepository;
-
-    public AdminSystemRoleController(RoleRepository roleRepository,
-                                     PermissionApplicationService permissionApplicationService,
-                                     AdminRoleRepository adminRoleRepository) {
-        this.roleRepository = roleRepository;
-        this.permissionApplicationService = permissionApplicationService;
-        this.adminRoleRepository = adminRoleRepository;
-    }
+    private final AdminUserRepository adminUserRepository;
 
     @GetMapping
     public ApiResponse<PageResponse<RoleResponse>> listRoles(
@@ -81,9 +76,37 @@ public class AdminSystemRoleController {
         return ApiResponse.ok(new RoleResponse(existing.getId(), existing.getCode(), existing.getName(), existing.getCreatedAt()));
     }
 
+    private final AdminUserRepository adminUserRepository;
+
+    public AdminSystemRoleController(RoleRepository roleRepository,
+                                     PermissionApplicationService permissionApplicationService,
+                                     AdminRoleRepository adminRoleRepository,
+                                     AdminUserRepository adminUserRepository) {
+        this.roleRepository = roleRepository;
+        this.permissionApplicationService = permissionApplicationService;
+        this.adminRoleRepository = adminRoleRepository;
+        this.adminUserRepository = adminUserRepository;
+    }
+
     @DeleteMapping("/{id}")
+    @Transactional
     public ApiResponse<Void> deleteRole(@PathVariable Long id) {
         log.info("Deleting system role: {}", id);
+        var role = adminRoleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Role not found: " + id));
+
+        // 级联清理用户-角色关联
+        var usersWithRole = adminUserRepository.findAll();
+        for (var user : usersWithRole) {
+            if (user.getRoles().remove(role)) {
+                adminUserRepository.save(user);
+            }
+        }
+
+        // 清理角色-权限关联
+        role.getPermissions().clear();
+        adminRoleRepository.save(role);
+
         roleRepository.deleteById(id);
         log.info("System role deleted: {}", id);
         return ApiResponse.ok();

@@ -44,6 +44,7 @@ public class JpaUserRepositoryAdapter implements UserRepository {
         if (user.getId() != null) {
             entity = repo.findById(user.getId())
                     .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + user.getId()));
+            entity.setVersion(user.getVersion());
             entity.setBalance(user.getBalance());
             entity.setStatus(user.getStatus());
             entity.setNickname(user.getNickname());
@@ -66,6 +67,7 @@ public class JpaUserRepositoryAdapter implements UserRepository {
     private User toDomain(SaasUserEntity e) {
         User u = new User(e.getEmail(), e.getPasswordHash(), e.getNickname());
         u.setId(e.getId());
+        u.setVersion(e.getVersion());
         u.setBalance(e.getBalance());
         u.setStatus(e.getStatus());
         u.setAvatarUrl(e.getAvatarUrl());
@@ -86,6 +88,7 @@ public class JpaUserRepositoryAdapter implements UserRepository {
     private SaasUserEntity toEntity(User u) {
         SaasUserEntity e = new SaasUserEntity(u.getEmail(), u.getPasswordHash(), u.getNickname());
         e.setId(u.getId());
+        e.setVersion(u.getVersion());
         e.setBalance(u.getBalance());
         e.setStatus(u.getStatus());
         e.setAvatarUrl(u.getAvatarUrl());

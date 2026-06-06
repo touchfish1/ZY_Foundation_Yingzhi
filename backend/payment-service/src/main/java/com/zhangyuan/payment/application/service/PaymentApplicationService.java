@@ -57,6 +57,12 @@ public class PaymentApplicationService {
     public CheckoutResponse mockSuccess(String paymentNo) {
         Payment payment = paymentRepository.findByPaymentNo(paymentNo)
                 .orElseThrow(() -> new IllegalArgumentException("Payment not found: " + paymentNo));
+
+        if ("SUCCESS".equals(payment.getStatus())) {
+            log.warn("Idempotent call: payment {} already SUCCESS, skipped", paymentNo);
+            return new CheckoutResponse(paymentNo, payment.getStatus(), null, null);
+        }
+
         payment.markSuccess();
         payment = paymentRepository.save(payment);
 

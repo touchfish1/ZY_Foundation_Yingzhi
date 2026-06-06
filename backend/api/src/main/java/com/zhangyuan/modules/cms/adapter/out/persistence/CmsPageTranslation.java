@@ -26,6 +26,9 @@ public class CmsPageTranslation {
     @Column(nullable = false, length = 16)
     private String locale;
 
+    private static final java.util.regex.Pattern LOCALE_PATTERN =
+            java.util.regex.Pattern.compile("^[a-z]{2}-[A-Z]{2}$");
+
     @Column(nullable = false, length = 255)
     private String title;
 
@@ -57,6 +60,9 @@ public class CmsPageTranslation {
     }
 
     public CmsPageTranslation(Long pageId, String locale, String title) {
+        if (locale != null && !LOCALE_PATTERN.matcher(locale).matches()) {
+            throw new IllegalArgumentException("Invalid locale format: " + locale + ". Expected format: zh-CN, en-US, ja-JP");
+        }
         this.pageId = pageId;
         this.locale = locale;
         this.title = title;

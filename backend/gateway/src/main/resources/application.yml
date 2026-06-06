@@ -18,6 +18,21 @@ spring:
         file-extension: yaml
         import-check:
           enabled: false
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns:
+              - "http://localhost:*"
+              - "http://127.0.0.1:*"
+              - "https://*.zhangyuan.example.com"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
     # In dev mode, use direct URIs since Nacos may cache stale IPs from previous registrations.
     # lb:// URIs rely on Nacos service discovery which can resolve to wrong IPs on Windows/WSL.
     # For production, switch back to lb:// and ensure proper network configuration.

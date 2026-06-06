@@ -127,13 +127,17 @@ public class AuthApplicationService {
     }
 
     /**
-     * 删除用户。
+     * 删除用户（软删除：将用户状态设为 disabled 而非物理删除）。
+     * 物理删除会导致 CMS 页面、资产等关联数据产生孤立引用。
      */
     @Transactional
     public void deleteUser(Long id) {
-        log.info("Deleting user: {}", id);
-        userRepository.deleteById(id);
-        log.info("User deleted: {}", id);
+        log.info("Soft-deleting user: {}", id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+        user.disable();
+        userRepository.save(user);
+        log.info("User soft-deleted: {}", id);
     }
 
     /**

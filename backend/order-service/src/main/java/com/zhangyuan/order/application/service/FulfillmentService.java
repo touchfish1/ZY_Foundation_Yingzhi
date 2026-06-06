@@ -29,6 +29,11 @@ public class FulfillmentService {
         Order order = orderRepository.findByOrderNo(new OrderNumber(orderNo))
                 .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderNo));
 
+        if (order.getStatus() == OrderStatus.FULFILLED) {
+            log.warn("Idempotent call: order {} already FULFILLED, skipped", orderNo);
+            return;
+        }
+
         if (order.getStatus() != OrderStatus.PAID) {
             log.warn("Order {} is not PAID (status: {}), cannot fulfill", orderNo, order.getStatus());
             return;
@@ -55,6 +60,9 @@ public class FulfillmentService {
             log.info("Creating new subscription for user {}: {} ({} days)", order.getUserId(), planName, validityDays);
         }
         subscriptionRepository.save(sub);
+
+        order.markFulfilled();
+        orderRepository.save(order);
         log.info("Order {} fulfilled successfully", orderNo);
     }
 
