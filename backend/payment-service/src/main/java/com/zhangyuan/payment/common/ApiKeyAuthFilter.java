@@ -26,7 +26,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws IOException {
         String path = request.getRequestURI();
 
-        if (!path.startsWith("/api/payments")) {
+        if (!path.startsWith("/api/payments") || path.contains("/callbacks/")) {
             try { filterChain.doFilter(request, response); } catch (Exception e) { log.error("Filter error", e); }
             return;
         }

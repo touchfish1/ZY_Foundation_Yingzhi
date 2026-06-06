@@ -4,6 +4,7 @@ import com.zhangyuan.payment.client.FulfillmentClient;
 import com.zhangyuan.payment.client.OrderServiceClient;
 import com.zhangyuan.payment.domain.model.Payment;
 import com.zhangyuan.payment.domain.repository.PaymentRepository;
+import com.zhangyuan.payment.domain.service.PaymentChannelStrategy;
 import com.zhangyuan.payment.domain.service.PaymentDomainService;
 import com.zhangyuan.payment.dto.CheckoutRequest;
 import com.zhangyuan.payment.dto.CheckoutResponse;
@@ -22,35 +23,42 @@ public class PaymentApplicationService {
     private final OrderServiceClient orderServiceClient;
     private final FulfillmentClient fulfillmentClient;
     private final PaymentDomainService paymentDomainService;
+    private final ChannelStrategyRegistry strategyRegistry;
 
     public PaymentApplicationService(PaymentRepository paymentRepository,
                                      OrderServiceClient orderServiceClient,
                                      FulfillmentClient fulfillmentClient,
-                                     PaymentDomainService paymentDomainService) {
+                                     PaymentDomainService paymentDomainService,
+                                     ChannelStrategyRegistry strategyRegistry) {
         this.paymentRepository = paymentRepository;
         this.orderServiceClient = orderServiceClient;
         this.fulfillmentClient = fulfillmentClient;
         this.paymentDomainService = paymentDomainService;
+        this.strategyRegistry = strategyRegistry;
     }
 
     @Transactional
     public CheckoutResponse checkout(CheckoutRequest request) {
-        // Verify order exists via Feign
         var orderResp = orderServiceClient.getOrder(request.orderNo());
         if (orderResp == null || orderResp.code() != 0) {
             throw new IllegalArgumentException("Order not found: " + request.orderNo());
         }
 
-        // Only support mock channel for now
-        if (!"mock".equals(request.channel())) {
-            throw new IllegalArgumentException("Unsupported channel: " + request.channel());
+        PaymentChannelStrategy strategy = strategyRegistry.getStrategy(request.channel());
+        BigDecimal amount = BigDecimal.ZERO;
+        try {
+            var orderData = (java.util.Map<String, Object>) orderResp.data();
+            if (orderData != null && orderData.get("amount") != null) {
+                amount = new BigDecimal(orderData.get("amount").toString());
+            }
+        } catch (Exception e) {
+            log.warn("Failed to extract amount from order, using 0: {}", e.getMessage());
         }
 
-        Payment payment = paymentDomainService.createPayment(request.orderNo(), "mock", BigDecimal.ZERO, "CNY");
+        Payment payment = paymentDomainService.createPayment(request.orderNo(), request.channel(), amount, "CNY");
         payment = paymentRepository.save(payment);
 
-        String mockPayUrl = "/api/payments/mock/" + payment.getPaymentNo() + "/success";
-        return new CheckoutResponse(payment.getPaymentNo(), payment.getStatus(), mockPayUrl, null);
+        return strategy.createPayment(payment, request);
     }
 
     @Transactional
@@ -63,10 +71,10 @@ public class PaymentApplicationService {
             return new CheckoutResponse(paymentNo, payment.getStatus(), null, null);
         }
 
-        payment.markSuccess();
+        PaymentChannelStrategy strategy = strategyRegistry.getStrategy(payment.getChannel());
+        strategy.processCallback(payment, java.util.Map.of());
         payment = paymentRepository.save(payment);
 
-        // Trigger order fulfillment after successful payment
         try {
             fulfillmentClient.fulfillOrder(payment.getOrderNo());
             log.info("Fulfillment triggered for order: {}", payment.getOrderNo());
