@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -26,11 +27,14 @@ class PaymentApplicationServiceTest {
     private final OrderServiceClient orderServiceClient = mock(OrderServiceClient.class);
     private final FulfillmentClient fulfillmentClient = mock(FulfillmentClient.class);
     private final PaymentDomainService domainService = new PaymentDomainService();
+    private final ChannelStrategyRegistry strategyRegistry = new ChannelStrategyRegistry(
+            List.of(new MockChannelStrategy()));
     private PaymentApplicationService service;
 
     @BeforeEach
     void setUp() {
-        service = new PaymentApplicationService(paymentRepository, orderServiceClient, fulfillmentClient, domainService);
+        service = new PaymentApplicationService(paymentRepository, orderServiceClient,
+                fulfillmentClient, domainService, strategyRegistry);
     }
 
     @Test

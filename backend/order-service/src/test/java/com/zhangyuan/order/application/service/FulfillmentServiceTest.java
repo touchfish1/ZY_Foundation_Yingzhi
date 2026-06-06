@@ -82,6 +82,31 @@ class FulfillmentServiceTest {
     }
 
     @Test
+    void fulfillOrder_whenAlreadyFulfilled_skips() {
+        Order order = createPaidOrder();
+        order.markFulfilled();
+        when(orderRepository.findByOrderNo(new OrderNumber("ORD001"))).thenReturn(Optional.of(order));
+
+        service.fulfillOrder("ORD001");
+
+        verify(subscriptionRepository, never()).save(any());
+        verify(orderRepository, never()).save(any());
+    }
+
+    @Test
+    void fulfillOrder_marksOrderAsFulfilled() {
+        Order order = createPaidOrder();
+        when(orderRepository.findByOrderNo(new OrderNumber("ORD001"))).thenReturn(Optional.of(order));
+        when(subscriptionRepository.findByUserIdAndActive(1L)).thenReturn(Optional.empty());
+        when(subscriptionRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+        when(orderRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        service.fulfillOrder("ORD001");
+
+        verify(orderRepository).save(argThat(o -> o.isFulfilled()));
+    }
+
+    @Test
     void fulfillOrder_usesDefaultValidityDays_whenSnapshotMalformed() {
         Order order = new Order(new OrderNumber("ORD001"), 1L, 1L, BigDecimal.valueOf(99), "CNY",
                 "{\"planCode\":\"premium\",\"planName\":\"Premium Plan\",\"validityDays\":\"invalid\"}");

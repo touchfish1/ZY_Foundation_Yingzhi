@@ -96,4 +96,32 @@ class OrderTest {
         Order order = new Order(new OrderNumber("ORD123"), 1L, 1L, BigDecimal.TEN, "CNY", "{}");
         assertThat(order.isPending()).isTrue();
     }
+
+    @Test
+    void markFulfilled_transitionsFromPaid() {
+        Order order = new Order(new OrderNumber("ORD123"), 1L, 1L, BigDecimal.TEN, "CNY", "{}");
+        order.markPaid();
+        order.markFulfilled();
+        assertThat(order.isFulfilled()).isTrue();
+        assertThat(order.getFulfilledAt()).isNotNull();
+    }
+
+    @Test
+    void markFulfilled_fromPending_throws() {
+        Order order = new Order(new OrderNumber("ORD123"), 1L, 1L, BigDecimal.TEN, "CNY", "{}");
+        assertThatThrownBy(order::markFulfilled)
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void fulfilledStatus_canTransitionToRefunded() {
+        assertThat(OrderStatus.FULFILLED.canTransitionTo(OrderStatus.REFUNDED)).isTrue();
+        assertThat(OrderStatus.FULFILLED.canTransitionTo(OrderStatus.PAID)).isFalse();
+        assertThat(OrderStatus.FULFILLED.canTransitionTo(OrderStatus.PENDING)).isFalse();
+    }
+
+    @Test
+    void paidStatus_canTransitionToFulfilled() {
+        assertThat(OrderStatus.PAID.canTransitionTo(OrderStatus.FULFILLED)).isTrue();
+    }
 }
