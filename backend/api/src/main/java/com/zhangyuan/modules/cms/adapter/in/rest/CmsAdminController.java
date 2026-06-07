@@ -1,6 +1,9 @@
 package com.zhangyuan.modules.cms.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.zhangyuan.common.operationlog.annotation.OperationLog;
+import static com.zhangyuan.common.operationlog.domain.model.OperationType.*;
+import static com.zhangyuan.common.operationlog.domain.model.ResourceType.*;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.cms.application.service.CmsApplicationService;
@@ -41,6 +44,7 @@ public class CmsAdminController {
     }
 
     @GetMapping
+    @OperationLog(type = QUERY, resource = CMS_PAGE)
     public ApiResponse<PageResponse<PageListItemResponse>> listPages(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int pageSize) {
@@ -49,24 +53,28 @@ public class CmsAdminController {
     }
 
     @PostMapping
+    @OperationLog(type = CREATE, resource = CMS_PAGE)
     public ApiResponse<PageDetailResponse> createPage(@Valid @RequestBody CreatePageRequest request) {
         log.info("Creating CMS page: slug={}, title={}", request.slug(), request.title());
         return ApiResponse.ok(cmsApplicationService.createPage(request));
     }
 
     @GetMapping("/{pageId}")
+    @OperationLog(type = QUERY, resource = CMS_PAGE, resourceId = "#pageId")
     public ApiResponse<PageDetailResponse> getPage(@PathVariable Long pageId) {
         log.info("Getting CMS page: {}", pageId);
         return ApiResponse.ok(cmsApplicationService.getPage(pageId));
     }
 
     @PutMapping("/{pageId}")
+    @OperationLog(type = UPDATE, resource = CMS_PAGE, resourceId = "#pageId")
     public ApiResponse<PageDetailResponse> updatePage(@PathVariable Long pageId, @Valid @RequestBody UpdatePageRequest request) {
         log.info("Updating CMS page: {}", pageId);
         return ApiResponse.ok(cmsApplicationService.updatePage(pageId, request));
     }
 
     @DeleteMapping("/{pageId}")
+    @OperationLog(type = DELETE, resource = CMS_PAGE, resourceId = "#pageId")
     public ApiResponse<Void> deletePage(@PathVariable Long pageId) {
         log.info("Deleting CMS page: {}", pageId);
         cmsApplicationService.deletePage(pageId);
@@ -75,6 +83,7 @@ public class CmsAdminController {
     }
 
     @PutMapping("/{pageId}/translations/{locale}/draft")
+    @OperationLog(type = UPDATE, resource = CMS_PAGE, resourceId = "#pageId")
     public ApiResponse<PageDetailResponse> saveDraft(@PathVariable Long pageId, @PathVariable String locale,
                                                      @Valid @RequestBody SaveDraftRequest request) {
         log.info("Saving draft for CMS page: {}, locale: {}", pageId, locale);
@@ -82,18 +91,21 @@ public class CmsAdminController {
     }
 
     @GetMapping("/{pageId}/translations/{locale}/draft")
+    @OperationLog(type = QUERY, resource = CMS_PAGE, resourceId = "#pageId")
     public ApiResponse<Map<String, Object>> getDraftVersion(@PathVariable Long pageId, @PathVariable String locale) {
         log.info("Getting draft version for CMS page: {}, locale: {}", pageId, locale);
         return ApiResponse.ok(cmsApplicationService.getDraftVersion(pageId, locale));
     }
 
     @GetMapping("/{pageId}/translations/{locale}/versions")
+    @OperationLog(type = QUERY, resource = CMS_PAGE, resourceId = "#pageId")
     public ApiResponse<List<VersionResponse>> listVersions(@PathVariable Long pageId, @PathVariable String locale) {
         log.info("Listing versions for CMS page: {}, locale: {}", pageId, locale);
         return ApiResponse.ok(cmsApplicationService.listVersions(pageId, locale));
     }
 
     @GetMapping("/{pageId}/preview")
+    @OperationLog(type = QUERY, resource = CMS_PAGE, resourceId = "#pageId")
     public ApiResponse<Map<String, Object>> preview(@PathVariable Long pageId,
                                                      @RequestParam(defaultValue = "zh-CN") String locale,
                                                      @RequestParam(required = false) Long versionId) {
@@ -102,6 +114,7 @@ public class CmsAdminController {
     }
 
     @PostMapping("/{pageId}/translations/{locale}/rollback")
+    @OperationLog(type = UPDATE, resource = CMS_PAGE, resourceId = "#pageId")
     public ApiResponse<PageDetailResponse> rollback(@PathVariable Long pageId, @PathVariable String locale,
                                                      @RequestBody PublishPageRequest request) {
         log.info("Rolling back CMS page: {}, locale: {}, versionId: {}", pageId, locale, request.versionId());
@@ -109,6 +122,7 @@ public class CmsAdminController {
     }
 
     @PostMapping("/{pageId}/translations/{locale}/publish")
+    @OperationLog(type = UPDATE, resource = CMS_PAGE, resourceId = "#pageId")
     public ApiResponse<PageDetailResponse> publish(@PathVariable Long pageId, @PathVariable String locale,
                                                    @RequestBody(required = false) PublishPageRequest request) {
         log.info("Publishing CMS page: {}, locale: {}", pageId, locale);

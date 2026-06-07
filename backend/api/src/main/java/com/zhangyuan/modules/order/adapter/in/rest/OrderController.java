@@ -1,5 +1,8 @@
 package com.zhangyuan.modules.order.adapter.in.rest;
 
+import com.zhangyuan.common.operationlog.annotation.OperationLog;
+import static com.zhangyuan.common.operationlog.domain.model.OperationType.*;
+import static com.zhangyuan.common.operationlog.domain.model.ResourceType.*;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.modules.order.application.service.OrderApplicationService;
 import com.zhangyuan.modules.order.domain.model.Order;
@@ -32,6 +35,7 @@ public class OrderController {
      * @return 创建的订单
      */
     @PostMapping
+    @OperationLog(type = CREATE, resource = ORDER)
     public ApiResponse<Order> create(@RequestBody CreateOrderRequest request) {
         log.info("Creating order: planId={}, priceId={}, amount={}, currency={}", request.planId(), request.priceId(), request.amount(), request.currency());
         Order order = orderApplicationService.createOrder(
@@ -47,6 +51,7 @@ public class OrderController {
      * @return 订单信息
      */
     @GetMapping("/{orderNo}")
+    @OperationLog(type = QUERY, resource = ORDER, resourceId = "#orderNo")
     public ApiResponse<Order> get(@PathVariable String orderNo) {
         log.info("Getting order: {}", orderNo);
         return orderApplicationService.findByOrderNo(orderNo)
@@ -60,6 +65,7 @@ public class OrderController {
      * @return 订单列表
      */
     @GetMapping
+    @OperationLog(type = QUERY, resource = ORDER)
     public ApiResponse<List<Order>> list() {
         log.info("Listing all orders");
         return ApiResponse.ok(orderApplicationService.listAll());

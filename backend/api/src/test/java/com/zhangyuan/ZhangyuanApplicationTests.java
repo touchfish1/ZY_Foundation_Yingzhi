@@ -1,6 +1,7 @@
 package com.zhangyuan;
 
 import com.zhangyuan.modules.asset.adapter.out.persistence.AssetFileJpaRepository;
+import com.zhangyuan.common.operationlog.adapter.out.persistence.OperationLogJpaRepository;
 import com.zhangyuan.modules.cms.repository.CmsBlockDefinitionRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageRepository;
 import com.zhangyuan.modules.cms.repository.CmsPageTranslationRepository;
@@ -67,6 +68,9 @@ class ZhangyuanApplicationTests {
 
     @MockBean
     private PaymentTransactionJpaRepository paymentTransactionJpaRepository;
+
+    @MockBean
+    private OperationLogJpaRepository operationLogJpaRepository;
 
     @MockBean
     private MinioClient minioClient;

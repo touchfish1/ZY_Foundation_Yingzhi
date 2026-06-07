@@ -1,5 +1,8 @@
 package com.zhangyuan.modules.product.adapter.in.rest;
 
+import com.zhangyuan.common.operationlog.annotation.OperationLog;
+import static com.zhangyuan.common.operationlog.domain.model.OperationType.*;
+import static com.zhangyuan.common.operationlog.domain.model.ResourceType.*;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.modules.product.application.service.ProductApplicationService;
 import com.zhangyuan.modules.product.dto.PlanGroupResponse;
@@ -26,12 +29,14 @@ public class PublicProductController {
     }
 
     @GetMapping("/plan-groups/{code}")
+    @OperationLog(type = QUERY, resource = PRODUCT_PLAN_GROUP, resourceId = "#code")
     public ApiResponse<PlanGroupResponse> getGroup(@PathVariable String code) {
         log.info("Getting product plan group by code: {}", code);
         return ApiResponse.ok(productApplicationService.getGroupByCode(code));
     }
 
     @GetMapping("/plans")
+    @OperationLog(type = QUERY, resource = PRODUCT_PLAN)
     public ApiResponse<List<PlanResponse>> listAvailablePlans() {
         log.info("Listing all available plans");
         return ApiResponse.ok(productApplicationService.listPlans());

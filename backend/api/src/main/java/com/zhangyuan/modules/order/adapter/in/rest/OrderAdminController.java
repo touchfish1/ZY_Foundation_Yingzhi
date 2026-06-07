@@ -1,6 +1,9 @@
 package com.zhangyuan.modules.order.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.zhangyuan.common.operationlog.annotation.OperationLog;
+import static com.zhangyuan.common.operationlog.domain.model.OperationType.*;
+import static com.zhangyuan.common.operationlog.domain.model.ResourceType.*;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.order.application.service.OrderApplicationService;
@@ -32,6 +35,7 @@ public class OrderAdminController {
      * 获取订单列表（分页）。
      */
     @GetMapping
+    @OperationLog(type = QUERY, resource = ORDER)
     public ApiResponse<PageResponse<OrderResponse>> listOrders(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int pageSize) {

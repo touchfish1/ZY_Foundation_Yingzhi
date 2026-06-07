@@ -1,6 +1,9 @@
 package com.zhangyuan.modules.product.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.zhangyuan.common.operationlog.annotation.OperationLog;
+import static com.zhangyuan.common.operationlog.domain.model.OperationType.*;
+import static com.zhangyuan.common.operationlog.domain.model.ResourceType.*;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.modules.product.application.service.ProductApplicationService;
 import com.zhangyuan.modules.product.dto.CreateFeatureRequest;
@@ -36,42 +39,49 @@ public class AdminProductController {
     }
 
     @GetMapping("/plan-groups")
+    @OperationLog(type = QUERY, resource = PRODUCT_PLAN_GROUP)
     public ApiResponse<List<PlanGroupResponse>> listGroups() {
         log.info("Listing product plan groups");
         return ApiResponse.ok(productApplicationService.listGroups());
     }
 
     @GetMapping("/plans")
+    @OperationLog(type = QUERY, resource = PRODUCT_PLAN)
     public ApiResponse<List<PlanResponse>> listPlans() {
         log.info("Listing product plans");
         return ApiResponse.ok(productApplicationService.listPlans());
     }
 
     @GetMapping("/prices")
+    @OperationLog(type = QUERY, resource = PRODUCT_PRICE)
     public ApiResponse<List<PriceResponse>> listPrices() {
         log.info("Listing product prices");
         return ApiResponse.ok(productApplicationService.listPrices());
     }
 
     @PostMapping("/plan-groups")
+    @OperationLog(type = CREATE, resource = PRODUCT_PLAN_GROUP)
     public ApiResponse<PlanGroupResponse> createGroup(@Valid @RequestBody CreatePlanGroupRequest request) {
         log.info("Creating plan group: code={}, name={}", request.code(), request.name());
         return ApiResponse.ok(productApplicationService.createGroup(request));
     }
 
     @PostMapping("/plans")
+    @OperationLog(type = CREATE, resource = PRODUCT_PLAN)
     public ApiResponse<PlanResponse> createPlan(@Valid @RequestBody CreatePlanRequest request) {
         log.info("Creating plan: code={}, groupId={}", request.code(), request.groupId());
         return ApiResponse.ok(productApplicationService.createPlan(request));
     }
 
     @PostMapping("/prices")
+    @OperationLog(type = CREATE, resource = PRODUCT_PRICE)
     public ApiResponse<PriceResponse> createPrice(@Valid @RequestBody CreatePriceRequest request) {
         log.info("Creating price for plan: {}", request.planId());
         return ApiResponse.ok(productApplicationService.createPrice(request));
     }
 
     @PostMapping("/features")
+    @OperationLog(type = CREATE, resource = PRODUCT_FEATURE)
     public ApiResponse<FeatureResponse> createFeature(@Valid @RequestBody CreateFeatureRequest request) {
         log.info("Creating feature for plan: {}", request.planId());
         return ApiResponse.ok(productApplicationService.createFeature(request));

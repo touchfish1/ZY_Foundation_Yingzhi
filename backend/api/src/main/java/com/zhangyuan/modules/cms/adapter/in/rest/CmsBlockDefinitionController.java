@@ -1,6 +1,9 @@
 package com.zhangyuan.modules.cms.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.zhangyuan.common.operationlog.annotation.OperationLog;
+import static com.zhangyuan.common.operationlog.domain.model.OperationType.*;
+import static com.zhangyuan.common.operationlog.domain.model.ResourceType.*;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.modules.cms.application.service.CmsApplicationService;
 import com.zhangyuan.modules.cms.dto.BlockDefinitionResponse;
@@ -26,6 +29,7 @@ public class CmsBlockDefinitionController {
     }
 
     @GetMapping
+    @OperationLog(type = QUERY, resource = CMS_PAGE)
     public ApiResponse<List<BlockDefinitionResponse>> listEnabled() {
         log.info("Listing enabled block definitions");
         return ApiResponse.ok(cmsApplicationService.listEnabledBlockDefinitions());

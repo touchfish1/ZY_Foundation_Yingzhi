@@ -1,6 +1,9 @@
 package com.zhangyuan.modules.payment.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaIgnore;
+import com.zhangyuan.common.operationlog.annotation.OperationLog;
+import static com.zhangyuan.common.operationlog.domain.model.OperationType.*;
+import static com.zhangyuan.common.operationlog.domain.model.ResourceType.*;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.modules.payment.application.service.PaymentApplicationService;
 import com.zhangyuan.modules.payment.domain.model.Payment;
@@ -34,6 +37,7 @@ public class PaymentController {
      * @return 支付记录
      */
     @GetMapping("/{paymentNo}")
+    @OperationLog(type = QUERY, resource = ORDER, resourceId = "#paymentNo")
     public ApiResponse<Payment> get(@PathVariable String paymentNo) {
         log.info("Getting payment: {}", paymentNo);
         return paymentApplicationService.findByPaymentNo(paymentNo)
@@ -47,6 +51,7 @@ public class PaymentController {
      * @return 支付记录列表
      */
     @GetMapping
+    @OperationLog(type = QUERY, resource = ORDER)
     public ApiResponse<List<Payment>> list() {
         log.info("Listing all payments");
         return ApiResponse.ok(paymentApplicationService.listAll());

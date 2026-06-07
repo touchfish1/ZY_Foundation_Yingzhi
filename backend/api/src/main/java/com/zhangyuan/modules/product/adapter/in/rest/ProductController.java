@@ -1,5 +1,8 @@
 package com.zhangyuan.modules.product.adapter.in.rest;
 
+import com.zhangyuan.common.operationlog.annotation.OperationLog;
+import static com.zhangyuan.common.operationlog.domain.model.OperationType.*;
+import static com.zhangyuan.common.operationlog.domain.model.ResourceType.*;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.modules.product.application.service.ProductApplicationService;
 import com.zhangyuan.modules.product.domain.model.PlanGroup;
@@ -30,6 +33,7 @@ public class ProductController {
      * @return 方案组列表
      */
     @GetMapping("/plan-groups")
+    @OperationLog(type = QUERY, resource = PRODUCT_PLAN_GROUP)
     public ApiResponse<List<PlanGroup>> listGroups() {
         log.info("Listing plan groups");
         return ApiResponse.ok(productApplicationService.listAll());
@@ -42,6 +46,7 @@ public class ProductController {
      * @return 方案组
      */
     @GetMapping("/plan-groups/{code}")
+    @OperationLog(type = QUERY, resource = PRODUCT_PLAN_GROUP, resourceId = "#code")
     public ApiResponse<PlanGroup> getGroup(@PathVariable String code) {
         log.info("Getting plan group by code: {}", code);
         return productApplicationService.findByCode(code)
@@ -56,6 +61,7 @@ public class ProductController {
      * @return 创建后的方案组
      */
     @PostMapping("/plan-groups")
+    @OperationLog(type = CREATE, resource = PRODUCT_PLAN_GROUP)
     public ApiResponse<PlanGroup> createGroup(@RequestBody CreateGroupRequest request) {
         log.info("Creating plan group: code={}, name={}", request.code(), request.name());
         PlanGroup group = productApplicationService.createGroup(

@@ -1,5 +1,8 @@
 package com.zhangyuan.modules.asset.adapter.in.rest;
 
+import com.zhangyuan.common.operationlog.annotation.OperationLog;
+import static com.zhangyuan.common.operationlog.domain.model.OperationType.*;
+import static com.zhangyuan.common.operationlog.domain.model.ResourceType.*;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.modules.asset.application.service.AssetApplicationService;
 import com.zhangyuan.modules.asset.domain.model.AssetFile;
@@ -30,6 +33,7 @@ public class AssetController {
      * @return 资产文件列表
      */
     @GetMapping
+    @OperationLog(type = QUERY, resource = ASSET_FILE)
     public ApiResponse<List<AssetFile>> list() {
         log.info("Listing all assets");
         return ApiResponse.ok(assetApplicationService.listAll());

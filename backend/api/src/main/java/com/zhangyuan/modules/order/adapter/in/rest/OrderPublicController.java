@@ -1,6 +1,9 @@
 package com.zhangyuan.modules.order.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaIgnore;
+import com.zhangyuan.common.operationlog.annotation.OperationLog;
+import static com.zhangyuan.common.operationlog.domain.model.OperationType.*;
+import static com.zhangyuan.common.operationlog.domain.model.ResourceType.*;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.modules.order.application.service.OrderApplicationService;
 import com.zhangyuan.modules.order.dto.CreateOrderRequest;
@@ -35,6 +38,7 @@ public class OrderPublicController {
      * 创建新订单。
      */
     @PostMapping
+    @OperationLog(type = CREATE, resource = ORDER)
     public ApiResponse<OrderResponse> create(@Valid @RequestBody CreateOrderRequest request) {
         log.info("Creating order: planCode={}, billingCycle={}, currency={}", request.planCode(), request.billingCycle(), request.currency());
         return ApiResponse.ok(orderApplicationService.createOrder(request));
@@ -44,6 +48,7 @@ public class OrderPublicController {
      * 根据订单号查询订单。
      */
     @GetMapping("/{orderNo}")
+    @OperationLog(type = QUERY, resource = ORDER, resourceId = "#orderNo")
     public ApiResponse<OrderResponse> get(@PathVariable String orderNo) {
         log.info("Getting order: {}", orderNo);
         return ApiResponse.ok(orderApplicationService.getOrder(orderNo));

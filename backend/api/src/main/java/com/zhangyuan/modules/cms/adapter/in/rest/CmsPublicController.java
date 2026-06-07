@@ -1,5 +1,8 @@
 package com.zhangyuan.modules.cms.adapter.in.rest;
 
+import com.zhangyuan.common.operationlog.annotation.OperationLog;
+import static com.zhangyuan.common.operationlog.domain.model.OperationType.*;
+import static com.zhangyuan.common.operationlog.domain.model.ResourceType.*;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.cms.application.service.CmsApplicationService;
@@ -25,6 +28,7 @@ public class CmsPublicController {
     }
 
     @GetMapping("/render")
+    @OperationLog(type = QUERY, resource = CMS_PAGE)
     public ApiResponse<RenderPageResponse> render(@RequestParam("path") String path,
                                                   @RequestParam(value = "locale", required = false) String locale) {
         log.info("Rendering CMS page: path={}, locale={}", path, locale);
@@ -32,6 +36,7 @@ public class CmsPublicController {
     }
 
     @GetMapping("/list")
+    @OperationLog(type = QUERY, resource = CMS_PAGE)
     public ApiResponse<PageResponse<PageListItemResponse>> listPublishedPages(
             @RequestParam(defaultValue = "custom") String type,
             @RequestParam(defaultValue = "1") int page,

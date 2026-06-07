@@ -1,5 +1,8 @@
 package com.zhangyuan.modules.cms.adapter.in.rest;
 
+import com.zhangyuan.common.operationlog.annotation.OperationLog;
+import static com.zhangyuan.common.operationlog.domain.model.OperationType.*;
+import static com.zhangyuan.common.operationlog.domain.model.ResourceType.*;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.modules.cms.application.service.CmsApplicationService;
 import com.zhangyuan.modules.cms.dto.CreatePageRequest;
@@ -31,6 +34,7 @@ public class CmsPageController {
     }
 
     @GetMapping("/pages")
+    @OperationLog(type = QUERY, resource = CMS_PAGE)
     public ApiResponse<com.zhangyuan.common.response.PageResponse<PageListItemResponse>> listPages(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int pageSize) {
@@ -39,6 +43,7 @@ public class CmsPageController {
     }
 
     @PostMapping("/pages")
+    @OperationLog(type = CREATE, resource = CMS_PAGE)
     public ApiResponse<PageDetailResponse> createPage(@RequestBody Map<String, Object> body) {
         String slug = (String) body.get("slug");
         String defaultLocale = (String) body.getOrDefault("defaultLocale", "zh-CN");
@@ -50,12 +55,14 @@ public class CmsPageController {
     }
 
     @GetMapping("/pages/{id}")
+    @OperationLog(type = QUERY, resource = CMS_PAGE, resourceId = "#id")
     public ApiResponse<PageDetailResponse> getPage(@PathVariable Long id) {
         log.info("Getting CMS page by id: {}", id);
         return ApiResponse.ok(cmsApplicationService.getPage(id));
     }
 
     @DeleteMapping("/pages/{id}")
+    @OperationLog(type = DELETE, resource = CMS_PAGE, resourceId = "#id")
     public ApiResponse<Void> deletePage(@PathVariable Long id) {
         log.info("Deleting CMS page: {}", id);
         cmsApplicationService.deletePage(id);

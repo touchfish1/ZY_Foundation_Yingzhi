@@ -1,6 +1,9 @@
 package com.zhangyuan.modules.asset.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.zhangyuan.common.operationlog.annotation.OperationLog;
+import static com.zhangyuan.common.operationlog.domain.model.OperationType.*;
+import static com.zhangyuan.common.operationlog.domain.model.ResourceType.*;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.common.security.AuthUser;
@@ -36,6 +39,7 @@ public class AdminAssetController {
 
     @GetMapping("/files")
     @SaCheckPermission("asset:list")
+    @OperationLog(type = QUERY, resource = ASSET_FILE)
     public ApiResponse<PageResponse<AssetFileInfo>> listFiles(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int pageSize) {
@@ -53,6 +57,7 @@ public class AdminAssetController {
 
     @PostMapping("/files")
     @SaCheckPermission("asset:list")
+    @OperationLog(type = CREATE, resource = ASSET_FILE)
     public ApiResponse<AssetFileInfo> upload(@RequestParam("file") MultipartFile file) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AuthUser user = (AuthUser) authentication.getPrincipal();

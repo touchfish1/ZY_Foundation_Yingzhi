@@ -1,6 +1,9 @@
 package com.zhangyuan.modules.payment.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaIgnore;
+import com.zhangyuan.common.operationlog.annotation.OperationLog;
+import static com.zhangyuan.common.operationlog.domain.model.OperationType.*;
+import static com.zhangyuan.common.operationlog.domain.model.ResourceType.*;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.modules.payment.application.service.PaymentApplicationService;
 import com.zhangyuan.modules.payment.dto.CheckoutRequest;
@@ -29,12 +32,14 @@ public class PaymentPublicController {
     }
 
     @PostMapping("/checkout")
+    @OperationLog(type = CREATE, resource = ORDER)
     public ApiResponse<CheckoutResponse> checkout(@Valid @RequestBody CheckoutRequest request) {
         log.info("Checkout request: orderNo={}, channel={}", request.orderNo(), request.channel());
         return ApiResponse.ok(paymentApplicationService.checkout(request));
     }
 
     @PostMapping("/mock/{paymentNo}/success")
+    @OperationLog(type = UPDATE, resource = ORDER, resourceId = "#paymentNo")
     public ApiResponse<PaymentResponse> mockSuccess(@PathVariable String paymentNo) {
         log.info("Mock payment success: {}", paymentNo);
         return ApiResponse.ok(paymentApplicationService.mockSuccess(paymentNo));
