@@ -18,6 +18,18 @@ spring:
         file-extension: yaml
         import-check:
           enabled: false
+    stream:
+      rocketmq:
+        binder:
+          name-server: ${ROCKETMQ_HOST:100.125.148.23}:${ROCKETMQ_PORT:9876}
+      bindings:
+        order-event-output:
+          destination: order-topic
+          content-type: application/json
+        order-event-input:
+          destination: order-topic
+          content-type: application/json
+          group: order-group
   datasource:
     url: jdbc:postgresql://${DB_HOST:100.125.148.23}:${DB_PORT:5432}/${DB_NAME:zhangyuan}
     username: ${DB_USERNAME:zhangyuan}
@@ -35,20 +47,6 @@ spring:
     open-in-view: false
   flyway:
     enabled: false
-
-  cloud:
-    stream:
-      rocketmq:
-        binder:
-          name-server: ${ROCKETMQ_HOST:100.125.148.23}:${ROCKETMQ_PORT:9876}
-      bindings:
-        order-event-output:
-          destination: order-topic
-          content-type: application/json
-        order-event-input:
-          destination: order-topic
-          content-type: application/json
-          group: order-group
 
 sa-token:
   token-name: Authorization
