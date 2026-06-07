@@ -14,7 +14,26 @@ spring:
     baseline-on-migrate: true
     baseline-version: 1
     validate-on-migrate: false
+  data:
+    redis:
+      host: ${REDIS_HOST:100.125.148.23}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+  cloud:
+    stream:
+      rocketmq:
+        binder:
+          name-server: ${ROCKETMQ_HOST:100.125.148.23}:${ROCKETMQ_PORT:9876}
+      bindings:
+        order-event-output:
+          destination: order-topic
+          content-type: application/json
+        order-event-input:
+          destination: order-topic
+          content-type: application/json
+          group: order-group
 
 sa-token:
   token-name: Authorization
   token-prefix: Bearer
+  timeout: 7200

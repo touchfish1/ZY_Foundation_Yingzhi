@@ -14,7 +14,44 @@ spring:
     baseline-on-migrate: true
     baseline-version: 1
     validate-on-migrate: false
+  data:
+    redis:
+      host: ${REDIS_HOST:100.125.148.23}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+  cloud:
+    stream:
+      rocketmq:
+        binder:
+          name-server: ${ROCKETMQ_HOST:100.125.148.23}:${ROCKETMQ_PORT:9876}
+      bindings:
+        payment-event-output:
+          destination: payment-topic
+          content-type: application/json
+        payment-event-input:
+          destination: payment-topic
+          content-type: application/json
+          group: payment-group
 
 sa-token:
   token-name: Authorization
   token-prefix: Bearer
+  timeout: 7200
+
+payment:
+  alipay:
+    enabled: true
+    gateway-url: https://openapi.alipay.com/gateway.do
+    app-id: ${ALIPAY_APP_ID:}
+    private-key: ${ALIPAY_PRIVATE_KEY:}
+    alipay-public-key: ${ALIPAY_PUBLIC_KEY:}
+    return-url: ${ALIPAY_RETURN_URL:}
+    notify-url: ${ALIPAY_NOTIFY_URL:}
+  wxpay:
+    enabled: true
+    app-id: ${WXPAY_APP_ID:}
+    mch-id: ${WXPAY_MCH_ID:}
+    api-v3-key: ${WXPAY_API_V3_KEY:}
+    mch-serial-no: ${WXPAY_MCH_SERIAL_NO:}
+    private-key-path: ${WXPAY_PRIVATE_KEY_PATH:}
+    notify-url: ${WXPAY_NOTIFY_URL:}

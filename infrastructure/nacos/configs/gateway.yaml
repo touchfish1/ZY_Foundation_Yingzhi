@@ -1,6 +1,21 @@
 spring:
   cloud:
     gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns:
+              - "http://localhost:*"
+              - "http://127.0.0.1:*"
+              - "https://*.zhangyuan.example.com"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
       routes:
         - id: auth-admin
           uri: lb://auth-service
@@ -51,6 +66,18 @@ spring:
           uri: lb://payment-service
           predicates:
             - Path=/admin/payments/**
+        - id: order-subscriptions
+          uri: lb://order-service
+          predicates:
+            - Path=/api/subscriptions/**
+        - id: order-admin-subscriptions
+          uri: lb://order-service
+          predicates:
+            - Path=/admin/subscriptions/**
+        - id: order-usage
+          uri: lb://order-service
+          predicates:
+            - Path=/api/usage/**
         - id: api-admin
           uri: lb://zhangyuan-api
           predicates:
@@ -83,3 +110,7 @@ spring:
           uri: http://web:3000
           predicates:
             - Path=/**
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO

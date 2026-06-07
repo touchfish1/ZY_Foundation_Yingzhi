@@ -13,6 +13,13 @@ spring:
         ip: ${NACOS_DISCOVERY_IP:127.0.0.1}
         username: ${NACOS_USERNAME:nacos}
         password: ${NACOS_PASSWORD:chengccn}
+      config:
+        server-addr: ${NACOS_HOST:100.125.148.23}:${NACOS_PORT:8848}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:chengccn}
+        file-extension: yaml
+        import-check:
+          enabled: false
   datasource:
     url: jdbc:postgresql://${DB_HOST:100.125.148.23}:${DB_PORT:5432}/${DB_NAME:zhangyuan}
     username: ${DB_USERNAME:zhangyuan}
@@ -30,6 +37,20 @@ spring:
     open-in-view: false
   flyway:
     enabled: false
+
+  cloud:
+    stream:
+      rocketmq:
+        binder:
+          name-server: ${ROCKETMQ_HOST:100.125.148.23}:${ROCKETMQ_PORT:9876}
+      bindings:
+        payment-event-output:
+          destination: payment-topic
+          content-type: application/json
+        payment-event-input:
+          destination: payment-topic
+          content-type: application/json
+          group: payment-group
 
 sa-token:
   token-name: Authorization
