@@ -26,7 +26,6 @@ class DddLayerTest {
     static final ArchRule applicationShouldNotDependOnAdapters =
             noClasses()
                     .that().resideInAnyPackage("..application..")
-                    .and().resideOutsideOfPackage("..cms.application.service..")
                     .should().dependOnClassesThat()
                     .resideInAnyPackage("..adapter..")
                     .because("Application layer must not depend on adapter layer");

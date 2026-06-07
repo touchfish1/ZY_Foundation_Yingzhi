@@ -44,6 +44,22 @@ public class Order extends AggregateRoot<Long> {
         this.cancelledAt = Instant.now();
     }
 
+    /**
+     * 从持久化数据重建订单领域对象，保留数据库中的完整时间戳。
+     * 与公开构造器的区别：不调用 markPaid()/cancel() 覆盖时间戳。
+     */
+    public static Order reconstitute(OrderNumber orderNo, Long planId, Long priceId,
+                                      BigDecimal amount, String currency, String snapshotJson,
+                                      OrderStatus status, Instant createdAt,
+                                      Instant paidAt, Instant cancelledAt) {
+        Order order = new Order(orderNo, planId, priceId, amount, currency, snapshotJson);
+        order.status = status;
+        order.createdAt = createdAt;
+        order.paidAt = paidAt;
+        order.cancelledAt = cancelledAt;
+        return order;
+    }
+
     public boolean isPaid() { return status == OrderStatus.PAID; }
     public boolean isPending() { return status == OrderStatus.PENDING; }
 

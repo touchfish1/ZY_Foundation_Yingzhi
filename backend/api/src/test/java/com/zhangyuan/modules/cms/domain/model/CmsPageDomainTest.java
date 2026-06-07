@@ -34,8 +34,10 @@ class CmsPageDomainTest {
         CmsPage p = new CmsPage("/test", "zh-CN", "custom", 1L);
         PageTranslation t = p.addTranslation("zh-CN", "Test");
         t.saveDraft(Map.of("blocks", List.of()), "v1");
-        assertThat(t.getDraftVersionNo()).isEqualTo(1);
-        t.publish("release");
-        assertThat(t.getPublishedVersionNo()).isEqualTo(1);
+        t.updateDraftInfo("Test", null, null, null, 1L);
+        assertThat(t.getDraftVersionId()).isEqualTo(1L);
+        t.publish(1L);
+        assertThat(t.getPublishedVersionId()).isEqualTo(1L);
+        assertThat(t.getStatus()).isEqualTo("published");
     }
 }

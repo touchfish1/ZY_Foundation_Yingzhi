@@ -1,12 +1,10 @@
 package com.zhangyuan.modules.cms.application.service;
 
-import com.zhangyuan.common.security.AuthUser;
-import com.zhangyuan.modules.cms.adapter.out.persistence.CmsBlockDefinition;
-import com.zhangyuan.modules.cms.adapter.out.persistence.CmsPage;
-import com.zhangyuan.modules.cms.adapter.out.persistence.CmsPageTranslation;
-import com.zhangyuan.modules.cms.adapter.out.persistence.CmsPageVersion;
-import com.zhangyuan.modules.cms.adapter.out.persistence.CmsPublishRecord;
 import com.zhangyuan.common.response.PageResponse;
+import com.zhangyuan.common.security.AuthUser;
+import com.zhangyuan.modules.cms.domain.model.CmsPage;
+import com.zhangyuan.modules.cms.domain.model.PageTranslation;
+import com.zhangyuan.modules.cms.domain.model.CmsPublishRecord;
 import com.zhangyuan.modules.cms.dto.BlockDefinitionResponse;
 import com.zhangyuan.modules.cms.dto.CreatePageRequest;
 import com.zhangyuan.modules.cms.dto.PageDetailResponse;
@@ -17,13 +15,11 @@ import com.zhangyuan.modules.cms.dto.RenderPageResponse;
 import com.zhangyuan.modules.cms.dto.SaveDraftRequest;
 import com.zhangyuan.modules.cms.dto.UpdatePageRequest;
 import com.zhangyuan.modules.cms.dto.VersionResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import com.zhangyuan.modules.cms.repository.CmsBlockDefinitionRepository;
-import com.zhangyuan.modules.cms.repository.CmsPageRepository;
-import com.zhangyuan.modules.cms.repository.CmsPageTranslationRepository;
-import com.zhangyuan.modules.cms.repository.CmsPageVersionRepository;
-import com.zhangyuan.modules.cms.repository.CmsPublishRecordRepository;
+import com.zhangyuan.modules.cms.domain.repository.CmsPageRepository;
+import com.zhangyuan.modules.cms.domain.repository.CmsTranslationRepository;
+import com.zhangyuan.modules.cms.domain.repository.CmsVersionRepository;
+import com.zhangyuan.modules.cms.domain.repository.CmsPublishRecordRepository;
+import com.zhangyuan.modules.cms.domain.repository.CmsBlockDefinitionRepository;
 import com.zhangyuan.modules.product.application.service.ProductApplicationService;
 import com.zhangyuan.modules.product.dto.FeatureResponse;
 import com.zhangyuan.modules.product.dto.PlanGroupResponse;
@@ -46,15 +42,16 @@ public class CmsApplicationService {
     private static final Logger log = LoggerFactory.getLogger(CmsApplicationService.class);
 
     private final CmsPageRepository pageRepository;
-    private final CmsPageTranslationRepository translationRepository;
-    private final CmsPageVersionRepository versionRepository;
+    private final CmsTranslationRepository translationRepository;
+    private final CmsVersionRepository versionRepository;
     private final CmsPublishRecordRepository publishRecordRepository;
     private final CmsBlockDefinitionRepository blockDefinitionRepository;
     private final ProductApplicationService productService;
 
+    @org.springframework.beans.factory.annotation.Autowired
     public CmsApplicationService(CmsPageRepository pageRepository,
-                                  CmsPageTranslationRepository translationRepository,
-                                  CmsPageVersionRepository versionRepository,
+                                  CmsTranslationRepository translationRepository,
+                                  CmsVersionRepository versionRepository,
                                   CmsPublishRecordRepository publishRecordRepository,
                                   CmsBlockDefinitionRepository blockDefinitionRepository,
                                   ProductApplicationService productService) {
@@ -66,25 +63,26 @@ public class CmsApplicationService {
         this.productService = productService;
     }
 
+
     // ── Page CRUD ──────────────────────────────────────────────
 
     @Transactional(readOnly = true)
     public PageResponse<PageListItemResponse> listPages(int page, int pageSize) {
-        org.springframework.data.domain.Page<CmsPage> pageResult = pageRepository.findAll(PageRequest.of(page - 1, pageSize));
-        List<PageListItemResponse> items = pageResult.getContent().stream()
+        var pageResult = pageRepository.findAll(page, pageSize);
+        List<PageListItemResponse> items = pageResult.items().stream()
                 .map(p -> new PageListItemResponse(p.getId(), p.getSlug(), p.getPageType(), p.getDefaultLocale(), p.getStatus(), p.getUpdatedAt()))
                 .toList();
-        return PageResponse.of(items, page, pageSize, pageResult.getTotalElements());
+        return PageResponse.of(items, pageResult.page(), pageResult.pageSize(), pageResult.total());
     }
 
     @Transactional(readOnly = true)
     public PageResponse<PageListItemResponse> listPublishedByType(String type, int page, int pageSize) {
         String resolvedType = type == null || type.isBlank() ? "custom" : type;
-        Page<CmsPage> pageResult = pageRepository.findByPageTypeAndStatus(resolvedType, CmsPage.STATUS_ENABLED, PageRequest.of(page - 1, pageSize));
-        List<PageListItemResponse> items = pageResult.getContent().stream()
+        var pageResult = pageRepository.findByPageTypeAndStatus(resolvedType, CmsPage.STATUS_ENABLED, page, pageSize);
+        List<PageListItemResponse> items = pageResult.items().stream()
                 .map(p -> new PageListItemResponse(p.getId(), p.getSlug(), p.getPageType(), p.getDefaultLocale(), p.getStatus(), p.getUpdatedAt()))
                 .toList();
-        return PageResponse.of(items, page, pageSize, pageResult.getTotalElements());
+        return PageResponse.of(items, pageResult.page(), pageResult.pageSize(), pageResult.total());
     }
 
     @Transactional
@@ -98,7 +96,7 @@ public class CmsApplicationService {
         String locale = request.defaultLocale() == null || request.defaultLocale().isBlank() ? "zh-CN" : request.defaultLocale();
         String pageType = request.pageType() == null || request.pageType().isBlank() ? "custom" : request.pageType();
         CmsPage page = pageRepository.save(new CmsPage(slug, locale, pageType, currentUserId()));
-        CmsPageTranslation translation = translationRepository.save(new CmsPageTranslation(page.getId(), locale, request.title()));
+        var translation = translationRepository.create(page.getId(), locale, request.title());
         log.info("CMS page created: id={}, slug={}", page.getId(), page.getSlug());
         return toDetail(page, List.of(translation));
     }
@@ -117,12 +115,12 @@ public class CmsApplicationService {
         if (!slug.equals(page.getSlug()) && pageRepository.existsBySlug(slug)) {
             throw new IllegalArgumentException("CMS page slug already exists");
         }
-        page.setSlug(slug);
+        page.changeSlug(slug);
         if (request.defaultLocale() != null && !request.defaultLocale().isBlank()) {
-            page.setDefaultLocale(request.defaultLocale());
+            page.changeDefaultLocale(request.defaultLocale());
         }
         if (request.pageType() != null && !request.pageType().isBlank()) {
-            page.setPageType(request.pageType());
+            page.changeType(request.pageType());
         }
         page.touch();
         return toDetail(page, translationRepository.findByPageId(pageId));
@@ -143,33 +141,32 @@ public class CmsApplicationService {
     public PageDetailResponse saveDraft(Long pageId, String locale, SaveDraftRequest request) {
         log.info("Saving draft for CMS page: {}, locale: {}", pageId, locale);
         CmsPage page = requirePage(pageId);
-        CmsPageTranslation translation = translationRepository.findByPageIdAndLocale(pageId, locale)
-                .orElseGet(() -> translationRepository.save(new CmsPageTranslation(pageId, locale, request.title())));
-        int nextVersion = versionRepository.findFirstByPageIdAndLocaleOrderByVersionNoDesc(pageId, locale)
-                .map(version -> version.getVersionNo() + 1)
+        var translation = translationRepository.findByPageIdAndLocale(pageId, locale)
+                .orElseGet(() -> translationRepository.create(pageId, locale, request.title()));
+        int nextVersion = versionRepository.findLatestByPageIdAndLocale(pageId, locale)
+                .map(v -> v.getVersionNo() + 1)
                 .orElse(1);
-        CmsPageVersion version = versionRepository.save(new CmsPageVersion(pageId, locale, nextVersion, request.content(), currentUserId(), request.remark()));
-        translation.updateDraft(request.title(), request.seoTitle(), request.seoDescription(), request.seoKeywords(), version.getId());
+        var createdVersion = versionRepository.createAndSave(
+                pageId, locale, nextVersion, request.content(), currentUserId(), request.remark());
+        translation.updateDraftInfo(request.title(), request.seoTitle(), request.seoDescription(),
+                request.seoKeywords(), createdVersion.getId());
         page.touch();
         return toDetail(page, translationRepository.findByPageId(pageId));
     }
 
     @Transactional(readOnly = true)
     public Map<String, Object> getDraftVersion(Long pageId, String locale) {
-        CmsPageTranslation translation = translationRepository.findByPageIdAndLocale(pageId, locale)
+        var translation = translationRepository.findByPageIdAndLocale(pageId, locale)
                 .orElseThrow(() -> new IllegalArgumentException("CMS page translation not found for pageId=" + pageId + ", locale=" + locale));
         if (translation.getDraftVersionId() == null) {
             throw new IllegalArgumentException("CMS page translation has no draft version");
         }
-        CmsPageVersion version = versionRepository.findById(translation.getDraftVersionId())
-                .orElseThrow(() -> new IllegalArgumentException("CMS draft version not found"));
-        return version.getContentJson();
+        return versionRepository.getContentJson(translation.getDraftVersionId());
     }
 
     @Transactional(readOnly = true)
     public List<VersionResponse> listVersions(Long pageId, String locale) {
-        return versionRepository.findByPageIdAndLocaleOrderByVersionNoDesc(pageId, locale)
-                .stream()
+        return versionRepository.findByPageIdAndLocale(pageId, locale).stream()
                 .map(v -> new VersionResponse(v.getId(), v.getVersionNo(), v.getCreatedAt(), v.getRemark()))
                 .toList();
     }
@@ -178,18 +175,14 @@ public class CmsApplicationService {
     public Map<String, Object> preview(Long pageId, String locale, Long versionId) {
         requirePage(pageId);
         if (versionId != null) {
-            CmsPageVersion version = versionRepository.findById(versionId)
-                    .orElseThrow(() -> new IllegalArgumentException("CMS version not found"));
-            return version.getContentJson();
+            return versionRepository.getContentJson(versionId);
         }
-        CmsPageTranslation translation = translationRepository.findByPageIdAndLocale(pageId, locale)
+        var translation = translationRepository.findByPageIdAndLocale(pageId, locale)
                 .orElseThrow(() -> new IllegalArgumentException("CMS page translation not found"));
         if (translation.getDraftVersionId() == null) {
             throw new IllegalArgumentException("CMS page has no draft version");
         }
-        CmsPageVersion version = versionRepository.findById(translation.getDraftVersionId())
-                .orElseThrow(() -> new IllegalArgumentException("CMS draft version not found"));
-        return version.getContentJson();
+        return versionRepository.getContentJson(translation.getDraftVersionId());
     }
 
     // ── Publish & Rollback ─────────────────────────────────────
@@ -198,16 +191,18 @@ public class CmsApplicationService {
     public PageDetailResponse publish(Long pageId, String locale, PublishPageRequest request) {
         log.info("Publishing CMS page: {}, locale: {}", pageId, locale);
         CmsPage page = requirePage(pageId);
-        CmsPageTranslation translation = translationRepository.findByPageIdAndLocale(pageId, locale)
+        var translation = translationRepository.findByPageIdAndLocale(pageId, locale)
                 .orElseThrow(() -> new IllegalArgumentException("CMS page translation not found"));
         if (translation.getDraftVersionId() == null) {
             throw new IllegalArgumentException("CMS page has no draft to publish");
         }
-        CmsPageVersion version = versionRepository.findById(translation.getDraftVersionId())
-                .orElseThrow(() -> new IllegalArgumentException("CMS draft version not found"));
-        version.publishSnapshot(buildPublishSnapshot(version.getContentJson()));
-        translation.publish(version.getId());
-        publishRecordRepository.save(new CmsPublishRecord(pageId, locale, version.getId(), currentUserId(), request == null ? null : request.remark()));
+        var contentJson = versionRepository.getContentJson(translation.getDraftVersionId());
+        var snapshot = buildPublishSnapshot(contentJson);
+        versionRepository.publishSnapshot(translation.getDraftVersionId(), snapshot);
+        translation.publish(translation.getDraftVersionId());
+        publishRecordRepository.save(new CmsPublishRecord(
+                pageId, locale, translation.getDraftVersionId(), currentUserId(),
+                request == null ? null : request.remark()));
         page.touch();
         return toDetail(page, translationRepository.findByPageId(pageId));
     }
@@ -216,24 +211,22 @@ public class CmsApplicationService {
     public PageDetailResponse rollback(Long pageId, String locale, PublishPageRequest request) {
         log.info("Rolling back CMS page: {}, locale: {}, versionId: {}", pageId, locale, request.versionId());
         requirePage(pageId);
-        CmsPageTranslation translation = translationRepository.findByPageIdAndLocale(pageId, locale)
+        var translation = translationRepository.findByPageIdAndLocale(pageId, locale)
                 .orElseThrow(() -> new IllegalArgumentException("CMS page translation not found"));
         if (request == null || request.versionId() == null) {
             throw new IllegalArgumentException("versionId is required for rollback");
         }
-        CmsPageVersion sourceVersion = versionRepository.findById(request.versionId())
-                .orElseThrow(() -> new IllegalArgumentException("CMS source version not found"));
-        if (!sourceVersion.getPageId().equals(pageId) || !sourceVersion.getLocale().equals(locale)) {
+        if (!versionRepository.versionBelongsToPage(request.versionId(), pageId, locale)) {
             throw new IllegalArgumentException("Version does not belong to this page/locale");
         }
-        int nextVersion = versionRepository.findFirstByPageIdAndLocaleOrderByVersionNoDesc(pageId, locale)
+        var sourceContent = versionRepository.getContentJson(request.versionId());
+        int nextVersion = versionRepository.findLatestByPageIdAndLocale(pageId, locale)
                 .map(v -> v.getVersionNo() + 1)
                 .orElse(1);
-        CmsPageVersion newVersion = new CmsPageVersion(pageId, locale, nextVersion,
-                new LinkedHashMap<>(sourceVersion.getContentJson()), currentUserId(),
-                request.remark() != null ? request.remark() : "rollback to version " + sourceVersion.getVersionNo());
-        versionRepository.save(newVersion);
-        translation.updateDraft(translation.getTitle(), translation.getSeoTitle(),
+        var newVersion = versionRepository.createAndSave(pageId, locale, nextVersion,
+                new LinkedHashMap<>(sourceContent), currentUserId(),
+                request.remark() != null ? request.remark() : "rollback to version " + nextVersion);
+        translation.updateDraftInfo(translation.getTitle(), translation.getSeoTitle(),
                 translation.getSeoDescription(), translation.getSeoKeywords(), newVersion.getId());
         return toDetail(requirePage(pageId), translationRepository.findByPageId(pageId));
     }
@@ -246,14 +239,15 @@ public class CmsApplicationService {
         CmsPage page = pageRepository.findBySlug(CmsPage.normalizeSlug(path))
                 .orElseThrow(() -> new IllegalArgumentException("CMS page not found"));
         String resolvedLocale = locale == null || locale.isBlank() ? page.getDefaultLocale() : locale;
-        CmsPageTranslation translation = translationRepository.findByPageIdAndLocale(page.getId(), resolvedLocale)
+        var translation = translationRepository.findByPageIdAndLocale(page.getId(), resolvedLocale)
                 .orElseThrow(() -> new IllegalArgumentException("CMS page translation not found"));
         if (translation.getPublishedVersionId() == null) {
             throw new IllegalArgumentException("CMS page is not published");
         }
-        CmsPageVersion version = versionRepository.findById(translation.getPublishedVersionId())
-                .orElseThrow(() -> new IllegalArgumentException("CMS published version not found"));
-        Map<String, Object> snapshot = version.getSnapshotJson() == null ? version.getContentJson() : version.getSnapshotJson();
+        var snapshot = versionRepository.getSnapshotJson(translation.getPublishedVersionId());
+        if (snapshot == null) {
+            snapshot = versionRepository.getContentJson(translation.getPublishedVersionId());
+        }
         Object layout = snapshot.getOrDefault("layout", "default");
         return new RenderPageResponse(
                 page.getSlug(),
@@ -273,7 +267,7 @@ public class CmsApplicationService {
 
     @Transactional(readOnly = true)
     public List<BlockDefinitionResponse> listEnabledBlockDefinitions() {
-        return blockDefinitionRepository.findByEnabledTrueOrderBySortOrderAsc().stream()
+        return blockDefinitionRepository.findEnabled().stream()
                 .map(block -> new BlockDefinitionResponse(block.getType(), block.getName(), block.getSchemaJson(), block.getDefaultPropsJson()))
                 .toList();
     }
@@ -287,6 +281,8 @@ public class CmsApplicationService {
                     return new IllegalArgumentException("CMS page not found");
                 });
     }
+
+
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> buildPublishSnapshot(Map<String, Object> contentJson) {
@@ -378,7 +374,7 @@ public class CmsApplicationService {
         return value;
     }
 
-    private PageDetailResponse toDetail(CmsPage page, List<CmsPageTranslation> translations) {
+    private PageDetailResponse toDetail(CmsPage page, List<PageTranslation> translations) {
         return new PageDetailResponse(
                 page.getId(),
                 page.getSlug(),
@@ -389,7 +385,7 @@ public class CmsApplicationService {
         );
     }
 
-    private PageTranslationResponse toTranslation(CmsPageTranslation translation) {
+    private PageTranslationResponse toTranslation(PageTranslation translation) {
         return new PageTranslationResponse(
                 translation.getLocale(),
                 translation.getTitle(),
@@ -404,9 +400,9 @@ public class CmsApplicationService {
 
     private Long currentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof AuthUser user)) {
-            return null;
+        if (authentication != null && authentication.getPrincipal() instanceof AuthUser user) {
+            return user.getId();
         }
-        return user.getId();
+        return null;
     }
 }

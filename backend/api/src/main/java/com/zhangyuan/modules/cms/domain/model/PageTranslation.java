@@ -4,6 +4,9 @@ import java.util.*;
 
 public class PageTranslation {
 
+    public static final String STATUS_DRAFT = "draft";
+    public static final String STATUS_PUBLISHED = "published";
+
     private String locale;
     private String title;
     private String seoTitle;
@@ -11,30 +14,38 @@ public class PageTranslation {
     private String seoKeywords;
     private PageContent draft;
     private PageContent published;
-    private Integer draftVersionNo;
-    private Integer publishedVersionNo;
+    private Long draftVersionId;
+    private Long publishedVersionId;
+    private String status;
     private List<PageVersion> versions;
 
     public PageTranslation(String locale, String title) {
         this.locale = locale;
         this.title = title;
+        this.status = STATUS_DRAFT;
         this.versions = new ArrayList<>();
     }
 
     public PageVersion saveDraft(Map<String, Object> content, String remark) {
-        int nextNo = (draftVersionNo != null ? draftVersionNo : 0) + 1;
+        int nextNo = (int) versions.stream().filter(v -> true).count() + 1;
         PageVersion version = new PageVersion(nextNo, content, remark);
         versions.add(version);
         this.draft = new PageContent(content);
-        this.draftVersionNo = nextNo;
         return version;
     }
 
-    public PageVersion publish(String remark) {
-        if (draft == null) throw new IllegalStateException("No draft to publish");
-        this.published = new PageContent(draft.getBlocks());
-        this.publishedVersionNo = draftVersionNo;
-        return versions.isEmpty() ? null : versions.get(versions.size() - 1);
+    public void updateDraftInfo(String title, String seoTitle, String seoDescription,
+                                 String seoKeywords, Long draftVersionId) {
+        this.title = title;
+        this.seoTitle = seoTitle;
+        this.seoDescription = seoDescription;
+        this.seoKeywords = seoKeywords;
+        this.draftVersionId = draftVersionId;
+    }
+
+    public void publish(Long versionId) {
+        this.publishedVersionId = versionId;
+        this.status = STATUS_PUBLISHED;
     }
 
     public void updateSeo(String seoTitle, String seoDescription, String seoKeywords) {
@@ -50,7 +61,8 @@ public class PageTranslation {
     public String getSeoKeywords() { return seoKeywords; }
     public PageContent getDraft() { return draft; }
     public PageContent getPublished() { return published; }
-    public Integer getDraftVersionNo() { return draftVersionNo; }
-    public Integer getPublishedVersionNo() { return publishedVersionNo; }
+    public Long getDraftVersionId() { return draftVersionId; }
+    public Long getPublishedVersionId() { return publishedVersionId; }
+    public String getStatus() { return status; }
     public List<PageVersion> getVersions() { return Collections.unmodifiableList(versions); }
 }

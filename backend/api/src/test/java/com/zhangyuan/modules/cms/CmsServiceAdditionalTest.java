@@ -33,7 +33,7 @@ class CmsServiceAdditionalTest {
     private final CmsPublishRecordRepository publishRecordRepository = mock(CmsPublishRecordRepository.class);
     private final CmsBlockDefinitionRepository blockDefinitionRepository = mock(CmsBlockDefinitionRepository.class);
     private final ProductApplicationService productService = mock(ProductApplicationService.class);
-    private final CmsApplicationService cmsService = new CmsApplicationService(pageRepository, translationRepository, versionRepository, publishRecordRepository, blockDefinitionRepository, productService);
+    private final CmsApplicationService cmsService = CmsServiceTestFactory.create(pageRepository, translationRepository, versionRepository, publishRecordRepository, blockDefinitionRepository, productService);
 
     @Test
     void previewReturnsSpecificVersion() {

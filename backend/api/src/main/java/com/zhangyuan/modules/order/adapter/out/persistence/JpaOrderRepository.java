@@ -3,6 +3,7 @@ package com.zhangyuan.modules.order.adapter.out.persistence;
 import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.order.domain.model.Order;
 import com.zhangyuan.modules.order.domain.model.OrderNumber;
+import com.zhangyuan.modules.order.domain.model.OrderStatus;
 import com.zhangyuan.modules.order.domain.repository.OrderRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -71,21 +72,21 @@ public class JpaOrderRepository implements OrderRepository {
     }
 
     private Order toDomain(OrderMainEntity entity) {
-        Order order = new Order(
+        String statusStr = entity.getStatus();
+        OrderStatus status = OrderStatus.valueOf(statusStr.toUpperCase());
+        Order order = Order.reconstitute(
                 new OrderNumber(entity.getOrderNo()),
                 entity.getPlanId(),
                 entity.getPriceId(),
                 entity.getAmount(),
                 entity.getCurrency(),
-                entity.getSnapshotJson()
+                entity.getSnapshotJson(),
+                status,
+                entity.getCreatedAt(),
+                entity.getPaidAt(),
+                entity.getCancelledAt()
         );
         order.setId(entity.getId());
-        String status = entity.getStatus();
-        if ("paid".equals(status)) {
-            order.markPaid();
-        } else if ("cancelled".equals(status)) {
-            order.cancel();
-        }
         return order;
     }
 }

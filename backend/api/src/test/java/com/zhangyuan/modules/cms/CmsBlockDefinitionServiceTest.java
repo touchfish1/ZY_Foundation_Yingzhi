@@ -27,7 +27,7 @@ class CmsBlockDefinitionServiceTest {
     private final CmsPageVersionRepository versionRepository = mock(CmsPageVersionRepository.class);
     private final CmsPublishRecordRepository publishRecordRepository = mock(CmsPublishRecordRepository.class);
     private final ProductApplicationService productService = mock(ProductApplicationService.class);
-    private final CmsApplicationService service = new CmsApplicationService(pageRepository, translationRepository, versionRepository, publishRecordRepository, blockDefinitionRepository, productService);
+    private final CmsApplicationService service = CmsServiceTestFactory.create(pageRepository, translationRepository, versionRepository, publishRecordRepository, blockDefinitionRepository, productService);
 
     @Test
     void listEnabledReturnsOnlyEnabledBlocks() {

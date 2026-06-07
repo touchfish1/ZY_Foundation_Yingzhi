@@ -6,6 +6,9 @@ import java.util.*;
 
 public class CmsPage extends AggregateRoot<Long> {
 
+    public static final String STATUS_ENABLED = "enabled";
+    public static final String STATUS_DISABLED = "disabled";
+
     private String slug;
     private String pageType = "custom";
     private String defaultLocale;
@@ -51,6 +54,19 @@ public class CmsPage extends AggregateRoot<Long> {
     public void changeType(String pageType) {
         this.pageType = pageType != null ? pageType : "custom";
         this.updatedAt = Instant.now();
+    }
+
+    public void changeDefaultLocale(String defaultLocale) {
+        this.defaultLocale = defaultLocale;
+        this.updatedAt = Instant.now();
+    }
+
+    public void touch() {
+        this.updatedAt = Instant.now();
+    }
+
+    public String getStatus() {
+        return enabled ? STATUS_ENABLED : STATUS_DISABLED;
     }
 
     public String getSlug() { return slug; }

@@ -1,5 +1,6 @@
 package com.zhangyuan.modules.cms.adapter.out.persistence;
 
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.cms.domain.model.CmsPage;
 import com.zhangyuan.modules.cms.domain.repository.CmsPageRepository;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +31,13 @@ public class JpaCmsPageRepository implements CmsPageRepository {
     @Override
     public List<CmsPage> findAll() {
         return jpaRepository.findAll().stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public PageResponse<CmsPage> findAll(int page, int pageSize) {
+        var springPage = jpaRepository.findAll(PageRequest.of(page - 1, pageSize));
+        var items = springPage.getContent().stream().map(this::toDomain).toList();
+        return PageResponse.of(items, page, pageSize, springPage.getTotalElements());
     }
 
     @Override
@@ -64,6 +72,13 @@ public class JpaCmsPageRepository implements CmsPageRepository {
     public List<CmsPage> findByPageTypeAndStatus(String pageType, String status) {
         return jpaRepository.findByPageTypeAndStatus(pageType, status, PageRequest.of(0, Integer.MAX_VALUE))
                 .stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public PageResponse<CmsPage> findByPageTypeAndStatus(String pageType, String status, int page, int pageSize) {
+        var springPage = jpaRepository.findByPageTypeAndStatus(pageType, status, PageRequest.of(page - 1, pageSize));
+        var items = springPage.getContent().stream().map(this::toDomain).toList();
+        return PageResponse.of(items, page, pageSize, springPage.getTotalElements());
     }
 
     private CmsPage toDomain(com.zhangyuan.modules.cms.adapter.out.persistence.CmsPage entity) {
