@@ -1,11 +1,11 @@
 package com.zhangyuan.modules.product.domain.model;
 
+import com.zhangyuan.common.dddframework.Entity;
 import com.zhangyuan.common.dddframework.Money;
 import java.math.BigDecimal;
 
-public class Price {
+public class Price extends Entity<Long> {
 
-    private Long id;
     private Plan plan;
     private String currency;
     private String billingCycle;
@@ -33,7 +33,6 @@ public class Price {
 
     public void disable() { this.enabled = false; }
 
-    public Long getId() { return id; }
     public Plan getPlan() { return plan; }
     public String getCurrency() { return currency; }
     public String getBillingCycle() { return billingCycle; }

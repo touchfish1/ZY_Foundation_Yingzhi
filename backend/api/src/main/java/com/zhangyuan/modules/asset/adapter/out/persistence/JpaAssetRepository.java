@@ -42,16 +42,23 @@ public class JpaAssetRepository implements AssetRepository {
 
     @Override
     public AssetFile save(AssetFile asset) {
-        AssetFileEntity entity = new AssetFileEntity(
-                asset.getBucket(),
-                asset.getObjectKey(),
-                asset.getOriginalName(),
-                asset.getContentType(),
-                asset.getSizeBytes(),
-                asset.getUrl(),
-                asset.getCreatedBy(),
-                asset.getCreatedAt()
-        );
+        AssetFileEntity entity;
+        if (asset.getId() != null) {
+            entity = jpaRepository.findById(asset.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Asset not found: " + asset.getId()));
+            entity.setUrl(asset.getUrl());
+        } else {
+            entity = new AssetFileEntity(
+                    asset.getBucket(),
+                    asset.getObjectKey(),
+                    asset.getOriginalName(),
+                    asset.getContentType(),
+                    asset.getSizeBytes(),
+                    asset.getUrl(),
+                    asset.getCreatedBy(),
+                    asset.getCreatedAt()
+            );
+        }
         entity = jpaRepository.save(entity);
         return toDomain(entity);
     }
@@ -65,6 +72,7 @@ public class JpaAssetRepository implements AssetRepository {
                 entity.getSizeBytes(),
                 entity.getCreatedBy()
         );
+        file.setId(entity.getId());
         file.setUrl(entity.getUrl());
         return file;
     }

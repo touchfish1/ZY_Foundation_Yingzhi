@@ -1,9 +1,10 @@
 package com.zhangyuan.modules.order.domain.model;
 
+import com.zhangyuan.common.dddframework.ValueObject;
 import java.time.Instant;
 import java.util.UUID;
 
-public record OrderNumber(String value) {
+public record OrderNumber(String value) implements ValueObject {
 
     public OrderNumber {
         if (value == null || value.isBlank()) {

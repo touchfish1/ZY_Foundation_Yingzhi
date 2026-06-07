@@ -68,6 +68,7 @@ public class JpaCmsPageRepository implements CmsPageRepository {
 
     private CmsPage toDomain(com.zhangyuan.modules.cms.adapter.out.persistence.CmsPage entity) {
         CmsPage page = new CmsPage(entity.getSlug(), entity.getDefaultLocale(), entity.getPageType(), entity.getCreatedBy());
+        page.setId(entity.getId());
         return page;
     }
 }

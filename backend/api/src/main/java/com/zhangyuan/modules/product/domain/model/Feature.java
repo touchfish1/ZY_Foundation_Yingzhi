@@ -1,8 +1,9 @@
 package com.zhangyuan.modules.product.domain.model;
 
-public class Feature {
+import com.zhangyuan.common.dddframework.Entity;
 
-    private Long id;
+public class Feature extends Entity<Long> {
+
     private Plan plan;
     private String featureName;
     private String featureValue;
@@ -24,7 +25,6 @@ public class Feature {
         this.sortOrder = sortOrder;
     }
 
-    public Long getId() { return id; }
     public Plan getPlan() { return plan; }
     public String getFeatureName() { return featureName; }
     public String getFeatureValue() { return featureValue; }

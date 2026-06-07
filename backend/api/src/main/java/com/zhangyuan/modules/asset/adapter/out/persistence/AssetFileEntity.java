@@ -90,4 +90,8 @@ public class AssetFileEntity {
     public Instant getCreatedAt() {
         return createdAt;
     }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }

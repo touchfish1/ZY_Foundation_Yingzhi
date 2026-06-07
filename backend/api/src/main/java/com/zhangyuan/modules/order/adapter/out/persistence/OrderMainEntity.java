@@ -72,6 +72,31 @@ public class OrderMainEntity {
         this.paidAt = paidAt;
     }
 
+    public void markCancelled(Instant cancelledAt) {
+        this.status = "cancelled";
+        this.cancelledAt = cancelledAt;
+    }
+
+    public void markExpired() {
+        this.status = "expired";
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setPaidAt(Instant paidAt) {
+        this.paidAt = paidAt;
+    }
+
+    public void setCancelledAt(Instant cancelledAt) {
+        this.cancelledAt = cancelledAt;
+    }
+
+    public void setSnapshotJson(String snapshotJson) {
+        this.snapshotJson = snapshotJson;
+    }
+
     public Long getId() {
         return id;
     }

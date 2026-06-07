@@ -174,11 +174,23 @@ public class JpaPlanGroupRepository implements PlanGroupRepository {
 
     private void setId(Object obj, Long id) {
         try {
-            Field idField = obj.getClass().getDeclaredField("id");
+            Field idField = findField(obj.getClass(), "id");
             idField.setAccessible(true);
             idField.set(obj, id);
         } catch (Exception e) {
             throw new RuntimeException("Failed to set id on " + obj.getClass().getName(), e);
         }
+    }
+
+    private static Field findField(Class<?> clazz, String fieldName) {
+        Class<?> current = clazz;
+        while (current != null) {
+            try {
+                return current.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                current = current.getSuperclass();
+            }
+        }
+        throw new RuntimeException("Field not found: " + fieldName + " in " + clazz.getName());
     }
 }

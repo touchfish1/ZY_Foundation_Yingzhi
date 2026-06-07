@@ -1,11 +1,11 @@
 package com.zhangyuan.modules.cms.domain.model;
 
+import com.zhangyuan.common.dddframework.AggregateRoot;
 import java.time.Instant;
 import java.util.*;
 
-public class CmsPage {
+public class CmsPage extends AggregateRoot<Long> {
 
-    private Long id;
     private String slug;
     private String pageType = "custom";
     private String defaultLocale;
@@ -53,7 +53,6 @@ public class CmsPage {
         this.updatedAt = Instant.now();
     }
 
-    public Long getId() { return id; }
     public String getSlug() { return slug; }
     public String getPageType() { return pageType; }
     public String getDefaultLocale() { return defaultLocale; }

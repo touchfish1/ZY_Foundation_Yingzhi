@@ -48,14 +48,24 @@ public class JpaOrderRepository implements OrderRepository {
 
     @Override
     public Order save(Order order) {
-        OrderMainEntity entity = new OrderMainEntity(
-                order.getOrderNo().value(),
-                order.getPlanId(),
-                order.getPriceId(),
-                order.getAmount(),
-                order.getCurrency(),
-                order.getSnapshotJson()
-        );
+        OrderMainEntity entity;
+        if (order.getId() != null) {
+            entity = jpaRepository.findById(order.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Order not found: " + order.getId()));
+            entity.setStatus(order.getStatus().name().toLowerCase());
+            entity.setPaidAt(order.getPaidAt());
+            entity.setCancelledAt(order.getCancelledAt());
+            entity.setSnapshotJson(order.getSnapshotJson());
+        } else {
+            entity = new OrderMainEntity(
+                    order.getOrderNo().value(),
+                    order.getPlanId(),
+                    order.getPriceId(),
+                    order.getAmount(),
+                    order.getCurrency(),
+                    order.getSnapshotJson()
+            );
+        }
         entity = jpaRepository.save(entity);
         return toDomain(entity);
     }
@@ -69,8 +79,12 @@ public class JpaOrderRepository implements OrderRepository {
                 entity.getCurrency(),
                 entity.getSnapshotJson()
         );
-        if ("paid".equals(entity.getStatus())) {
+        order.setId(entity.getId());
+        String status = entity.getStatus();
+        if ("paid".equals(status)) {
             order.markPaid();
+        } else if ("cancelled".equals(status)) {
+            order.cancel();
         }
         return order;
     }

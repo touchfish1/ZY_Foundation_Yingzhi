@@ -8,6 +8,10 @@ public abstract class AggregateRoot<T> extends Entity<T> {
 
     private final List<DomainEvent> domainEvents = new ArrayList<>();
 
+    protected AggregateRoot() {
+        super();
+    }
+
     protected AggregateRoot(T id) {
         super(id);
     }

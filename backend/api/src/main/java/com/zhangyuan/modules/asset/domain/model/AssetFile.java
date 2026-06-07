@@ -1,10 +1,10 @@
 package com.zhangyuan.modules.asset.domain.model;
 
+import com.zhangyuan.common.dddframework.Entity;
 import java.time.Instant;
 
-public class AssetFile {
+public class AssetFile extends Entity<Long> {
 
-    private Long id;
     private String bucket;
     private String objectKey;
     private String originalName;
@@ -28,7 +28,6 @@ public class AssetFile {
         this.url = url;
     }
 
-    public Long getId() { return id; }
     public String getBucket() { return bucket; }
     public String getObjectKey() { return objectKey; }
     public String getOriginalName() { return originalName; }

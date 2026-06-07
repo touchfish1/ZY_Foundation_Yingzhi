@@ -4,7 +4,11 @@ import java.util.Objects;
 
 public abstract class Entity<T> {
 
-    private final T id;
+    private T id;
+
+    protected Entity() {
+        // For creating entities without an assigned identity (e.g., before persistence)
+    }
 
     protected Entity(T id) {
         this.id = id;
@@ -14,17 +18,26 @@ public abstract class Entity<T> {
         return id;
     }
 
+    public void setId(T id) {
+        this.id = id;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Entity<?> entity = (Entity<?>) o;
-        return Objects.equals(id, entity.id);
+        // If both ids are non-null, compare by identity
+        if (id != null && entity.id != null) {
+            return Objects.equals(id, entity.id);
+        }
+        // Otherwise fall back to reference identity
+        return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return id != null ? Objects.hash(id) : super.hashCode();
     }
 
     @Override
@@ -32,4 +45,3 @@ public abstract class Entity<T> {
         return getClass().getSimpleName() + "{id=" + id + "}";
     }
 }
-

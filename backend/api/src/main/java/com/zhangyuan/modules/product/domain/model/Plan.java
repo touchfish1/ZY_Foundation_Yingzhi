@@ -1,13 +1,13 @@
 package com.zhangyuan.modules.product.domain.model;
 
+import com.zhangyuan.common.dddframework.Entity;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Plan {
+public class Plan extends Entity<Long> {
 
-    private Long id;
     private PlanGroup group;
     private String code;
     private String name;
@@ -52,7 +52,6 @@ public class Plan {
         return feature;
     }
 
-    public Long getId() { return id; }
     public PlanGroup getGroup() { return group; }
     public String getCode() { return code; }
     public String getName() { return name; }

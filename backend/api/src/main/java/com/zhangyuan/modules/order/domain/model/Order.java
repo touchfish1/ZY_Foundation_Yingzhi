@@ -1,11 +1,11 @@
 package com.zhangyuan.modules.order.domain.model;
 
+import com.zhangyuan.common.dddframework.AggregateRoot;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-public class Order {
+public class Order extends AggregateRoot<Long> {
 
-    private Long id;
     private OrderNumber orderNo;
     private Long planId;
     private Long priceId;
@@ -47,7 +47,6 @@ public class Order {
     public boolean isPaid() { return status == OrderStatus.PAID; }
     public boolean isPending() { return status == OrderStatus.PENDING; }
 
-    public Long getId() { return id; }
     public OrderNumber getOrderNo() { return orderNo; }
     public Long getPlanId() { return planId; }
     public Long getPriceId() { return priceId; }
