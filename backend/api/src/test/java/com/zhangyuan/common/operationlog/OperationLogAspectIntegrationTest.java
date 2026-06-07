@@ -1,5 +1,6 @@
 package com.zhangyuan.common.operationlog;
 
+import com.zhangyuan.common.accesslog.adapter.out.persistence.AccessLogJpaRepository;
 import com.zhangyuan.common.operationlog.adapter.out.persistence.OperationLogEntity;
 import com.zhangyuan.common.operationlog.adapter.out.persistence.OperationLogJpaRepository;
 import com.zhangyuan.modules.asset.adapter.out.persistence.AssetFileJpaRepository;
@@ -65,6 +66,7 @@ class OperationLogAspectIntegrationTest {
     @MockBean private PaymentTransactionJpaRepository paymentTransactionJpaRepository;
     @MockBean private MinioClient minioClient;
     @MockBean private OperationLogJpaRepository operationLogJpaRepository;
+    @MockBean private AccessLogJpaRepository accessLogJpaRepository;
 
     @Test
     void operationLogAnnotationTriggersOnCreateCmsPage() throws Exception {

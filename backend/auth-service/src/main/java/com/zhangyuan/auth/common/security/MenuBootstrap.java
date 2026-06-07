@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -27,71 +28,87 @@ public class MenuBootstrap implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        // Clear existing menu data and re-seed (dev mode)
-        menuRepository.deleteAll();
+        // Idempotent: create menus only if they don't already exist.
+        // Uses findByPath (for page menus with paths) or findByNameAndParentId (for groups/buttons)
+        // to skip existing entries, making this safe to re-run without data loss.
 
         // Top-level menus
-        AdminMenu dashboard = menuRepository.save(createMenu(null, "仪表盘", "page", 1, "/", "Dashboard", null));
+        findOrCreate(null, "仪表盘", "page", 1, "/", "Dashboard", null);
 
-        AdminMenu contentManagement = menuRepository.save(createMenu(null, "内容管理", "group", 2, null, "BookOpen", null));
-        AdminMenu businessManagement = menuRepository.save(createMenu(null, "商业管理", "group", 3, null, "Briefcase", null));
-        AdminMenu systemManagement = menuRepository.save(createMenu(null, "系统管理", "group", 4, null, "Settings", null));
+        AdminMenu contentManagement = findOrCreate(null, "内容管理", "group", 2, null, "BookOpen", null);
+        AdminMenu businessManagement = findOrCreate(null, "商业管理", "group", 3, null, "Briefcase", null);
+        AdminMenu systemManagement = findOrCreate(null, "系统管理", "group", 4, null, "Settings", null);
 
         // --- Content Management children ---
-        menuRepository.save(createMenu(contentManagement.getId(), "页面管理", "page", 1, "/cms/pages", "FileText", null));
-        menuRepository.save(createMenu(contentManagement.getId(), "媒体资源", "page", 2, "/assets", "Image", null));
+        findOrCreate(contentManagement.getId(), "页面管理", "page", 1, "/cms/pages", "FileText", null);
+        findOrCreate(contentManagement.getId(), "媒体资源", "page", 2, "/assets", "Image", null);
 
         // --- Business Management children ---
-        menuRepository.save(createMenu(businessManagement.getId(), "套餐组", "page", 1, "/products/plan-groups", "Layers", null));
-        menuRepository.save(createMenu(businessManagement.getId(), "套餐列表", "page", 2, "/products/plans", "Pricetags", null));
-        menuRepository.save(createMenu(businessManagement.getId(), "订单管理", "page", 3, "/orders", "Cart", null));
-        menuRepository.save(createMenu(businessManagement.getId(), "支付记录", "page", 4, "/payments/transactions", "Wallet", null));
+        findOrCreate(businessManagement.getId(), "套餐组", "page", 1, "/products/plan-groups", "Layers", null);
+        findOrCreate(businessManagement.getId(), "套餐列表", "page", 2, "/products/plans", "Pricetags", null);
+        findOrCreate(businessManagement.getId(), "订单管理", "page", 3, "/orders", "Cart", null);
+        findOrCreate(businessManagement.getId(), "支付记录", "page", 4, "/payments/transactions", "Wallet", null);
 
         // --- System Management children ---
-        AdminMenu users = menuRepository.save(createMenu(systemManagement.getId(), "用户管理", "page", 1, "/system/users", "People",
-                permissionSet("system:user:list")));
-        AdminMenu roles = menuRepository.save(createMenu(systemManagement.getId(), "角色管理", "page", 2, "/system/roles", "ShieldCheckmark",
-                permissionSet("system:role:list")));
-        AdminMenu permissions = menuRepository.save(createMenu(systemManagement.getId(), "权限管理", "page", 3, "/system/permissions", "Key",
-                permissionSet("system:permission:list")));
-        AdminMenu menus = menuRepository.save(createMenu(systemManagement.getId(), "菜单管理", "page", 4, "/system/menus", "Menu",
-                permissionSet("system:menu:list")));
-        menuRepository.save(createMenu(systemManagement.getId(), "系统设置", "page", 5, "/system/settings", "Wrench", null));
+        AdminMenu users = findOrCreate(systemManagement.getId(), "用户管理", "page", 1, "/system/users", "People",
+                permissionSet("system:user:list"));
+        AdminMenu roles = findOrCreate(systemManagement.getId(), "角色管理", "page", 2, "/system/roles", "ShieldCheckmark",
+                permissionSet("system:role:list"));
+        AdminMenu permissions = findOrCreate(systemManagement.getId(), "权限管理", "page", 3, "/system/permissions", "Key",
+                permissionSet("system:permission:list"));
+        AdminMenu menus = findOrCreate(systemManagement.getId(), "菜单管理", "page", 4, "/system/menus", "Menu",
+                permissionSet("system:menu:list"));
+        findOrCreate(systemManagement.getId(), "系统监控", "page", 5, "/system/monitor", "Server", null);
+        findOrCreate(systemManagement.getId(), "系统设置", "page", 6, "/system/settings", "Wrench", null);
+        findOrCreate(systemManagement.getId(), "审计日志", "page", 7, "/system/logs", "Newspaper",
+                permissionSet("system:log:list"));
+        findOrCreate(systemManagement.getId(), "操作日志", "page", 8, "/system/operation-logs", "Build",
+                permissionSet("system:operation-log"));
+        findOrCreate(systemManagement.getId(), "访问日志", "page", 9, "/system/access-logs", "Code",
+                permissionSet("system:access-log"));
 
         // --- Button-type menu items for CRUD permissions ---
         // Permission CRUD buttons under Permissions menu
-        menuRepository.save(createMenu(permissions.getId(), "新建权限", "button", 1, null, null,
-                permissionSet("system:permission:create")));
-        menuRepository.save(createMenu(permissions.getId(), "编辑权限", "button", 2, null, null,
-                permissionSet("system:permission:update")));
-        menuRepository.save(createMenu(permissions.getId(), "删除权限", "button", 3, null, null,
-                permissionSet("system:permission:delete")));
+        findOrCreate(permissions.getId(), "新建权限", "button", 1, null, null,
+                permissionSet("system:permission:create"));
+        findOrCreate(permissions.getId(), "编辑权限", "button", 2, null, null,
+                permissionSet("system:permission:update"));
+        findOrCreate(permissions.getId(), "删除权限", "button", 3, null, null,
+                permissionSet("system:permission:delete"));
 
         // Menu CRUD buttons under Menus menu
-        menuRepository.save(createMenu(menus.getId(), "新建菜单", "button", 1, null, null,
-                permissionSet("system:menu:create")));
-        menuRepository.save(createMenu(menus.getId(), "编辑菜单", "button", 2, null, null,
-                permissionSet("system:menu:update")));
-        menuRepository.save(createMenu(menus.getId(), "删除菜单", "button", 3, null, null,
-                permissionSet("system:menu:delete")));
+        findOrCreate(menus.getId(), "新建菜单", "button", 1, null, null,
+                permissionSet("system:menu:create"));
+        findOrCreate(menus.getId(), "编辑菜单", "button", 2, null, null,
+                permissionSet("system:menu:update"));
+        findOrCreate(menus.getId(), "删除菜单", "button", 3, null, null,
+                permissionSet("system:menu:delete"));
 
         // System user/role update buttons
-        menuRepository.save(createMenu(users.getId(), "编辑用户", "button", 1, null, null,
-                permissionSet("system:user:update")));
-        menuRepository.save(createMenu(roles.getId(), "编辑角色", "button", 1, null, null,
-                permissionSet("system:role:update")));
+        findOrCreate(users.getId(), "编辑用户", "button", 1, null, null,
+                permissionSet("system:user:update"));
+        findOrCreate(roles.getId(), "编辑角色", "button", 1, null, null,
+                permissionSet("system:role:update"));
     }
 
-    private AdminMenu createMenu(Long parentId, String name, String menuType, Integer sortOrder,
-                                 String path, String icon, Set<AdminPermission> permissions) {
+    private AdminMenu findOrCreate(Long parentId, String name, String menuType, Integer sortOrder,
+                                    String path, String icon, Set<AdminPermission> permissions) {
+        if (path != null && !path.isBlank()) {
+            Optional<AdminMenu> existing = menuRepository.findByPath(path);
+            if (existing.isPresent()) return existing.get();
+        }
+        if (parentId != null) {
+            Optional<AdminMenu> existing = menuRepository.findByNameAndParentId(name, parentId);
+            if (existing.isPresent()) return existing.get();
+        }
         AdminMenu menu = new AdminMenu(name, menuType, sortOrder);
         menu.setParentId(parentId);
         menu.setPath(path);
         menu.setIcon(icon);
-        if (permissions != null) {
+        if (permissions != null && !permissions.isEmpty()) {
             menu.getPermissions().addAll(permissions);
         }
-        return menu;
+        return menuRepository.save(menu);
     }
 
     private Set<AdminPermission> permissionSet(String... codes) {

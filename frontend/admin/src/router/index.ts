@@ -21,6 +21,8 @@ import Transactions from '../pages/payments/Transactions.vue'
 
 const Usage = () => import('../pages/orders/Usage.vue')
 const Logs = () => import('../pages/system/Logs.vue')
+const OperationLogs = () => import('../pages/system/OperationLogs.vue')
+const AccessLogs = () => import('../pages/system/AccessLogs.vue')
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -48,6 +50,8 @@ export const router = createRouter({
         { path: 'system/settings', component: Settings },
         { path: 'orders/usage', component: Usage, meta: { title: '用量管理', permissions: ['order:usage:list'] } },
         { path: 'system/logs', component: Logs, meta: { title: '审计日志', permissions: ['system:log:list'] } },
+        { path: 'system/operation-logs', component: OperationLogs, meta: { title: '操作日志', permissions: ['system:operation-log'] } },
+        { path: 'system/access-logs', component: AccessLogs, meta: { title: '访问日志', permissions: ['system:access-log'] } },
         { path: 'system/permissions', component: Permissions, meta: { permissions: ['system:permission:list'] } },
         { path: 'system/menus', component: Menus, meta: { permissions: ['system:menu:list'] } }
       ]

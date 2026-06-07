@@ -136,6 +136,84 @@ export function listLogs(params?: { page?: number, pageSize?: number, userId?: n
   return request<PageResponse<AuditLog>>(`/api/logs${query ? '?' + query : ''}`)
 }
 
+// Operation log types matching backend OperationType enum
+export type OperationType = 'CREATE' | 'UPDATE' | 'DELETE' | 'QUERY' | 'LOGIN' | 'EXPORT' | 'IMPORT' | 'OTHER'
+
+// Resource types matching backend ResourceType enum
+export type ResourceType = 'CMS_PAGE' | 'PRODUCT_PLAN_GROUP' | 'PRODUCT_PLAN' | 'PRODUCT_PRICE' | 'PRODUCT_FEATURE' | 'ORDER' | 'ASSET_FILE' | 'ADMIN_USER' | 'ADMIN_ROLE' | 'SYSTEM_SETTING' | 'OTHER'
+
+export interface OperationLog {
+  id: number
+  operatorId: number
+  operatorName: string
+  operationType: OperationType
+  resourceType: ResourceType
+  resourceId: string
+  detail: string
+  ipAddress: string
+  success: boolean
+  errorMessage: string | null
+  createdAt: string
+}
+
+// 获取操作日志列表（分页）
+export function listOperationLogs(params?: {
+  page?: number
+  pageSize?: number
+  operatorId?: number
+  resourceType?: ResourceType
+  operationType?: OperationType
+  startTime?: string
+  endTime?: string
+}) {
+  const qs = new URLSearchParams()
+  if (params?.page) qs.set('page', String(params.page))
+  if (params?.pageSize) qs.set('pageSize', String(params.pageSize))
+  if (params?.operatorId) qs.set('operatorId', String(params.operatorId))
+  if (params?.resourceType) qs.set('resourceType', params.resourceType)
+  if (params?.operationType) qs.set('operationType', params.operationType)
+  if (params?.startTime) qs.set('startTime', params.startTime)
+  if (params?.endTime) qs.set('endTime', params.endTime)
+  const query = qs.toString()
+  return request<PageResponse<OperationLog>>(`/admin/operation-logs${query ? '?' + query : ''}`)
+}
+
+export interface AccessLog {
+  id: number
+  requestMethod: string
+  requestPath: string
+  responseStatus: number
+  userId: number | null
+  username: string | null
+  ipAddress: string
+  userAgent: string
+  durationMs: number
+  createdAt: string
+}
+
+export function listAccessLogs(params?: {
+  page?: number
+  pageSize?: number
+  method?: string
+  path?: string
+  status?: number
+  userId?: number
+  startTime?: string
+  endTime?: string
+}) {
+  const qs = new URLSearchParams()
+  if (params?.page) qs.set('page', String(params.page))
+  if (params?.pageSize) qs.set('pageSize', String(params.pageSize))
+  if (params?.method) qs.set('method', params.method)
+  if (params?.path) qs.set('path', params.path)
+  if (params?.status) qs.set('status', String(params.status))
+  if (params?.userId) qs.set('userId', String(params.userId))
+  if (params?.startTime) qs.set('startTime', params.startTime)
+  if (params?.endTime) qs.set('endTime', params.endTime)
+  const query = qs.toString()
+  return request<PageResponse<AccessLog>>(`/admin/access-logs${query ? '?' + query : ''}`)
+}
+
 // 用户余额充值
 export function rechargeBalance(userId: number, payload: { amount: number, remark?: string }) {
   return request<void>(`/api/balance/${userId}/recharge`, { method: 'POST', body: JSON.stringify(payload) })

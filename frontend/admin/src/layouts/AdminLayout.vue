@@ -140,7 +140,10 @@ const fallbackMenus: MenuItem[] = [
     { id: 73, parentId: 7, name: '权限管理', path: '/system/permissions', icon: null, menuType: 'page', sortOrder: 3, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
     { id: 74, parentId: 7, name: '菜单管理', path: '/system/menus', icon: null, menuType: 'page', sortOrder: 4, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
     { id: 75, parentId: 7, name: '系统监控', path: '/system/monitor', icon: null, menuType: 'page', sortOrder: 5, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
-    { id: 76, parentId: 7, name: '系统设置', path: '/system/settings', icon: null, menuType: 'page', sortOrder: 6, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' }
+    { id: 76, parentId: 7, name: '系统设置', path: '/system/settings', icon: null, menuType: 'page', sortOrder: 6, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
+    { id: 77, parentId: 7, name: '审计日志', path: '/system/logs', icon: null, menuType: 'page', sortOrder: 7, status: 'enabled', permissionCodes: ['system:log:list'], children: [], createdAt: '', updatedAt: '' },
+    { id: 78, parentId: 7, name: '操作日志', path: '/system/operation-logs', icon: null, menuType: 'page', sortOrder: 8, status: 'enabled', permissionCodes: ['system:operation-log'], children: [], createdAt: '', updatedAt: '' },
+    { id: 79, parentId: 7, name: '访问日志', path: '/system/access-logs', icon: null, menuType: 'page', sortOrder: 9, status: 'enabled', permissionCodes: ['system:access-log'], children: [], createdAt: '', updatedAt: '' }
   ], createdAt: '', updatedAt: '' }
 ]
 

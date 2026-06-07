@@ -15,9 +15,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class SaTokenConfig implements WebMvcConfigurer {
 
     private final SaTokenSecurityContextBridge contextBridge;
+    private final com.zhangyuan.common.accesslog.adapter.in.interceptor.AccessLogInterceptor accessLogInterceptor;
 
-    public SaTokenConfig(SaTokenSecurityContextBridge contextBridge) {
+    public SaTokenConfig(SaTokenSecurityContextBridge contextBridge,
+                         com.zhangyuan.common.accesslog.adapter.in.interceptor.AccessLogInterceptor accessLogInterceptor) {
         this.contextBridge = contextBridge;
+        this.accessLogInterceptor = accessLogInterceptor;
     }
 
     @Override
@@ -29,6 +32,7 @@ public class SaTokenConfig implements WebMvcConfigurer {
             SaRouter.match("/api/**", "/actuator/**").check(r -> {});
         })).addPathPatterns("/**");
         registry.addInterceptor(contextBridge).addPathPatterns("/**");
+        registry.addInterceptor(accessLogInterceptor).addPathPatterns("/admin/**", "/api/**");
     }
 
     @Bean

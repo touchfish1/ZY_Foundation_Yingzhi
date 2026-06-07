@@ -108,9 +108,9 @@ spring:
           uri: ${PAYMENT_SERVICE_URI:http://127.0.0.1:8084}
           predicates:
             - Path=/api/payments/**
-        # Payment service admin
+        # Payment admin API (controller is in main API module)
         - id: payment-admin
-          uri: ${PAYMENT_SERVICE_URI:http://127.0.0.1:8084}
+          uri: ${API_SERVICE_URI:http://127.0.0.1:8088}
           predicates:
             - Path=/admin/payments/**
         # Main API — admin routes

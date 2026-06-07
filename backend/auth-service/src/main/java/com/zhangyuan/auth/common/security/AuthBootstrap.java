@@ -96,7 +96,10 @@ public class AuthBootstrap implements ApplicationRunner {
                 new PermissionSeed("system:menu:create", "新建菜单", "system"),
                 new PermissionSeed("system:menu:update", "编辑菜单", "system"),
                 new PermissionSeed("system:menu:delete", "删除菜单", "system"),
-                new PermissionSeed("system:setting:list", "设置列表", "system")
+                new PermissionSeed("system:setting:list", "设置列表", "system"),
+                new PermissionSeed("system:log:list", "审计日志查询", "system"),
+                new PermissionSeed("system:access-log", "访问日志", "system"),
+                new PermissionSeed("system:operation-log", "操作日志", "system")
         );
     }
 

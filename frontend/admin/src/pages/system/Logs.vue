@@ -4,7 +4,7 @@
       <div class="page-head-inner">
         <div>
           <h2>审计日志</h2>
-          <p>查看系统操作审计日志。</p>
+          <p>查看用户操作审计日志，记录用户在系统中的行为轨迹。</p>
         </div>
       </div>
     </div>
