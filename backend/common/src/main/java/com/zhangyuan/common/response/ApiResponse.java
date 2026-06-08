@@ -1,6 +1,8 @@
 package com.zhangyuan.common.response;
 
-public record ApiResponse<T>(int code, String message, T data) {
+import java.io.Serializable;
+
+public record ApiResponse<T>(int code, String message, T data) implements Serializable {
 
     public static <T> ApiResponse<T> ok(T data) {
         return new ApiResponse<>(0, "ok", data);

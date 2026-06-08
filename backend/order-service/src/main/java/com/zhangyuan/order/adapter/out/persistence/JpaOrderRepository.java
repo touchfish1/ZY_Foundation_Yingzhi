@@ -4,8 +4,10 @@ import com.zhangyuan.order.domain.model.Order;
 import com.zhangyuan.order.domain.model.OrderNumber;
 import com.zhangyuan.order.domain.repository.OrderRepository;
 import com.zhangyuan.order.repository.OrderMainEntityRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +33,14 @@ public class JpaOrderRepository implements OrderRepository {
     @Override
     public List<Order> findAllOrderByCreatedAtDesc() {
         return jpaRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(this::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Order> findPendingOrdersOlderThan(Instant threshold, int limit) {
+        return jpaRepository.findByStatusAndCreatedAtBeforeOrderByCreatedAtAsc(
+                        "pending", threshold, PageRequest.of(0, limit)).stream()
                 .map(this::toDomain)
                 .toList();
     }

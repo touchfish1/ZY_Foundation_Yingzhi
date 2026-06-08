@@ -47,6 +47,7 @@ const verified = ref(false)
 const error = ref('')
 const pollStatus = ref('等待支付...')
 const qrRef = ref<HTMLElement | null>(null)
+const pollingInterval = ref<ReturnType<typeof setInterval> | null>(null)
 
 const isMock = computed(() => !!(payUrl.value && !codeUrl.value))
 const isWeChat = computed(() => !!codeUrl.value)
@@ -60,6 +61,13 @@ onMounted(() => {
   }
 })
 
+onUnmounted(() => {
+  if (pollingInterval.value) {
+    clearInterval(pollingInterval.value)
+    pollingInterval.value = null
+  }
+})
+
 function renderQrCode() {
   import('qrcode').then(QRCode => {
     QRCode.default.toCanvas(qrRef.value, codeUrl.value, { width: 220, margin: 2 })
@@ -67,18 +75,18 @@ function renderQrCode() {
 }
 
 function startPolling() {
-  const interval = setInterval(async () => {
+  pollingInterval.value = setInterval(async () => {
     if (!paymentNo.value) return
     try {
       const res = await auth.authFetch<any>(`/api/payments/${paymentNo.value}`)
       const status = res?.data?.status || res?.status
       if (status === 'SUCCESS') {
         verified.value = true
-        clearInterval(interval)
+        stopPolling()
         setTimeout(() => router.push('/dashboard/orders'), 2000)
       } else if (status === 'FAILED' || status === 'CLOSED') {
         error.value = '支付失败，请重试'
-        clearInterval(interval)
+        stopPolling()
       } else {
         pollStatus.value = '等待支付...'
       }
@@ -86,6 +94,13 @@ function startPolling() {
       pollStatus.value = '查询中...'
     }
   }, 3000)
+}
+
+function stopPolling() {
+  if (pollingInterval.value) {
+    clearInterval(pollingInterval.value)
+    pollingInterval.value = null
+  }
 }
 
 async function verifyPayment() {

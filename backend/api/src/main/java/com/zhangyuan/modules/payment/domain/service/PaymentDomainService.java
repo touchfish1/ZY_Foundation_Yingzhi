@@ -26,16 +26,4 @@ public class PaymentDomainService {
         }
     }
 
-    /**
-     * 验证是否支持模拟支付通道。
-     *
-     * @param payment 支付领域对象
-     * @throws IllegalArgumentException 非模拟通道时抛出
-     */
-    public void processMockPayment(Payment payment) {
-        if (!"mock".equalsIgnoreCase(payment.getChannel())) {
-            log.warn("Only mock payment channel is supported, got: {}", payment.getChannel());
-            throw new IllegalArgumentException("Only mock payment channel is supported");
-        }
-    }
 }

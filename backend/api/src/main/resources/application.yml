@@ -10,11 +10,11 @@ spring:
         server-addr: ${NACOS_HOST:100.125.148.23}:${NACOS_PORT:8848}
         ip: ${NACOS_DISCOVERY_IP:127.0.0.1}
         username: ${NACOS_USERNAME:nacos}
-        password: ${NACOS_PASSWORD:chengccn}
+        password: ${NACOS_PASSWORD:}
       config:
         server-addr: ${NACOS_HOST:100.125.148.23}:${NACOS_PORT:8848}
         username: ${NACOS_USERNAME:nacos}
-        password: ${NACOS_PASSWORD:chengccn}
+        password: ${NACOS_PASSWORD:}
         file-extension: yaml
         import-check:
           enabled: false
@@ -24,6 +24,11 @@ spring:
     password: ${DB_PASSWORD:zhangyuan}
     hikari:
       maximum-pool-size: 5
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
   jpa:
     hibernate:
       ddl-auto: validate
@@ -31,6 +36,11 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  cache:
+    type: redis
+    redis:
+      time-to-live: ${CACHE_TTL:300s}
+      cache-null-values: false
   data:
     redis:
       host: ${REDIS_HOST:100.125.148.23}

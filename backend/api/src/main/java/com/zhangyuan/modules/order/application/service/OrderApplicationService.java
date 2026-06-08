@@ -2,6 +2,7 @@ package com.zhangyuan.modules.order.application.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zhangyuan.common.exception.NotFoundException;
 import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.order.domain.model.Order;
 import com.zhangyuan.modules.order.domain.model.OrderNumber;
@@ -70,16 +71,14 @@ public class OrderApplicationService {
         String currency = request.currency().trim().toUpperCase();
         String billingCycle = request.billingCycle().trim();
 
-        Plan plan = planGroupRepository.findAllOrdered().stream()
-                .flatMap(pg -> pg.getPlans().stream())
-                .filter(p -> p.getCode().equals(request.planCode().trim()) && p.isEnabled())
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product plan not found"));
+        Plan plan = planGroupRepository.findPlanByCode(request.planCode().trim())
+                .filter(Plan::isEnabled)
+                .orElseThrow(() -> new NotFoundException("Product plan not found: " + request.planCode()));
 
         Price price = plan.getPrices().stream()
                 .filter(p -> p.getBillingCycle().equals(billingCycle) && p.getCurrency().equals(currency) && p.isEnabled())
                 .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product price not found"));
+                .orElseThrow(() -> new NotFoundException("Product price not found for billingCycle=" + billingCycle + ", currency=" + currency));
 
         String snapshotJson = snapshot(plan, price);
         Order order = orderDomainService.createOrder(plan.getId(), price.getId(), price.getAmount(), price.getCurrency(), snapshotJson);
@@ -103,7 +102,7 @@ public class OrderApplicationService {
     public OrderResponse getOrder(String orderNo) {
         return orderRepository.findByOrderNo(new OrderNumber(orderNo))
                 .map(this::toResponse)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+                .orElseThrow(() -> new NotFoundException("Order not found: " + orderNo));
     }
 
     /**

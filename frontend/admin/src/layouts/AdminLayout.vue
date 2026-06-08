@@ -111,7 +111,12 @@ import { useThemeStore } from '../stores/theme'
 import { usePermissionStore } from '../stores/permission'
 import type { MenuItem } from '../api/menu'
 import { clearToken } from '../api/http'
-import * as Icons from '@vicons/ionicons5'
+import {
+  Grid, BookOutline, Image, DocumentText, Briefcase, Layers, Pricetags,
+  Cart, Wallet, Settings, People, ShieldCheckmark, Key, Menu, Construct,
+  PersonOutline, Code, ColorPalette, Globe, Chatbubbles, Newspaper, Server,
+  Build, LogOut
+} from '@vicons/ionicons5'
 
 const route = useRoute()
 const router = useRouter()
@@ -149,30 +154,30 @@ const fallbackMenus: MenuItem[] = [
 
 // Icon mapping using @vicons/ionicons5
 const iconMap: Record<string, any> = {
-  Dashboard: Icons.Grid,
-  BookOpen: Icons.BookOutline,
-  Image: Icons.Image,
-  FileText: Icons.DocumentText,
-  Briefcase: Icons.Briefcase,
-  Layers: Icons.Layers,
-  Pricetags: Icons.Pricetags,
-  Cart: Icons.Cart,
-  Wallet: Icons.Wallet,
-  Settings: Icons.Settings,
-  People: Icons.People,
-  ShieldCheckmark: Icons.ShieldCheckmark,
-  Key: Icons.Key,
-  Menu: Icons.Menu,
-  Wrench: Icons.Construct,
-  PersonOutline: Icons.PersonOutline,
-  Code: Icons.Code,
-  ColorPalette: Icons.ColorPalette,
-  Globe: Icons.Globe,
-  Chatbubbles: Icons.Chatbubbles,
-  Newspaper: Icons.Newspaper,
-  Server: Icons.Server,
-  Build: Icons.Build,
-  LogOut: Icons.LogOut,
+  Dashboard: Grid,
+  BookOpen: BookOutline,
+  Image: Image,
+  FileText: DocumentText,
+  Briefcase: Briefcase,
+  Layers: Layers,
+  Pricetags: Pricetags,
+  Cart: Cart,
+  Wallet: Wallet,
+  Settings: Settings,
+  People: People,
+  ShieldCheckmark: ShieldCheckmark,
+  Key: Key,
+  Menu: Menu,
+  Wrench: Construct,
+  PersonOutline: PersonOutline,
+  Code: Code,
+  ColorPalette: ColorPalette,
+  Globe: Globe,
+  Chatbubbles: Chatbubbles,
+  Newspaper: Newspaper,
+  Server: Server,
+  Build: Build,
+  LogOut: LogOut,
 }
 
 function renderIcon(iconName: string | null) {

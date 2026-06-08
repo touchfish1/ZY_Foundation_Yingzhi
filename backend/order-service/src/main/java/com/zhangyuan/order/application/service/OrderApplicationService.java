@@ -2,6 +2,7 @@ package com.zhangyuan.order.application.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zhangyuan.common.exception.NotFoundException;
 import com.zhangyuan.order.client.ProductServiceClient;
 import com.zhangyuan.order.domain.model.Order;
 import com.zhangyuan.order.domain.model.OrderNumber;
@@ -62,14 +63,14 @@ public class OrderApplicationService {
         // Feign call outside transaction to avoid holding DB connection pool
         var resp = productClient.getPlanGroup(planCode);
         if (resp == null || resp.code() != 0) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product plan not found: " + planCode);
+            throw new NotFoundException("Product plan not found: " + planCode);
         }
 
         SnapShotResult snapshotResult = buildSnapshotFromFeignResponse(resp.data(), planCode, billingCycle, currency);
 
         if (snapshotResult.planId() == null || snapshotResult.priceId() == null) {
             log.error("Plan/price not found for planCode={}, billingCycle={}, currency={}", planCode, billingCycle, currency);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+            throw new IllegalArgumentException(
                     "No matching plan/price found for planCode=" + planCode + ", billingCycle=" + billingCycle + ", currency=" + currency);
         }
 
@@ -93,7 +94,7 @@ public class OrderApplicationService {
     public OrderResponse getOrder(String orderNo) {
         return orderRepository.findByOrderNo(new OrderNumber(orderNo))
                 .map(this::toResponse)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+                .orElseThrow(() -> new NotFoundException("Order not found: " + orderNo));
     }
 
     @Transactional(readOnly = true)
@@ -233,11 +234,7 @@ public class OrderApplicationService {
     @Transactional
     public void autoCancelExpiredOrders() {
         Instant expireThreshold = Instant.now().minus(30, java.time.temporal.ChronoUnit.MINUTES);
-        var expiredOrders = orderRepository.findAllOrderByCreatedAtDesc().stream()
-                .filter(o -> o.getStatus() == com.zhangyuan.order.domain.model.OrderStatus.PENDING)
-                .filter(o -> o.getCreatedAt().isBefore(expireThreshold))
-                .limit(100)
-                .toList();
+        var expiredOrders = orderRepository.findPendingOrdersOlderThan(expireThreshold, 100);
         for (var order : expiredOrders) {
             try {
                 order.cancel();

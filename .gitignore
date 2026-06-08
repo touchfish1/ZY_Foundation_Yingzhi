@@ -38,3 +38,5 @@ infrastructure/docker/data/minio/
 
 # Test output
 gradle_test_output.txt
+.omo/
+infrastructure/docker/data/

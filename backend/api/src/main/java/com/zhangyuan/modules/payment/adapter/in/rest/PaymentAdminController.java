@@ -11,6 +11,7 @@ import com.zhangyuan.modules.payment.dto.PaymentResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +27,13 @@ public class PaymentAdminController {
 
     public PaymentAdminController(PaymentApplicationService paymentApplicationService) {
         this.paymentApplicationService = paymentApplicationService;
+    }
+
+    @GetMapping("/{paymentNo}")
+    @OperationLog(type = QUERY, resource = ORDER, resourceId = "#paymentNo")
+    public ApiResponse<PaymentResponse> get(@PathVariable String paymentNo) {
+        log.info("Getting payment: {}", paymentNo);
+        return ApiResponse.ok(paymentApplicationService.getPayment(paymentNo));
     }
 
     @GetMapping

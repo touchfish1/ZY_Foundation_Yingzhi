@@ -44,6 +44,23 @@ public class JpaPlanGroupRepository implements PlanGroupRepository {
     }
 
     @Override
+    public Optional<Plan> findPlanByCode(String code) {
+        return planRepository.findByCode(code).map(entity -> {
+            PlanGroup group = new PlanGroup("", "", "", 0);
+            setId(group, entity.getGroupId());
+            Plan plan = group.addPlan(entity.getCode(), entity.getName(), entity.getDescription(),
+                    entity.getBadge(), entity.getSortOrder());
+            setId(plan, entity.getId());
+            for (ProductPrice pe : priceRepository.findByPlanId(entity.getId())) {
+                Price price = plan.addPrice(pe.getCurrency(), pe.getBillingCycle(),
+                        pe.getAmount(), pe.getOriginalAmount());
+                setId(price, pe.getId());
+            }
+            return plan;
+        });
+    }
+
+    @Override
     public List<PlanGroup> findAllOrdered() {
         return jpaRepository.findAllByOrderBySortOrderAsc().stream()
                 .map(this::toDomain)

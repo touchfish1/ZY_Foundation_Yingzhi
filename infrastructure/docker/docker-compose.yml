@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_DB: zhangyuan
       POSTGRES_USER: zhangyuan
-      POSTGRES_PASSWORD: zhangyuan
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-zhangyuan}
     ports:
       - "5432:5432"
     volumes:
@@ -39,7 +39,7 @@ services:
     container_name: zhangyuan-minio
     environment:
       MINIO_ROOT_USER: zhangyuan
-      MINIO_ROOT_PASSWORD: zhangyuan-minio-secret
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-zhangyuan-minio-secret}
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -60,9 +60,9 @@ services:
     environment:
       - PREFER_HOST_MODE=hostname
       - MODE=standalone
-      - NACOS_AUTH_IDENTITY_KEY=chengccn
-      - NACOS_AUTH_IDENTITY_VALUE=cheng123456
-      - NACOS_AUTH_TOKEN=75rwn6PJrEdiAyLMkbod8aQkb8wERm5+ywACcy059qE=
+      - NACOS_AUTH_IDENTITY_KEY=${NACOS_AUTH_IDENTITY_KEY:-chengccn}
+      - NACOS_AUTH_IDENTITY_VALUE=${NACOS_AUTH_IDENTITY_VALUE:-cheng123456}
+      - NACOS_AUTH_TOKEN=${NACOS_AUTH_TOKEN:-75rwn6PJrEdiAyLMkbod8aQkb8wERm5+ywACcy059qE=}
     volumes:
       - ./standalone-logs/:/home/nacos/logs
     ports:

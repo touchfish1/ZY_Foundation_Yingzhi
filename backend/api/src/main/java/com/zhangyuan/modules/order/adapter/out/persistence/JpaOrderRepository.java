@@ -9,8 +9,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class JpaOrderRepository implements OrderRepository {
@@ -24,6 +27,13 @@ public class JpaOrderRepository implements OrderRepository {
     @Override
     public Optional<Order> findById(Long id) {
         return jpaRepository.findById(id).map(this::toDomain);
+    }
+
+    @Override
+    public Map<Long, Order> findAllById(Collection<Long> ids) {
+        return jpaRepository.findAllById(ids).stream()
+                .map(this::toDomain)
+                .collect(Collectors.toMap(Order::getId, o -> o));
     }
 
     @Override

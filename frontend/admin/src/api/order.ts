@@ -54,7 +54,7 @@ export function listOrders(page = 1, pageSize = 20) {
 }
 
 export function getOrder(orderNo: string) {
-  return request<OrderDetail>(`/api/orders/${orderNo}`)
+  return request<OrderDetail>(`/admin/orders/${orderNo}`)
 }
 
 export function listSubscriptions() {
@@ -68,9 +68,9 @@ export function getUsageRecords(userId: number, params?: { page?: number, pageSi
   if (params?.startDate) qs.set('startDate', params.startDate)
   if (params?.endDate) qs.set('endDate', params.endDate)
   const query = qs.toString()
-  return request<PageResponse<UsageRecord>>(`/api/usage/${userId}${query ? '?' + query : ''}`)
+  return request<PageResponse<UsageRecord>>(`/admin/usage/${userId}${query ? '?' + query : ''}`)
 }
 
 export function getUsageSummary(userId: number) {
-  return request<UsageSummary>(`/api/usage/${userId}/summary`)
+  return request<UsageSummary>(`/admin/usage/${userId}/summary`)
 }

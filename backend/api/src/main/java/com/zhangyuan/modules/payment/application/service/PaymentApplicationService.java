@@ -1,5 +1,6 @@
 package com.zhangyuan.modules.payment.application.service;
 
+import com.zhangyuan.common.exception.NotFoundException;
 import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.order.domain.model.Order;
 import com.zhangyuan.modules.order.domain.model.OrderNumber;
@@ -12,16 +13,16 @@ import com.zhangyuan.modules.payment.dto.CheckoutResponse;
 import com.zhangyuan.modules.payment.dto.PaymentResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentApplicationService {
@@ -70,6 +71,13 @@ public class PaymentApplicationService {
     }
 
     @Transactional(readOnly = true)
+    public PaymentResponse getPayment(String paymentNo) {
+        Payment payment = paymentRepository.findByPaymentNo(paymentNo)
+                .orElseThrow(() -> new NotFoundException("Payment not found: " + paymentNo));
+        return toResponse(payment);
+    }
+
+    @Transactional(readOnly = true)
     public List<Payment> listAll() {
         return paymentRepository.findAllOrderByCreatedAtDesc();
     }
@@ -82,12 +90,12 @@ public class PaymentApplicationService {
         log.info("Checkout: orderNo={}, channel={}", request.orderNo(), request.channel());
         if (!"mock".equalsIgnoreCase(request.channel().trim())) {
             log.warn("Only mock payment channel is supported, got: {}", request.channel());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only mock payment channel is supported");
+            throw new IllegalArgumentException("Only mock payment channel is supported");
         }
         Order order = orderRepository.findByOrderNo(new OrderNumber(request.orderNo().trim()))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+                .orElseThrow(() -> new NotFoundException("Order not found: " + request.orderNo()));
         if (!order.isPending()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order is not payable");
+            throw new IllegalArgumentException("Order is not payable");
         }
 
         Payment payment = new Payment(
@@ -109,9 +117,9 @@ public class PaymentApplicationService {
     public PaymentResponse mockSuccess(String paymentNo) {
         log.info("Mock payment success: {}", paymentNo);
         Payment payment = paymentRepository.findByPaymentNo(paymentNo)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Payment not found"));
+                .orElseThrow(() -> new NotFoundException("Payment not found: " + paymentNo));
         Order order = orderRepository.findById(payment.getOrderId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+                .orElseThrow(() -> new NotFoundException("Order not found for payment: " + paymentNo));
         if (!payment.isSuccess()) {
             order.markPaid();
             payment.markSuccess();
@@ -125,15 +133,29 @@ public class PaymentApplicationService {
     @Transactional(readOnly = true)
     public PageResponse<PaymentResponse> listPayments(int page, int pageSize) {
         var pageResult = paymentRepository.findPageByCreatedAtDesc(page, pageSize);
-        List<PaymentResponse> items = pageResult.items().stream()
-                .map(this::toResponse)
+        List<Payment> payments = pageResult.items();
+        Map<Long, Order> orderMap = batchFetchOrders(payments);
+        List<PaymentResponse> items = payments.stream()
+                .map(p -> toResponse(p, orderMap.get(p.getOrderId())))
                 .toList();
         return PageResponse.of(items, pageResult.page(), pageResult.pageSize(), pageResult.total());
+    }
+
+    private Map<Long, Order> batchFetchOrders(List<Payment> payments) {
+        List<Long> orderIds = payments.stream()
+                .map(Payment::getOrderId)
+                .distinct()
+                .toList();
+        return orderRepository.findAllById(orderIds);
     }
 
     private PaymentResponse toResponse(Payment payment) {
         Order order = orderRepository.findById(payment.getOrderId())
                 .orElse(null);
+        return toResponse(payment, order);
+    }
+
+    private PaymentResponse toResponse(Payment payment, Order order) {
         return new PaymentResponse(
                 payment.getPaymentNo(),
                 order != null ? order.getOrderNo().value() : null,

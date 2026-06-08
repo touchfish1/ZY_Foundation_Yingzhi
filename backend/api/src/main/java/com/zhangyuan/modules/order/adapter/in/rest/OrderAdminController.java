@@ -11,6 +11,7 @@ import com.zhangyuan.modules.order.dto.OrderResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,6 +30,16 @@ public class OrderAdminController {
 
     public OrderAdminController(OrderApplicationService orderApplicationService) {
         this.orderApplicationService = orderApplicationService;
+    }
+
+    /**
+     * 根据订单号查询订单。
+     */
+    @GetMapping("/{orderNo}")
+    @OperationLog(type = QUERY, resource = ORDER, resourceId = "#orderNo")
+    public ApiResponse<OrderResponse> getOrder(@PathVariable String orderNo) {
+        log.info("Getting order: {}", orderNo);
+        return ApiResponse.ok(orderApplicationService.getOrder(orderNo));
     }
 
     /**

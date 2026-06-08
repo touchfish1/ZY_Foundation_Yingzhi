@@ -13,7 +13,7 @@ services:
       NACOS_HOST: nacos
       NACOS_PORT: 8848
       NACOS_USERNAME: nacos
-      NACOS_PASSWORD: chengccn
+      NACOS_PASSWORD: ${NACOS_PASSWORD:-chengccn}
     ports:
       - "8088:8088"
     depends_on:
@@ -36,7 +36,7 @@ services:
       NACOS_HOST: nacos
       NACOS_PORT: 8848
       NACOS_USERNAME: nacos
-      NACOS_PASSWORD: chengccn
+      NACOS_PASSWORD: ${NACOS_PASSWORD:-chengccn}
     depends_on:
       postgres:
         condition: service_healthy
@@ -56,7 +56,7 @@ services:
       NACOS_HOST: nacos
       NACOS_PORT: 8848
       NACOS_USERNAME: nacos
-      NACOS_PASSWORD: chengccn
+      NACOS_PASSWORD: ${NACOS_PASSWORD:-chengccn}
     depends_on:
       postgres:
         condition: service_healthy
@@ -76,7 +76,7 @@ services:
       NACOS_HOST: nacos
       NACOS_PORT: 8848
       NACOS_USERNAME: nacos
-      NACOS_PASSWORD: chengccn
+      NACOS_PASSWORD: ${NACOS_PASSWORD:-chengccn}
     ports:
       - "8080:8080"
     depends_on:

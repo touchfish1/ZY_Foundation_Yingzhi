@@ -3,6 +3,7 @@ package com.zhangyuan.modules.cms;
 import com.zhangyuan.modules.cms.adapter.out.persistence.CmsPage;
 import com.zhangyuan.modules.cms.adapter.out.persistence.CmsPageTranslation;
 import com.zhangyuan.modules.cms.adapter.out.persistence.CmsPageVersion;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import com.zhangyuan.modules.cms.application.service.CmsApplicationService;
 import com.zhangyuan.modules.cms.dto.PublishPageRequest;
 import com.zhangyuan.modules.cms.dto.UpdatePageRequest;
@@ -99,18 +100,14 @@ class CmsServiceAdditionalTest {
     }
 
     @Test
-    void deletePageRemovesAllRelatedData() {
+    void deletePageDisablesPageAndPreservesData() {
         CmsPage page = new CmsPage("/test", "zh-CN", "custom", null);
         when(pageRepository.findById(1L)).thenReturn(Optional.of(page));
-        CmsPageTranslation translation = new CmsPageTranslation(1L, "zh-CN", "Test");
-        when(translationRepository.findByPageId(1L)).thenReturn(List.of(translation));
+        when(pageRepository.save(any(CmsPage.class))).thenAnswer(returnsFirstArg());
 
         cmsService.deletePage(1L);
 
-        verify(versionRepository).deleteByPageIdAndLocale(1L, "zh-CN");
-        verify(publishRecordRepository).deleteByPageIdAndLocale(1L, "zh-CN");
-        verify(translationRepository).deleteByPageId(1L);
-        verify(pageRepository).delete(page);
+        verify(pageRepository).save(any(CmsPage.class));
     }
 
     @Test

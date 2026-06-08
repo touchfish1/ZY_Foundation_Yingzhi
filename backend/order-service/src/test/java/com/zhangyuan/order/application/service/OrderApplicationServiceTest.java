@@ -1,6 +1,7 @@
 package com.zhangyuan.order.application.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zhangyuan.common.exception.NotFoundException;
 import com.zhangyuan.order.client.ProductServiceClient;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.order.domain.model.OrderNumber;
@@ -9,8 +10,6 @@ import com.zhangyuan.order.domain.service.OrderDomainService;
 import com.zhangyuan.order.dto.CreateOrderRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -37,7 +36,7 @@ class OrderApplicationServiceTest {
 
         assertThatThrownBy(() -> service.createOrder(
             new CreateOrderRequest("NONEXISTENT", "monthly", "CNY")))
-            .isInstanceOf(ResponseStatusException.class)
+            .isInstanceOf(NotFoundException.class)
             .hasMessageContaining("Product plan not found");
     }
 
@@ -45,7 +44,7 @@ class OrderApplicationServiceTest {
     void getOrder_notFound_throws() {
         when(orderRepository.findByOrderNo(new OrderNumber("NONEXISTENT"))).thenReturn(Optional.empty());
         assertThatThrownBy(() -> service.getOrder("NONEXISTENT"))
-            .isInstanceOf(ResponseStatusException.class)
+            .isInstanceOf(NotFoundException.class)
             .hasMessageContaining("Order not found");
     }
 }

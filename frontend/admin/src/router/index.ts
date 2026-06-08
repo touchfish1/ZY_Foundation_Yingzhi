@@ -2,27 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { getToken, clearToken } from '../api/http'
 import { usePermissionStore } from '../stores/permission'
 import AdminLayout from '../layouts/AdminLayout.vue'
-import Assets from '../pages/assets/Assets.vue'
-import CmsPageEdit from '../pages/cms/CmsPageEdit.vue'
-import CmsPages from '../pages/cms/CmsPages.vue'
-import CmsVersions from '../pages/cms/CmsVersions.vue'
-import Dashboard from '../pages/Dashboard.vue'
 import Login from '../pages/Login.vue'
-import Menus from '../pages/system/Menus.vue'
-import Monitor from '../pages/system/Monitor.vue'
-import Orders from '../pages/orders/Orders.vue'
-import Permissions from '../pages/system/Permissions.vue'
-import PlanGroups from '../pages/products/PlanGroups.vue'
-import Roles from '../pages/system/Roles.vue'
-import Settings from '../pages/system/Settings.vue'
-import Users from '../pages/system/Users.vue'
-import Plans from '../pages/products/Plans.vue'
-import Transactions from '../pages/payments/Transactions.vue'
-
-const Usage = () => import('../pages/orders/Usage.vue')
-const Logs = () => import('../pages/system/Logs.vue')
-const OperationLogs = () => import('../pages/system/OperationLogs.vue')
-const AccessLogs = () => import('../pages/system/AccessLogs.vue')
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -32,28 +12,28 @@ export const router = createRouter({
       path: '/',
       component: AdminLayout,
       children: [
-        { path: '', component: Dashboard },
-        { path: 'assets', component: Assets },
-        { path: 'cms/pages', component: CmsPages },
-        { path: 'cms/pages/:id/edit', component: CmsPageEdit },
-        { path: 'cms/pages/:id/versions', component: CmsVersions },
-        { path: 'products/plan-groups', component: PlanGroups },
-        { path: 'orders', component: Orders },
+        { path: '', component: () => import('../pages/Dashboard.vue') },
+        { path: 'assets', component: () => import('../pages/assets/Assets.vue') },
+        { path: 'cms/pages', component: () => import('../pages/cms/CmsPages.vue') },
+        { path: 'cms/pages/:id/edit', component: () => import('../pages/cms/CmsPageEdit.vue') },
+        { path: 'cms/pages/:id/versions', component: () => import('../pages/cms/CmsVersions.vue') },
+        { path: 'products/plan-groups', component: () => import('../pages/products/PlanGroups.vue') },
+        { path: 'orders', component: () => import('../pages/orders/Orders.vue') },
         { path: 'orders/:orderNo', component: () => import('../pages/orders/[orderNo].vue'), meta: { title: '订单详情' } },
         { path: 'orders/subscriptions', component: () => import('../pages/orders/Subscriptions.vue'), meta: { title: '订阅管理' } },
-        { path: 'products/plans', component: Plans },
-        { path: 'payments/transactions', component: Transactions },
+        { path: 'products/plans', component: () => import('../pages/products/Plans.vue') },
+        { path: 'payments/transactions', component: () => import('../pages/payments/Transactions.vue') },
         { path: 'payments/:paymentNo', component: () => import('../pages/payments/[paymentNo].vue'), meta: { title: '支付详情' } },
-        { path: 'system/users', component: Users },
-        { path: 'system/monitor', component: Monitor },
-        { path: 'system/roles', component: Roles },
-        { path: 'system/settings', component: Settings },
-        { path: 'orders/usage', component: Usage, meta: { title: '用量管理', permissions: ['order:usage:list'] } },
-        { path: 'system/logs', component: Logs, meta: { title: '审计日志', permissions: ['system:log:list'] } },
-        { path: 'system/operation-logs', component: OperationLogs, meta: { title: '操作日志', permissions: ['system:operation-log'] } },
-        { path: 'system/access-logs', component: AccessLogs, meta: { title: '访问日志', permissions: ['system:access-log'] } },
-        { path: 'system/permissions', component: Permissions, meta: { permissions: ['system:permission:list'] } },
-        { path: 'system/menus', component: Menus, meta: { permissions: ['system:menu:list'] } }
+        { path: 'system/users', component: () => import('../pages/system/Users.vue') },
+        { path: 'system/monitor', component: () => import('../pages/system/Monitor.vue') },
+        { path: 'system/roles', component: () => import('../pages/system/Roles.vue') },
+        { path: 'system/settings', component: () => import('../pages/system/Settings.vue') },
+        { path: 'orders/usage', component: () => import('../pages/orders/Usage.vue'), meta: { title: '用量管理', permissions: ['order:usage:list'] } },
+        { path: 'system/logs', component: () => import('../pages/system/Logs.vue'), meta: { title: '审计日志', permissions: ['system:log:list'] } },
+        { path: 'system/operation-logs', component: () => import('../pages/system/OperationLogs.vue'), meta: { title: '操作日志', permissions: ['system:operation-log'] } },
+        { path: 'system/access-logs', component: () => import('../pages/system/AccessLogs.vue'), meta: { title: '访问日志', permissions: ['system:access-log'] } },
+        { path: 'system/permissions', component: () => import('../pages/system/Permissions.vue'), meta: { permissions: ['system:permission:list'] } },
+        { path: 'system/menus', component: () => import('../pages/system/Menus.vue'), meta: { permissions: ['system:menu:list'] } }
       ]
     }
   ]

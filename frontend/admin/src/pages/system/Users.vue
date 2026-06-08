@@ -123,9 +123,13 @@ const paginationReactive = reactive({
   }
 })
 
+let searchTimer: ReturnType<typeof setTimeout> | null = null
 watch(searchQuery, () => {
-  paginationReactive.page = 1
-  loadData()
+  if (searchTimer) clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    paginationReactive.page = 1
+    loadData()
+  }, 300)
 })
 
 const showCreate = ref(false)

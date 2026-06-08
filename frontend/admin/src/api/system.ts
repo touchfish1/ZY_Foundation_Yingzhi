@@ -133,7 +133,7 @@ export function listLogs(params?: { page?: number, pageSize?: number, userId?: n
   if (params?.startDate) qs.set('startDate', params.startDate)
   if (params?.endDate) qs.set('endDate', params.endDate)
   const query = qs.toString()
-  return request<PageResponse<AuditLog>>(`/api/logs${query ? '?' + query : ''}`)
+  return request<PageResponse<AuditLog>>(`/admin/logs${query ? '?' + query : ''}`)
 }
 
 // Operation log types matching backend OperationType enum
@@ -216,5 +216,5 @@ export function listAccessLogs(params?: {
 
 // 用户余额充值
 export function rechargeBalance(userId: number, payload: { amount: number, remark?: string }) {
-  return request<void>(`/api/balance/${userId}/recharge`, { method: 'POST', body: JSON.stringify(payload) })
+  return request<void>(`/admin/balance/${userId}/recharge`, { method: 'POST', body: JSON.stringify(payload) })
 }
