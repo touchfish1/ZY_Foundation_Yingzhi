@@ -6,16 +6,12 @@ on:
   pull_request:
     branches: [main]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   test-api:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: backend
+        working-directory: backend/api
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 21
@@ -26,7 +22,7 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
     - name: Run tests
-      run: ./gradlew :api:test
+      run: gradle test
 
   lint-admin:
     runs-on: ubuntu-latest
@@ -64,11 +60,13 @@ jobs:
     - name: Type check
       run: npx nuxt typecheck
 
+  # ── Microservice unit tests ─────────────────────────────
+
   test-auth-service:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: backend
+        working-directory: backend/auth-service
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 21
@@ -79,13 +77,13 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
     - name: Run tests
-      run: ./gradlew :auth-service:test
+      run: gradle test
 
   test-user-service:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: backend
+        working-directory: backend/user-service
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 21
@@ -96,13 +94,13 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
     - name: Run tests
-      run: ./gradlew :user-service:test
+      run: gradle test
 
   test-order-service:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: backend
+        working-directory: backend/order-service
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 21
@@ -113,13 +111,13 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
     - name: Run tests
-      run: ./gradlew :order-service:test
+      run: gradle test
 
   test-payment-service:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: backend
+        working-directory: backend/payment-service
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 21
@@ -130,13 +128,13 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
     - name: Run tests
-      run: ./gradlew :payment-service:test
+      run: gradle test
 
   test-system-service:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: backend
+        working-directory: backend/system-service
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 21
@@ -147,7 +145,7 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
     - name: Run tests
-      run: ./gradlew :system-service:test
+      run: gradle test
 
   build:
     needs: [test-api, test-auth-service, test-user-service, test-order-service,
@@ -162,9 +160,12 @@ jobs:
         distribution: temurin
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
-    - name: Build backend services
-      run: ./gradlew :api:build :system-service:build -x test
-      working-directory: backend
+    - name: Build API
+      run: gradle build -x test
+      working-directory: backend/api
+    - name: Build System Service
+      run: gradle build -x test
+      working-directory: backend/system-service
     - name: Setup Node
       uses: actions/setup-node@v4
       with:
@@ -199,29 +200,21 @@ jobs:
         context: backend/api
         push: true
         tags: ${{ secrets.REGISTRY }}/zhangyuan-api:${{ github.sha }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
     - name: Build and push System Service
       uses: docker/build-push-action@v6
       with:
         context: backend/system-service
         push: true
         tags: ${{ secrets.REGISTRY }}/zhangyuan-system-service:${{ github.sha }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
     - name: Build and push Admin
       uses: docker/build-push-action@v6
       with:
-        context: frontend/admin
+        context: ZY_View_Migu/Admin
         push: true
         tags: ${{ secrets.REGISTRY }}/zhangyuan-admin:${{ github.sha }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
     - name: Build and push Web
       uses: docker/build-push-action@v6
       with:
-        context: frontend/web
+        context: ZY_View_Migu/Web
         push: true
         tags: ${{ secrets.REGISTRY }}/zhangyuan-web:${{ github.sha }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
