@@ -98,11 +98,19 @@ spring:
           uri: ${ORDER_SERVICE_URI:http://127.0.0.1:8083}
           predicates:
             - Path=/admin/subscriptions/**
-        # Order service - usage
+        # Order service - usage (public)
         - id: order-usage
           uri: ${ORDER_SERVICE_URI:http://127.0.0.1:8083}
           predicates:
             - Path=/api/usage/**
+        # Order service - usage (admin, path rewrite)
+        - id: order-usage-admin
+          uri: ${ORDER_SERVICE_URI:http://127.0.0.1:8083}
+          predicates:
+            - Path=/admin/usage/**
+          filters:
+            - RewritePath=/admin/usage/(?<segment>.*), /api/usage/$\{segment}
+
         # Payment service
         - id: payment-service
           uri: ${PAYMENT_SERVICE_URI:http://127.0.0.1:8084}
@@ -123,16 +131,31 @@ spring:
           uri: ${USER_SERVICE_URI:http://127.0.0.1:8085}
           predicates:
             - Path=/api/auth/**
-        # User service - balance
+        # User service - balance (public)
         - id: user-balance
           uri: ${USER_SERVICE_URI:http://127.0.0.1:8085}
           predicates:
             - Path=/api/balance/**
-        # User service - logs
+        # User service - balance (admin, path rewrite)
+        - id: user-balance-admin
+          uri: ${USER_SERVICE_URI:http://127.0.0.1:8085}
+          predicates:
+            - Path=/admin/balance/**
+          filters:
+            - RewritePath=/admin/balance/(?<segment>.*), /api/balance/$\{segment}
+
+        # User service - logs (public)
         - id: user-logs
           uri: ${USER_SERVICE_URI:http://127.0.0.1:8085}
           predicates:
             - Path=/api/logs/**
+        # User service - logs (admin, path rewrite)
+        - id: user-logs-admin
+          uri: ${USER_SERVICE_URI:http://127.0.0.1:8085}
+          predicates:
+            - Path=/admin/logs,/admin/logs/**
+          filters:
+            - RewritePath=/admin/logs(?<segment>/.*)?, /api/logs$\{segment}
         # User service - admin users
         - id: user-admin
           uri: ${USER_SERVICE_URI:http://127.0.0.1:8085}
