@@ -5,6 +5,7 @@ export interface CmsPageListItem {
   id: number
   slug: string
   defaultLocale: string
+  translations?: string[]
   status: string
   pageType: string
   createdAt: string
@@ -85,5 +86,13 @@ export function deletePage(id: number) {
   console.log('[API] deletePage', { id })
   return request<void>(`/admin/cms/pages/${id}`, {
     method: 'DELETE'
+  })
+}
+
+// 复制页面（含所有语言翻译版本）
+export function duplicatePage(pageId: number) {
+  console.log('[API] duplicatePage', { pageId })
+  return request<CmsPageDetail>(`/admin/cms/pages/${pageId}/duplicate`, {
+    method: 'POST'
   })
 }

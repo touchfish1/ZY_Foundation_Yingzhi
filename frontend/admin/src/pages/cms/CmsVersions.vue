@@ -17,7 +17,13 @@
 
     <n-card :bordered="false" class="table-card">
       <n-empty v-if="!loading && !versions.length" description="暂无版本记录" />
-      <n-data-table v-else :columns="columns" :data="versions" :loading="loading" :bordered="false" size="small" />
+      <CommonTable
+        v-else
+        :columns="columns"
+        :data="versions"
+        :loading="loading"
+        :pagination="paginationReactive"
+      />
     </n-card>
 
     <n-modal v-model:show="showPreview" preset="card" title="版本预览" style="width: min(720px, 92vw)">
@@ -39,12 +45,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, ref } from 'vue'
+import { computed, h, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NButton, NCard, NDataTable, NEmpty, NForm, NFormItem, NIcon, NInput, NModal, NSpace, NTag, useMessage } from 'naive-ui'
+import { NButton, NCard, NEmpty, NForm, NFormItem, NIcon, NInput, NModal, NSpace, NTag, useMessage } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { getPage, type CmsPageDetail } from '../../api/cms'
-import { getVersions, getPreviewContent, rollbackVersion } from '../../api/block'
+import { getVersions, getPreviewContent, rollbackVersion, type VersionInfo } from '../../api/block'
+import CommonTable from '../../components/CommonTable.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -53,7 +60,7 @@ const pageId = Number(route.params.id)
 const locale = ref((route.query.locale as string) || 'zh-CN')
 
 const page = ref<CmsPageDetail | null>(null)
-const versions = ref<any[]>([])
+const versions = ref<VersionInfo[]>([])
 const loading = ref(false)
 const showPreview = ref(false)
 const showRollback = ref(false)
@@ -62,32 +69,49 @@ const rollbackVersionId = ref<number | null>(null)
 const rollbackRemark = ref('')
 const rollingBack = ref(false)
 
+const paginationReactive = reactive({
+  page: 1,
+  pageSize: 20,
+  itemCount: 0,
+  showSizePicker: true,
+  pageSizes: [10, 20, 50],
+  onChange: (page: number) => {
+    paginationReactive.page = page
+    loadVersions()
+  },
+  onUpdatePageSize: (size: number) => {
+    paginationReactive.pageSize = size
+    paginationReactive.page = 1
+    loadVersions()
+  }
+})
+
 const publishedVersionId = computed(() => {
   if (!page.value) return null
   const trans = page.value.translations.find(t => t.locale === locale.value)
   return trans?.publishedVersionId ?? null
 })
 
-const columns: DataTableColumns<any> = [
-  { title: '版本号', key: 'versionNo', width: 100 },
+const columns: DataTableColumns<VersionInfo> = [
+  { title: '版本号', key: 'version', width: 100 },
   {
     title: '状态', key: 'status', width: 100,
     render(row) {
-      const isPublished = publishedVersionId.value === row.id
+      const isPublished = publishedVersionId.value === row.versionId
       if (isPublished) {
         return h(NTag, { type: 'success', size: 'small', bordered: false }, { default: () => '已发布' })
       }
       return h(NTag, { type: 'default', size: 'small', bordered: false }, { default: () => '历史版本' })
     }
   },
-  { title: '创建时间', key: 'createdAt', width: 180 },
+  { title: '创建时间', key: 'publishedAt', width: 180 },
   {
     title: '操作', key: 'actions', width: 180,
     render(row) {
       return h(NSpace, null, {
         default: () => [
-          h(NButton, { size: 'small', quaternary: true, onClick: () => openPreview(row.id) }, { default: () => '预览' }),
-          h(NButton, { size: 'small', quaternary: true, type: 'warning', onClick: () => openRollback(row.id) }, { default: () => '回滚' })
+          h(NButton, { size: 'small', quaternary: true, onClick: () => openPreview(row.versionId) }, { default: () => '预览' }),
+          h(NButton, { size: 'small', quaternary: true, type: 'warning', onClick: () => openRollback(row.versionId) }, { default: () => '回滚' })
         ]
       })
     }
@@ -97,9 +121,26 @@ const columns: DataTableColumns<any> = [
 async function load() {
   loading.value = true
   try {
-    const [p, v] = await Promise.all([getPage(pageId), getVersions(pageId, locale.value)])
+    const [p, v] = await Promise.all([
+      getPage(pageId),
+      getVersions(pageId, locale.value, paginationReactive.page, paginationReactive.pageSize)
+    ])
     page.value = p
-    versions.value = v
+    versions.value = v.items
+    paginationReactive.itemCount = v.total
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : '加载失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function loadVersions() {
+  loading.value = true
+  try {
+    const v = await getVersions(pageId, locale.value, paginationReactive.page, paginationReactive.pageSize)
+    versions.value = v.items
+    paginationReactive.itemCount = v.total
   } catch (error) {
     message.error(error instanceof Error ? error.message : '加载失败')
   } finally {

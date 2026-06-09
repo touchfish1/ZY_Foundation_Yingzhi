@@ -1,6 +1,7 @@
 import { request } from './http'
 import type { BlockDefinition, PageBlock } from '../types/block'
 import type { CmsPageDetail } from './cms'
+import type { PageResponse } from '../types/common'
 
 export interface VersionInfo {
   versionId: number
@@ -59,10 +60,10 @@ export function getDraftContent(pageId: number, locale: string) {
 }
 
 // 获取指定页面和语言版本的历史版本列表
-export function getVersions(pageId: number, locale: string) {
-  console.log('[API] getVersions', { pageId, locale })
-  return request<VersionInfo[]>(
-    `/admin/cms/pages/${pageId}/translations/${locale}/versions`
+export function getVersions(pageId: number, locale: string, page = 1, pageSize = 20) {
+  console.log('[API] getVersions', { pageId, locale, page, pageSize })
+  return request<PageResponse<VersionInfo>>(
+    `/admin/cms/pages/${pageId}/translations/${locale}/versions?page=${page}&pageSize=${pageSize}`
   )
 }
 

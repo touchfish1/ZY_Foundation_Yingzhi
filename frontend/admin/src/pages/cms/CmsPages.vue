@@ -69,7 +69,7 @@ import { useRouter } from 'vue-router'
 import { NButton, NCard, NEmpty, NForm, NFormItem, NIcon, NInput, NModal, NSelect, NSpace, NSwitch, NTag, useMessage } from 'naive-ui'
 import CommonTable from '../../components/CommonTable.vue'
 import type { DataTableColumns, SelectOption } from 'naive-ui'
-import { createPage, deletePage, listPages, updatePage } from '../../api/cms'
+import { createPage, deletePage, duplicatePage, listPages, updatePage } from '../../api/cms'
 import type { CmsPageListItem } from '../../api/cms'
 import { useConfirm } from '../../composables/useConfirm'
 import { formatDate } from '../../utils/format'
@@ -129,6 +129,17 @@ const columns: DataTableColumns<CmsPageListItem> = [
     }
   },
   { title: '路径', key: 'slug', ellipsis: { tooltip: true } },
+  {
+    title: '翻译语言', key: 'translations', width: 180,
+    render(row) {
+      if (!row.translations?.length) return h('span', { style: 'color: #94a3b8;' }, '—')
+      return h(NSpace, { size: 4 }, {
+        default: () => row.translations!.map((loc: string) =>
+          h(NTag, { size: 'small', bordered: false }, { default: () => loc })
+        )
+      })
+    }
+  },
   { title: '默认语言', key: 'defaultLocale', width: 110 },
   {
     title: '状态', key: 'status', width: 120,
@@ -156,11 +167,13 @@ const columns: DataTableColumns<CmsPageListItem> = [
     }
   },
   {
-    title: '操作', key: 'actions', width: 280, fixed: 'right' as const,
+    title: '操作', key: 'actions', width: 360, fixed: 'right' as const,
     render(row) {
       const buttons = [
         h(NButton, { size: 'small', type: 'primary', ghost: true, onClick: () => router.push(`/cms/pages/${row.id}/edit`) }, { default: () => '编辑' }),
-        h(NButton, { size: 'small', tertiary: true, onClick: () => router.push(`/cms/pages/${row.id}/versions?locale=${row.defaultLocale}`) }, { default: () => '版本' })
+        h(NButton, { size: 'small', tertiary: true, onClick: () => router.push(`/cms/pages/${row.id}/versions?locale=${row.defaultLocale}`) }, { default: () => '版本' }),
+        h(NButton, { size: 'small', quaternary: true, onClick: () => handleCopyUrl(row) }, { default: () => '复制URL' }),
+        h(NButton, { size: 'small', quaternary: true, onClick: () => handleDuplicate(row) }, { default: () => '复制页面' })
       ]
       if (row.status === 'enabled') {
         buttons.push(h(NButton, { size: 'small', type: 'error', ghost: true, onClick: () => handleDelete(row) }, { default: () => '删除' }))
@@ -229,6 +242,25 @@ async function handleToggleStatus(row: CmsPageListItem) {
     await load()
   } catch (error) {
     message.error(error instanceof Error ? error.message : '操作失败')
+  }
+}
+
+async function handleCopyUrl(row: CmsPageListItem) {
+  try {
+    await navigator.clipboard.writeText(`/${row.slug}`)
+    message.success('URL 已复制')
+  } catch {
+    message.error('复制失败')
+  }
+}
+
+async function handleDuplicate(row: CmsPageListItem) {
+  try {
+    await duplicatePage(row.id)
+    message.success('页面已复制')
+    await load()
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : '复制失败')
   }
 }
 
