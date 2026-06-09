@@ -60,8 +60,9 @@ public class OrderMainEntity {
     protected OrderMainEntity() {
     }
 
-    public OrderMainEntity(String orderNo, Long planId, Long priceId, BigDecimal amount, String currency, String snapshotJson) {
+    public OrderMainEntity(String orderNo, Long userId, Long planId, Long priceId, BigDecimal amount, String currency, String snapshotJson) {
         this.orderNo = orderNo;
+        this.userId = userId;
         this.planId = planId;
         this.priceId = priceId;
         this.amount = amount;

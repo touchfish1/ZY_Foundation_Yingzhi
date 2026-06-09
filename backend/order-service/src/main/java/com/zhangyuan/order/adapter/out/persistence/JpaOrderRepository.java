@@ -59,18 +59,19 @@ public class JpaOrderRepository implements OrderRepository {
             entity.setStatus(order.getStatus().name().toLowerCase());
             entity.setSnapshotJson(order.getSnapshotJson());
             entity.setPaidAt(order.getPaidAt());
+            entity.setUserId(order.getUserId());
             entity.setFulfilledAt(order.getFulfilledAt());
             entity.setCancelledAt(order.getCancelledAt());
         } else {
             entity = new OrderMainEntity(
                     order.getOrderNo().value(),
+                    order.getUserId(),
                     order.getPlanId(),
                     order.getPriceId(),
                     order.getAmount(),
                     order.getCurrency(),
                     order.getSnapshotJson()
             );
-            entity.setUserId(order.getUserId());
         }
         OrderMainEntity saved = jpaRepository.save(entity);
         return toDomain(saved);
@@ -79,6 +80,7 @@ public class JpaOrderRepository implements OrderRepository {
     private Order toDomain(OrderMainEntity entity) {
         Order order = new Order(
                 new OrderNumber(entity.getOrderNo()),
+                entity.getUserId(),
                 entity.getPlanId(),
                 entity.getPriceId(),
                 entity.getAmount(),
@@ -86,7 +88,6 @@ public class JpaOrderRepository implements OrderRepository {
                 entity.getSnapshotJson()
         );
         order.setId(entity.getId());
-        order.setUserId(entity.getUserId());
         order.setCreatedAt(entity.getCreatedAt());
         order.setPaidAt(entity.getPaidAt());
         order.setFulfilledAt(entity.getFulfilledAt());
