@@ -1,7 +1,14 @@
 FROM gradle:8.10-jdk21 AS build
 WORKDIR /app
-COPY . .
-RUN gradle :payment-service:build -x test --no-daemon
+
+COPY build.gradle settings.gradle gradlew ./
+COPY gradle ./gradle
+COPY common/build.gradle ./common/
+COPY common/src ./common/src
+COPY payment-service/build.gradle ./payment-service/
+COPY payment-service/src ./payment-service/src
+
+RUN ./gradlew :payment-service:build -x test --no-daemon
 
 FROM eclipse-temurin:21-jre
 RUN groupadd -r appuser && useradd -r -g appuser -u 1000 appuser

@@ -1,8 +1,8 @@
 services:
   api:
     build:
-      context: ../../backend/api
-      dockerfile: Dockerfile
+      context: ../../backend
+      dockerfile: api/Dockerfile
     container_name: zhangyuan-api
     environment:
       DB_HOST: postgres
@@ -27,8 +27,8 @@ services:
 
   system-service:
     build:
-      context: ../../backend/system-service
-      dockerfile: Dockerfile
+      context: ../../backend
+      dockerfile: system-service/Dockerfile
     container_name: zhangyuan-system
     environment:
       DB_HOST: postgres
@@ -90,8 +90,8 @@ services:
 
   auth-service:
     build:
-      context: ../../backend/auth-service
-      dockerfile: Dockerfile
+      context: ../../backend
+      dockerfile: auth-service/Dockerfile
     container_name: zhangyuan-auth
     environment:
       DB_HOST: postgres
@@ -112,8 +112,8 @@ services:
 
   gateway:
     build:
-      context: ../../backend/gateway
-      dockerfile: Dockerfile
+      context: ../../backend
+      dockerfile: gateway/Dockerfile
     container_name: zhangyuan-gateway
     environment:
       SERVER_PORT: 8080

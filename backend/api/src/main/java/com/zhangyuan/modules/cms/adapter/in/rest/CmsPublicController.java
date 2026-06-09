@@ -10,6 +10,7 @@ import com.zhangyuan.modules.cms.dto.PageListItemResponse;
 import com.zhangyuan.modules.cms.dto.RenderPageResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,6 +29,7 @@ public class CmsPublicController {
     }
 
     @GetMapping("/render")
+    @Cacheable(value = "cms:pages", key = "#path + ':' + (#locale ?: 'zh-CN')", unless = "#result == null || #result.data() == null")
     @OperationLog(type = QUERY, resource = CMS_PAGE)
     public ApiResponse<RenderPageResponse> render(@RequestParam("path") String path,
                                                   @RequestParam(value = "locale", required = false) String locale) {

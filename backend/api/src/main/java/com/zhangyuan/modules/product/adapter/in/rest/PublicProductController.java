@@ -9,6 +9,7 @@ import com.zhangyuan.modules.product.dto.PlanGroupResponse;
 import com.zhangyuan.modules.product.dto.PlanResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +37,7 @@ public class PublicProductController {
     }
 
     @GetMapping("/plans")
+    @Cacheable(value = "product:plans", unless = "#result == null || #result.data() == null")
     @OperationLog(type = QUERY, resource = PRODUCT_PLAN)
     public ApiResponse<List<PlanResponse>> listAvailablePlans() {
         log.info("Listing all available plans");
