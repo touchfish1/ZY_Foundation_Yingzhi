@@ -16,9 +16,14 @@ export interface OrderDetail {
   amount: string
   currency: string
   status: string
+  snapshotJson?: string
   createdAt: string
   paidAt: string | null
   userId?: number
+  // populated client-side from snapshotJson
+  planName?: string
+  planCode?: string
+  billingCycle?: string
 }
 
 export interface SubscriptionItem {

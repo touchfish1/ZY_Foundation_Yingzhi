@@ -1,1 +1,1 @@
-export type { CmsBlock, CmsPage, ApiResponse } from '../../Shared/types/cms'
+export type { CmsBlock, CmsPage, ApiResponse } from '../../shared/types/cms'

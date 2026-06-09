@@ -11,7 +11,7 @@
     "types": ["vite/client"],
     "baseUrl": ".",
     "paths": {
-      "@shared/*": ["../Shared/*"]
+      "@shared/*": ["../shared/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.vue"]

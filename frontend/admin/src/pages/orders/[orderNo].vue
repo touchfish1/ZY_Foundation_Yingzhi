@@ -38,8 +38,8 @@
           <n-descriptions-item label="创建时间">
             {{ formatDate(detail?.createdAt) }}
           </n-descriptions-item>
-          <n-descriptions-item label="更新时间">
-            {{ formatDate(detail?.updatedAt) }}
+          <n-descriptions-item label="支付时间">
+            {{ formatDate(detail?.paidAt) }}
           </n-descriptions-item>
         </n-descriptions>
       </n-card>
@@ -102,7 +102,17 @@ function statusType(status: string) {
 async function load() {
   loading.value = true
   try {
-    detail.value = await getOrder(orderNo)
+    const data = await getOrder(orderNo)
+    // Parse snapshot_json for plan info
+    if (data?.snapshotJson) {
+      try {
+        const snapshot = JSON.parse(data.snapshotJson)
+        data.planName = snapshot.plan?.name ?? '-'
+        data.planCode = snapshot.plan?.code ?? '-'
+        data.billingCycle = snapshot.price?.billingCycle ?? '-'
+      } catch { /* invalid JSON, ignore */ }
+    }
+    detail.value = data
   } catch (error) {
     message.error(error instanceof Error ? error.message : '加载失败')
   } finally {
