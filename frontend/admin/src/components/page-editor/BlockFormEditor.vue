@@ -1,7 +1,18 @@
 <template>
   <div class="block-editor">
     <div class="block-list">
-      <div v-for="(block, i) in blocks" :key="block.id" class="block-item">
+      <div
+        v-for="(block, i) in blocks"
+        :key="block.id"
+        class="block-item"
+        :class="{ 'drag-over': dragOverIndex === i }"
+        draggable="true"
+        @dragstart="onDragStart(i)"
+        @dragover.prevent="onDragOver(i)"
+        @dragleave="onDragLeave"
+        @drop="onDrop(i)"
+        @dragend="onDragEnd"
+      >
         <div class="block-item-main">
           <div class="block-drag-handle">⠿</div>
           <div class="block-item-info">
@@ -107,6 +118,8 @@ const emit = defineEmits<{
   'update:blocks': [blocks: PageBlock[]]
 }>()
 
+const dragIndex = ref<number | null>(null)
+const dragOverIndex = ref<number | null>(null)
 const editingIndex = ref<number | null>(null)
 const editingProps = ref<Record<string, unknown>>({})
 const selectedAddType = ref<string | null>(null)
@@ -222,6 +235,41 @@ function moveBlock(index: number, direction: -1 | 1) {
   emit('update:blocks', updated)
 }
 
+// 拖拽排序：开始拖拽
+function onDragStart(index: number) {
+  dragIndex.value = index
+}
+
+// 拖拽排序：拖过其他区块时高亮
+function onDragOver(index: number) {
+  if (dragIndex.value === null || dragIndex.value === index) return
+  dragOverIndex.value = index
+}
+
+// 拖拽排序：离开高亮区域
+function onDragLeave() {
+  dragOverIndex.value = null
+}
+
+// 拖拽排序：放下区块
+function onDrop(targetIndex: number) {
+  if (dragIndex.value === null || dragIndex.value === targetIndex) {
+    onDragEnd()
+    return
+  }
+  const updated = [...props.blocks]
+  const [moved] = updated.splice(dragIndex.value, 1)
+  updated.splice(targetIndex, 0, moved)
+  emit('update:blocks', updated)
+  onDragEnd()
+}
+
+// 拖拽排序：结束拖拽
+function onDragEnd() {
+  dragIndex.value = null
+  dragOverIndex.value = null
+}
+
 // 更新编辑中区块的指定属性值
 function onPropChange(key: string, value: unknown) {
   editingProps.value[key] = value
@@ -309,6 +357,13 @@ function removeListItem(fieldKey: string, index: number) {
   border-radius: 8px;
   padding: 10px 12px;
   background: #fafafa;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.block-item.drag-over {
+  border-color: #2080f0;
+  box-shadow: 0 0 0 2px rgba(32, 128, 240, 0.15);
+  background: #f0f7ff;
 }
 
 .block-item-main {

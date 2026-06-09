@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { h, onMounted, ref } from 'vue'
+import { computed, h, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NButton, NCard, NDataTable, NEmpty, NForm, NFormItem, NIcon, NInput, NModal, NSpace, NTag, useMessage } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
@@ -62,15 +62,22 @@ const rollbackVersionId = ref<number | null>(null)
 const rollbackRemark = ref('')
 const rollingBack = ref(false)
 
+const publishedVersionId = computed(() => {
+  if (!page.value) return null
+  const trans = page.value.translations.find(t => t.locale === locale.value)
+  return trans?.publishedVersionId ?? null
+})
+
 const columns: DataTableColumns<any> = [
-  { title: '版本号', key: 'id', width: 100 },
+  { title: '版本号', key: 'versionNo', width: 100 },
   {
     title: '状态', key: 'status', width: 100,
     render(row) {
-      const type = row.status === 'published' || row.status === 'PUBLISHED' ? 'success'
-        : row.status === 'draft' || row.status === 'DRAFT' ? 'warning'
-        : 'default'
-      return h(NTag, { type, size: 'small', bordered: false }, { default: () => row.status })
+      const isPublished = publishedVersionId.value === row.id
+      if (isPublished) {
+        return h(NTag, { type: 'success', size: 'small', bordered: false }, { default: () => '已发布' })
+      }
+      return h(NTag, { type: 'default', size: 'small', bordered: false }, { default: () => '历史版本' })
     }
   },
   { title: '创建时间', key: 'createdAt', width: 180 },

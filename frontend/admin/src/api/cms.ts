@@ -30,10 +30,12 @@ export interface CmsPageDetail {
   }>
 }
 
-// 获取 CMS 页面列表（分页）
-export function listPages(page = 1, pageSize = 20) {
-  console.log('[API] listPages', { page, pageSize })
-  return request<PageResponse<CmsPageListItem>>(`/admin/cms/pages?page=${page}&pageSize=${pageSize}`)
+// 获取 CMS 页面列表（分页，支持关键词搜索）
+export function listPages(page = 1, pageSize = 20, keyword?: string) {
+  console.log('[API] listPages', { page, pageSize, keyword })
+  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
+  if (keyword) params.set('keyword', keyword)
+  return request<PageResponse<CmsPageListItem>>(`/admin/cms/pages?${params.toString()}`)
 }
 
 // 创建新页面：指定路径（slug）、标题、默认语言和页面类型
@@ -70,7 +72,7 @@ export function publishPage(id: number, locale: string, remark: string) {
 }
 
 // 更新页面基本信息（路径、默认语言）
-export function updatePage(id: number, payload: { slug: string; defaultLocale?: string }) {
+export function updatePage(id: number, payload: { slug?: string; defaultLocale?: string; status?: string }) {
   console.log('[API] updatePage', { id, ...payload })
   return request<CmsPageDetail>(`/admin/cms/pages/${id}`, {
     method: 'PUT',
