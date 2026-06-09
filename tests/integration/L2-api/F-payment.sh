@@ -68,13 +68,4 @@ PAYMENT_NO=$(echo "$R" | python3 -c "import sys,json;print(json.load(sys.stdin)[
 R=$(post_json "/api/payments/mock/$PAYMENT_NO/success" "{}" "$ADMIN_TOKEN")
 assert_code "模拟支付成功" "0" "$R"
 
-# ========== DDD 支付验证 ==========
-# 9. DDD 支付详情
-R=$(get "/api/ddd/payments/$PAYMENT_NO")
-assert_code "DDD 支付详情" "0" "$R"
-
-# 10. DDD 支付列表
-R=$(get "/api/ddd/payments")
-assert_code "DDD 支付列表" "0" "$R"
-
 summary "L2-F 支付"

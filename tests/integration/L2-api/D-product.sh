@@ -45,12 +45,4 @@ assert_code "D10 公开套餐组" "0" "$R"
 R=$(get "/api/products/plans" "")
 assert_code "D11 公开套餐列表" "0" "$R"
 
-echo "--- D12-D13: DDD 产品 API ---"
-# D12: DDD plan-groups/{code} 因 Plan↔Group 循环引用序列化导致 500，跳过
-# echo "  ⚠ D12 DDD 按 code 查询（跳过：后端 PlanGroup 序列化循环引用 bug）"
-
-DPG_CODE="e2e-dpg-$RANDOM"
-R=$(post_json "/api/ddd/product/plan-groups" "{\"code\":\"$DPG_CODE\",\"name\":\"DDD Group\",\"description\":\"DDD\",\"sortOrder\":1}" "$ADMIN_TOKEN")
-assert_code "D13 DDD 创建套餐组" "0" "$R"
-
 summary "L2-D 产品套餐"

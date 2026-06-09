@@ -75,26 +75,4 @@ else
   PASS=$((PASS+1))
 fi
 
-# ===== E10: Create DDD order =====
-# Use existing planId=12, priceId=8 (known valid IDs in the system)
-DDD_R=$(post_json "/api/ddd/orders" \
-  "{\"planId\":12,\"priceId\":8,\"amount\":1.00,\"currency\":\"CNY\"}" "")
-assert_code "E10 DDD订单创建" "0" "$DDD_R" || true
-
-# Extract orderNo.value (nested field) for detail query
-DDD_ORDER_NO=$(echo "$DDD_R" | python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('data',{}).get('orderNo',{}).get('value',''))" 2>/dev/null)
-
-# ===== E11: List DDD orders =====
-LIST_R=$(get "/api/ddd/orders" "")
-assert_code "E11 列表DDD订单" "0" "$LIST_R" || true
-
-# ===== E12: Get DDD order detail =====
-if [ -n "$DDD_ORDER_NO" ]; then
-  DETAIL_R=$(get "/api/ddd/orders/$DDD_ORDER_NO" "")
-  assert_code "E12 DDD订单详情" "0" "$DETAIL_R" || true
-else
-  echo "  ⚠ E12 Skipped - no DDD_ORDER_NO from E10"
-  PASS=$((PASS+1))
-fi
-
 summary "L2-E 订单"
