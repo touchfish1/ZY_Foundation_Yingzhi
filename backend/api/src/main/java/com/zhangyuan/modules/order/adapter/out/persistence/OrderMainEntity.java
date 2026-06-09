@@ -109,6 +109,10 @@ public class OrderMainEntity {
         return userId;
     }
 
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     public Long getPlanId() {
         return planId;
     }

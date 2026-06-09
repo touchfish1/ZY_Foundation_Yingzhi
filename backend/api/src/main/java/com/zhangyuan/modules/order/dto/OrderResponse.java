@@ -5,6 +5,7 @@ import java.time.Instant;
 
 public record OrderResponse(
         String orderNo,
+        Long userId,
         Long planId,
         Long priceId,
         BigDecimal amount,

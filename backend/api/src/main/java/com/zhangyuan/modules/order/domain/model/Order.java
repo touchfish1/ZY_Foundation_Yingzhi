@@ -7,6 +7,7 @@ import java.time.Instant;
 public class Order extends AggregateRoot<Long> {
 
     private OrderNumber orderNo;
+    private Long userId;
     private Long planId;
     private Long priceId;
     private BigDecimal amount;
@@ -17,8 +18,9 @@ public class Order extends AggregateRoot<Long> {
     private Instant paidAt;
     private Instant cancelledAt;
 
-    public Order(OrderNumber orderNo, Long planId, Long priceId, BigDecimal amount, String currency, String snapshotJson) {
+    public Order(OrderNumber orderNo, Long userId, Long planId, Long priceId, BigDecimal amount, String currency, String snapshotJson) {
         this.orderNo = orderNo;
+        this.userId = userId;
         this.planId = planId;
         this.priceId = priceId;
         this.amount = amount;
@@ -48,11 +50,11 @@ public class Order extends AggregateRoot<Long> {
      * 从持久化数据重建订单领域对象，保留数据库中的完整时间戳。
      * 与公开构造器的区别：不调用 markPaid()/cancel() 覆盖时间戳。
      */
-    public static Order reconstitute(OrderNumber orderNo, Long planId, Long priceId,
+    public static Order reconstitute(OrderNumber orderNo, Long userId, Long planId, Long priceId,
                                       BigDecimal amount, String currency, String snapshotJson,
                                       OrderStatus status, Instant createdAt,
                                       Instant paidAt, Instant cancelledAt) {
-        Order order = new Order(orderNo, planId, priceId, amount, currency, snapshotJson);
+        Order order = new Order(orderNo, userId, planId, priceId, amount, currency, snapshotJson);
         order.status = status;
         order.createdAt = createdAt;
         order.paidAt = paidAt;
@@ -64,6 +66,7 @@ public class Order extends AggregateRoot<Long> {
     public boolean isPending() { return status == OrderStatus.PENDING; }
 
     public OrderNumber getOrderNo() { return orderNo; }
+    public Long getUserId() { return userId; }
     public Long getPlanId() { return planId; }
     public Long getPriceId() { return priceId; }
     public BigDecimal getAmount() { return amount; }

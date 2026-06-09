@@ -1,6 +1,7 @@
 package com.zhangyuan.modules.order.adapter.in.rest;
 
 import cn.dev33.satoken.annotation.SaIgnore;
+import cn.dev33.satoken.stp.StpUtil;
 import com.zhangyuan.common.operationlog.annotation.OperationLog;
 import static com.zhangyuan.common.operationlog.domain.model.OperationType.*;
 import static com.zhangyuan.common.operationlog.domain.model.ResourceType.*;
@@ -40,8 +41,9 @@ public class OrderPublicController {
     @PostMapping
     @OperationLog(type = CREATE, resource = ORDER)
     public ApiResponse<OrderResponse> create(@Valid @RequestBody CreateOrderRequest request) {
-        log.info("Creating order: planCode={}, billingCycle={}, currency={}", request.planCode(), request.billingCycle(), request.currency());
-        return ApiResponse.ok(orderApplicationService.createOrder(request));
+        Long userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsLong() : null;
+        log.info("Creating order: planCode={}, billingCycle={}, currency={}, userId={}", request.planCode(), request.billingCycle(), request.currency(), userId);
+        return ApiResponse.ok(orderApplicationService.createOrder(request, userId));
     }
 
     /**

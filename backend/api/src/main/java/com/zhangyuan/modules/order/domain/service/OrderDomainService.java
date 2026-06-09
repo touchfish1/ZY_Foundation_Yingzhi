@@ -27,9 +27,13 @@ public class OrderDomainService {
      * @return 订单领域对象
      */
     public Order createOrder(Long planId, Long priceId, BigDecimal amount, String currency, String snapshotJson) {
+        return createOrder(null, planId, priceId, amount, currency, snapshotJson);
+    }
+
+    public Order createOrder(Long userId, Long planId, Long priceId, BigDecimal amount, String currency, String snapshotJson) {
         OrderNumber orderNo = OrderNumber.generate();
-        log.info("Domain order created: orderNo={}", orderNo.value());
-        return new Order(orderNo, planId, priceId, amount, currency, snapshotJson);
+        log.info("Domain order created: orderNo={}, userId={}", orderNo.value(), userId);
+        return new Order(orderNo, userId, planId, priceId, amount, currency, snapshotJson);
     }
 
     /**

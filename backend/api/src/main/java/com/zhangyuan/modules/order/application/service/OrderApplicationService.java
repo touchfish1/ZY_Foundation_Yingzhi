@@ -55,8 +55,13 @@ public class OrderApplicationService {
      */
     @Transactional
     public Order createOrder(Long planId, Long priceId, BigDecimal amount, String currency, String snapshotJson) {
-        log.info("Creating order: planId={}, priceId={}, amount={}, currency={}", planId, priceId, amount, currency);
-        Order order = orderDomainService.createOrder(planId, priceId, amount, currency, snapshotJson);
+        return createOrder(null, planId, priceId, amount, currency, snapshotJson);
+    }
+
+    @Transactional
+    public Order createOrder(Long userId, Long planId, Long priceId, BigDecimal amount, String currency, String snapshotJson) {
+        log.info("Creating order: userId={}, planId={}, priceId={}, amount={}, currency={}", userId, planId, priceId, amount, currency);
+        Order order = orderDomainService.createOrder(userId, planId, priceId, amount, currency, snapshotJson);
         Order saved = orderRepository.save(order);
         log.info("Order created: orderNo={}", saved.getOrderNo());
         return saved;
@@ -67,7 +72,12 @@ public class OrderApplicationService {
      */
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request) {
-        log.info("Creating order: planCode={}, billingCycle={}, currency={}", request.planCode(), request.billingCycle(), request.currency());
+        return createOrder(request, null);
+    }
+
+    @Transactional
+    public OrderResponse createOrder(CreateOrderRequest request, Long userId) {
+        log.info("Creating order: planCode={}, billingCycle={}, currency={}, userId={}", request.planCode(), request.billingCycle(), request.currency(), userId);
         String currency = request.currency().trim().toUpperCase();
         String billingCycle = request.billingCycle().trim();
 
@@ -81,7 +91,7 @@ public class OrderApplicationService {
                 .orElseThrow(() -> new NotFoundException("Product price not found for billingCycle=" + billingCycle + ", currency=" + currency));
 
         String snapshotJson = snapshot(plan, price);
-        Order order = orderDomainService.createOrder(plan.getId(), price.getId(), price.getAmount(), price.getCurrency(), snapshotJson);
+        Order order = orderDomainService.createOrder(userId, plan.getId(), price.getId(), price.getAmount(), price.getCurrency(), snapshotJson);
         Order saved = orderRepository.save(order);
         log.info("Order created: orderNo={}", saved.getOrderNo());
         return toResponse(saved);
@@ -149,6 +159,7 @@ public class OrderApplicationService {
     public OrderResponse toResponse(Order order) {
         return new OrderResponse(
                 order.getOrderNo().value(),
+                order.getUserId(),
                 order.getPlanId(),
                 order.getPriceId(),
                 order.getAmount(),

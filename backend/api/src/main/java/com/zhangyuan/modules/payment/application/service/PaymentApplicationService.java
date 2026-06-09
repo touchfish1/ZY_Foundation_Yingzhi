@@ -123,8 +123,12 @@ public class PaymentApplicationService {
         if (!payment.isSuccess()) {
             order.markPaid();
             payment.markSuccess();
+            orderRepository.save(order);
+            paymentRepository.save(payment);
+            log.info("Order {} and payment {} persisted as paid", order.getOrderNo(), paymentNo);
         }
-        return new PaymentResponse(payment.getPaymentNo(), order.getOrderNo().value(), payment.getStatus().name().toLowerCase(), payment.getPaidAt());
+        return new PaymentResponse(payment.getPaymentNo(), order.getOrderNo().value(), payment.getStatus().name().toLowerCase(), payment.getPaidAt(),
+                payment.getChannel(), payment.getAmount(), payment.getCurrency(), payment.getCreatedAt());
     }
 
     /**
@@ -160,7 +164,11 @@ public class PaymentApplicationService {
                 payment.getPaymentNo(),
                 order != null ? order.getOrderNo().value() : null,
                 payment.getStatus().name().toLowerCase(),
-                payment.getPaidAt()
+                payment.getPaidAt(),
+                payment.getChannel(),
+                payment.getAmount(),
+                payment.getCurrency(),
+                payment.getCreatedAt()
         );
     }
 

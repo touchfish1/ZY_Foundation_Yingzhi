@@ -22,7 +22,7 @@ class JpaOrderRepositoryTest {
 
     @Test
     void saveNewOrder() {
-        Order order = new Order(OrderNumber.generate(), 1L, 1L, BigDecimal.valueOf(29), "CNY", "{}");
+        Order order = new Order(OrderNumber.generate(), null, 1L, 1L, BigDecimal.valueOf(29), "CNY", "{}");
         OrderMainEntity entity = new OrderMainEntity(
                 order.getOrderNo().value(), 1L, 1L, BigDecimal.valueOf(29), "CNY", "{}");
         when(jpaRepository.save(any())).thenReturn(entity);

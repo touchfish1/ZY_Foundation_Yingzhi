@@ -43,14 +43,23 @@ public class JpaPaymentRepository implements PaymentRepository {
 
     @Override
     public Payment save(Payment payment) {
-        PaymentTransactionEntity entity = new PaymentTransactionEntity(
-                payment.getPaymentNo(),
-                payment.getOrderId(),
-                payment.getChannel(),
-                payment.getAmount(),
-                payment.getCurrency(),
-                "{}"
-        );
+        PaymentTransactionEntity entity;
+        if (payment.getId() != null) {
+            entity = jpaRepository.findById(payment.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Payment not found: " + payment.getId()));
+            if (com.zhangyuan.modules.payment.domain.model.PaymentStatus.SUCCESS == payment.getStatus()) {
+                entity.markPaid("{}", payment.getPaidAt());
+            }
+        } else {
+            entity = new PaymentTransactionEntity(
+                    payment.getPaymentNo(),
+                    payment.getOrderId(),
+                    payment.getChannel(),
+                    payment.getAmount(),
+                    payment.getCurrency(),
+                    "{}"
+            );
+        }
         entity = jpaRepository.save(entity);
         return toDomain(entity);
     }
@@ -63,6 +72,7 @@ public class JpaPaymentRepository implements PaymentRepository {
                 entity.getAmount(),
                 entity.getCurrency()
         );
+        payment.setId(entity.getId());
         if ("paid".equals(entity.getStatus())) {
             payment.markSuccess();
         }

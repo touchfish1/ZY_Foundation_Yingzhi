@@ -44,6 +44,7 @@ public class Payment {
     public boolean isPending() { return status == PaymentStatus.PENDING; }
 
     public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
     public String getPaymentNo() { return paymentNo; }
     public Long getOrderId() { return orderId; }
     public String getChannel() { return channel; }

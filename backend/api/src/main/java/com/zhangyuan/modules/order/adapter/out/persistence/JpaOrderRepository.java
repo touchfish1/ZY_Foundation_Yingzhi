@@ -76,6 +76,7 @@ public class JpaOrderRepository implements OrderRepository {
                     order.getCurrency(),
                     order.getSnapshotJson()
             );
+            entity.setUserId(order.getUserId());
         }
         entity = jpaRepository.save(entity);
         return toDomain(entity);
@@ -86,6 +87,7 @@ public class JpaOrderRepository implements OrderRepository {
         OrderStatus status = OrderStatus.valueOf(statusStr.toUpperCase());
         Order order = Order.reconstitute(
                 new OrderNumber(entity.getOrderNo()),
+                entity.getUserId(),
                 entity.getPlanId(),
                 entity.getPriceId(),
                 entity.getAmount(),

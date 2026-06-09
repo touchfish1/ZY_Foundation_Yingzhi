@@ -90,18 +90,27 @@ class PaymentServiceTest {
         when(payment.isSuccess()).thenReturn(false);
         when(payment.getStatus()).thenReturn(com.zhangyuan.modules.payment.domain.model.PaymentStatus.SUCCESS);
         when(payment.getPaidAt()).thenReturn(Instant.now());
+        when(payment.getChannel()).thenReturn("mock");
+        when(payment.getAmount()).thenReturn(BigDecimal.valueOf(29));
+        when(payment.getCurrency()).thenReturn("CNY");
+        when(payment.getCreatedAt()).thenReturn(Instant.now());
         when(paymentRepository.findByPaymentNo("PAY123")).thenReturn(Optional.of(payment));
+        when(paymentRepository.save(any())).thenReturn(payment);
 
         Order order = mock(Order.class);
         when(order.getOrderNo()).thenReturn(new OrderNumber("ORD123"));
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any())).thenReturn(order);
 
         PaymentResponse response = paymentService.mockSuccess("PAY123");
 
         assertThat(response.paymentNo()).isEqualTo("PAY123");
         assertThat(response.orderNo()).isEqualTo("ORD123");
+        assertThat(response.channel()).isEqualTo("mock");
         verify(payment).markSuccess();
         verify(order).markPaid();
+        verify(paymentRepository).save(any());
+        verify(orderRepository).save(any());
     }
 
     @Test
@@ -112,6 +121,10 @@ class PaymentServiceTest {
         when(payment.isSuccess()).thenReturn(true);
         when(payment.getStatus()).thenReturn(com.zhangyuan.modules.payment.domain.model.PaymentStatus.SUCCESS);
         when(payment.getPaidAt()).thenReturn(Instant.now());
+        when(payment.getChannel()).thenReturn("mock");
+        when(payment.getAmount()).thenReturn(BigDecimal.valueOf(29));
+        when(payment.getCurrency()).thenReturn("CNY");
+        when(payment.getCreatedAt()).thenReturn(Instant.now());
         when(paymentRepository.findByPaymentNo("PAY123")).thenReturn(Optional.of(payment));
 
         Order order = mock(Order.class);
@@ -139,6 +152,10 @@ class PaymentServiceTest {
         when(payment.getOrderId()).thenReturn(1L);
         when(payment.getStatus()).thenReturn(com.zhangyuan.modules.payment.domain.model.PaymentStatus.PENDING);
         when(payment.getPaidAt()).thenReturn(null);
+        when(payment.getChannel()).thenReturn("mock");
+        when(payment.getAmount()).thenReturn(BigDecimal.valueOf(29));
+        when(payment.getCurrency()).thenReturn("CNY");
+        when(payment.getCreatedAt()).thenReturn(Instant.now());
         when(paymentRepository.findPageByCreatedAtDesc(1, 20))
                 .thenReturn(PageResponse.of(List.of(payment), 1, 20, 1));
 
@@ -150,5 +167,7 @@ class PaymentServiceTest {
 
         assertThat(result.items()).hasSize(1);
         assertThat(result.items().getFirst().paymentNo()).isEqualTo("PAY1");
+        assertThat(result.items().getFirst().channel()).isEqualTo("mock");
+        assertThat(result.items().getFirst().amount()).isEqualByComparingTo("29");
     }
 }
