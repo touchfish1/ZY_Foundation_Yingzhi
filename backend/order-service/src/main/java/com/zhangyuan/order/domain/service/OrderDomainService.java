@@ -13,10 +13,10 @@ public class OrderDomainService {
 
     private static final Logger log = LoggerFactory.getLogger(OrderDomainService.class);
 
-    public Order createOrder(Long planId, Long priceId, BigDecimal amount, String currency, String snapshotJson) {
+    public Order createOrder(Long userId, Long planId, Long priceId, BigDecimal amount, String currency, String snapshotJson) {
         OrderNumber orderNo = OrderNumber.generate();
-        log.info("Domain order created: orderNo={}", orderNo.value());
-        return new Order(orderNo, planId, priceId, amount, currency, snapshotJson);
+        log.info("Domain order created: orderNo={}, userId={}", orderNo.value(), userId);
+        return new Order(orderNo, userId, planId, priceId, amount, currency, snapshotJson);
     }
 
     public void validatePayment(Order order) {

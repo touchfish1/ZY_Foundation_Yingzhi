@@ -19,8 +19,9 @@ public class Order {
     private Instant fulfilledAt;
     private Instant cancelledAt;
 
-    public Order(OrderNumber orderNo, Long planId, Long priceId, BigDecimal amount, String currency, String snapshotJson) {
+    public Order(OrderNumber orderNo, Long userId, Long planId, Long priceId, BigDecimal amount, String currency, String snapshotJson) {
         this.orderNo = orderNo;
+        this.userId = userId;
         this.planId = planId;
         this.priceId = priceId;
         this.amount = amount;
