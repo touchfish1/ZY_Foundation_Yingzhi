@@ -6,6 +6,11 @@ export default defineNuxtConfig({
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8080'
     }
   },
+  nitro: {
+    routeRules: {
+      '/api/**': { proxy: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8080' }
+    }
+  },
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
     head: {
