@@ -29,6 +29,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'default' })
 
+const route = useRoute()
 const email = ref('')
 const password = ref('')
 const error = ref('')
@@ -38,7 +39,8 @@ async function handleLogin() {
   error.value = ''
   try {
     await auth.login(email.value, password.value)
-    navigateTo('/dashboard')
+    const redirect = route.query.redirect as string
+    navigateTo(redirect ? decodeURIComponent(redirect) : '/dashboard')
   } catch (e: any) {
     error.value = e?.data?.message || e?.message || '登录失败'
   }

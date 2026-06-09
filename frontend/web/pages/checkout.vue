@@ -79,9 +79,7 @@ async function submitOrder() {
     const paymentNo = data?.paymentNo
     if (payUrl) {
       if (channel.value === 'alipay') {
-        document.open()
-        document.write(payUrl)
-        document.close()
+        window.location.href = payUrl
       } else if (channel.value === 'wxpay') {
         navigateTo(`/payment?orderNo=${orderNo}&paymentNo=${paymentNo}&codeUrl=${encodeURIComponent(payUrl)}`)
       } else {
