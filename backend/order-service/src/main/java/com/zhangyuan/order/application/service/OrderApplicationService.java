@@ -46,16 +46,20 @@ public class OrderApplicationService {
     }
 
     @Transactional
-    public Order createOrder(Long planId, Long priceId, java.math.BigDecimal amount, String currency, String snapshotJson) {
-        log.info("Creating order: planId={}, priceId={}, amount={}, currency={}", planId, priceId, amount, currency);
-        Order order = orderDomainService.createOrder(planId, priceId, amount, currency, snapshotJson);
+    public Order createOrder(Long userId, Long planId, Long priceId, java.math.BigDecimal amount, String currency, String snapshotJson) {
+        log.info("Creating order: userId={}, planId={}, priceId={}, amount={}, currency={}", userId, planId, priceId, amount, currency);
+        Order order = orderDomainService.createOrder(userId, planId, priceId, amount, currency, snapshotJson);
         Order saved = orderRepository.save(order);
         log.info("Order created: orderNo={}", saved.getOrderNo());
         return saved;
     }
 
     public OrderResponse createOrder(CreateOrderRequest request) {
-        log.info("Creating order: planCode={}, billingCycle={}, currency={}", request.planCode(), request.billingCycle(), request.currency());
+        return createOrder(request, null);
+    }
+
+    public OrderResponse createOrder(CreateOrderRequest request, Long userId) {
+        log.info("Creating order: planCode={}, billingCycle={}, currency={}, userId={}", request.planCode(), request.billingCycle(), request.currency(), userId);
         String currency = request.currency().trim().toUpperCase();
         String billingCycle = request.billingCycle().trim();
         String planCode = request.planCode().trim();
@@ -74,14 +78,14 @@ public class OrderApplicationService {
                     "No matching plan/price found for planCode=" + planCode + ", billingCycle=" + billingCycle + ", currency=" + currency);
         }
 
-        return doCreateOrder(snapshotResult.planId(), snapshotResult.priceId(), snapshotResult.amount(), currency, snapshotResult.snapshotJson());
+        return doCreateOrder(userId, snapshotResult.planId(), snapshotResult.priceId(), snapshotResult.amount(), currency, snapshotResult.snapshotJson());
     }
 
     @Transactional
-    public OrderResponse doCreateOrder(Long planId, Long priceId, java.math.BigDecimal amount, String currency, String snapshotJson) {
-        Order order = orderDomainService.createOrder(planId, priceId, amount, currency, snapshotJson);
+    public OrderResponse doCreateOrder(Long userId, Long planId, Long priceId, java.math.BigDecimal amount, String currency, String snapshotJson) {
+        Order order = orderDomainService.createOrder(userId, planId, priceId, amount, currency, snapshotJson);
         Order saved = orderRepository.save(order);
-        log.info("Order created: orderNo={}, amount={}", saved.getOrderNo(), saved.getAmount());
+        log.info("Order created: orderNo={}, amount={}, userId={}", saved.getOrderNo(), saved.getAmount(), userId);
         return toResponse(saved);
     }
 
@@ -128,6 +132,7 @@ public class OrderApplicationService {
         return new OrderResponse(
                 order.getId(),
                 order.getOrderNo().value(),
+                order.getUserId(),
                 order.getPlanId(),
                 order.getPriceId(),
                 order.getAmount(),
