@@ -44,6 +44,50 @@ services:
     networks:
       - zhangyuan-dev
 
+  order-service:
+    build:
+      context: ../../backend
+      dockerfile: order-service/Dockerfile
+    container_name: zhangyuan-order
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+      SERVER_PORT: 8083
+      NACOS_HOST: nacos
+      NACOS_PORT: 8848
+      NACOS_USERNAME: nacos
+      NACOS_PASSWORD: ${NACOS_PASSWORD:-chengccn}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - zhangyuan-dev
+
+  payment-service:
+    build:
+      context: ../../backend
+      dockerfile: payment-service/Dockerfile
+    container_name: zhangyuan-payment
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+      SERVER_PORT: 8084
+      NACOS_HOST: nacos
+      NACOS_PORT: 8848
+      NACOS_USERNAME: nacos
+      NACOS_PASSWORD: ${NACOS_PASSWORD:-chengccn}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - zhangyuan-dev
+
   auth-service:
     build:
       context: ../../backend/auth-service
@@ -83,6 +127,8 @@ services:
       - api
       - system-service
       - auth-service
+      - order-service
+      - payment-service
       - web
     restart: unless-stopped
     networks:
