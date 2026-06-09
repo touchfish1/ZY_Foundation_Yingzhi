@@ -1,6 +1,7 @@
 package com.zhangyuan.modules.cms.dto;
 
 import java.time.Instant;
+import java.util.List;
 
 public record PageListItemResponse(
         Long id,
@@ -8,6 +9,7 @@ public record PageListItemResponse(
         String pageType,
         String defaultLocale,
         String status,
-        Instant updatedAt
+        Instant updatedAt,
+        List<String> translations
 ) {
 }

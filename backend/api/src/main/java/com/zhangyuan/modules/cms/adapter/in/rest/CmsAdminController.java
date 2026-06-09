@@ -83,6 +83,13 @@ public class CmsAdminController {
         return ApiResponse.ok();
     }
 
+    @PostMapping("/{pageId}/duplicate")
+    @OperationLog(type = CREATE, resource = CMS_PAGE, resourceId = "#pageId")
+    public ApiResponse<PageDetailResponse> duplicatePage(@PathVariable Long pageId) {
+        log.info("Duplicating CMS page: {}", pageId);
+        return ApiResponse.ok(cmsApplicationService.duplicatePage(pageId));
+    }
+
     @PutMapping("/{pageId}/translations/{locale}/draft")
     @OperationLog(type = UPDATE, resource = CMS_PAGE, resourceId = "#pageId")
     public ApiResponse<PageDetailResponse> saveDraft(@PathVariable Long pageId, @PathVariable String locale,
@@ -100,9 +107,11 @@ public class CmsAdminController {
 
     @GetMapping("/{pageId}/translations/{locale}/versions")
     @OperationLog(type = QUERY, resource = CMS_PAGE, resourceId = "#pageId")
-    public ApiResponse<List<VersionResponse>> listVersions(@PathVariable Long pageId, @PathVariable String locale) {
-        log.info("Listing versions for CMS page: {}, locale: {}", pageId, locale);
-        return ApiResponse.ok(cmsApplicationService.listVersions(pageId, locale));
+    public ApiResponse<PageResponse<VersionResponse>> listVersions(@PathVariable Long pageId, @PathVariable String locale,
+                                                                    @RequestParam(defaultValue = "1") int page,
+                                                                    @RequestParam(defaultValue = "20") int pageSize) {
+        log.info("Listing versions for CMS page: {}, locale: {}, page={}, pageSize={}", pageId, locale, page, pageSize);
+        return ApiResponse.ok(cmsApplicationService.listVersions(pageId, locale, page, pageSize));
     }
 
     @GetMapping("/{pageId}/preview")

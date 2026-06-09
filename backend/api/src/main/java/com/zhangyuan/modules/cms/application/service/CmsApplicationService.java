@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class CmsApplicationService {
@@ -75,7 +76,8 @@ public class CmsApplicationService {
                 ? pageRepository.findByKeyword(keyword, page, pageSize)
                 : pageRepository.findAll(page, pageSize);
         List<PageListItemResponse> items = pageResult.items().stream()
-                .map(p -> new PageListItemResponse(p.getId(), p.getSlug(), p.getPageType(), p.getDefaultLocale(), p.getStatus(), p.getUpdatedAt()))
+                .map(p -> new PageListItemResponse(p.getId(), p.getSlug(), p.getPageType(), p.getDefaultLocale(), p.getStatus(), p.getUpdatedAt(),
+                        translationRepository.findByPageId(p.getId()).stream().map(PageTranslation::getLocale).toList()))
                 .toList();
         return PageResponse.of(items, pageResult.page(), pageResult.pageSize(), pageResult.total());
     }
@@ -85,7 +87,8 @@ public class CmsApplicationService {
         String resolvedType = type == null || type.isBlank() ? "custom" : type;
         var pageResult = pageRepository.findByPageTypeAndStatus(resolvedType, CmsPage.STATUS_ENABLED, page, pageSize);
         List<PageListItemResponse> items = pageResult.items().stream()
-                .map(p -> new PageListItemResponse(p.getId(), p.getSlug(), p.getPageType(), p.getDefaultLocale(), p.getStatus(), p.getUpdatedAt()))
+                .map(p -> new PageListItemResponse(p.getId(), p.getSlug(), p.getPageType(), p.getDefaultLocale(), p.getStatus(), p.getUpdatedAt(),
+                        translationRepository.findByPageId(p.getId()).stream().map(PageTranslation::getLocale).toList()))
                 .toList();
         return PageResponse.of(items, pageResult.page(), pageResult.pageSize(), pageResult.total());
     }
@@ -147,6 +150,31 @@ public class CmsApplicationService {
         log.info("CMS page soft-deleted: {} (data preserved for published versions)", pageId);
     }
 
+    @Transactional
+    public PageDetailResponse duplicatePage(Long pageId) {
+        log.info("Duplicating CMS page: {}", pageId);
+        CmsPage sourcePage = requirePage(pageId);
+        String randomSuffix = UUID.randomUUID().toString().substring(0, 4);
+        String newSlug = sourcePage.getSlug() + "-copy-" + randomSuffix;
+        if (pageRepository.existsBySlug(newSlug)) {
+            randomSuffix = UUID.randomUUID().toString().substring(0, 4);
+            newSlug = sourcePage.getSlug() + "-copy-" + randomSuffix;
+        }
+        CmsPage newPage = pageRepository.save(new CmsPage(newSlug, sourcePage.getDefaultLocale(), sourcePage.getPageType(), currentUserId()));
+        var sourceTranslations = translationRepository.findByPageId(pageId);
+        for (var sourceTranslation : sourceTranslations) {
+            var newTranslation = translationRepository.create(newPage.getId(), sourceTranslation.getLocale(), sourceTranslation.getTitle());
+            if (sourceTranslation.getDraftVersionId() != null) {
+                var contentJson = versionRepository.getContentJson(sourceTranslation.getDraftVersionId());
+                var newVersion = versionRepository.createAndSave(newPage.getId(), sourceTranslation.getLocale(), 1, contentJson, currentUserId(), "duplicated from page " + pageId);
+                newTranslation.updateDraftInfo(sourceTranslation.getTitle(), sourceTranslation.getSeoTitle(), sourceTranslation.getSeoDescription(), sourceTranslation.getSeoKeywords(), newVersion.getId());
+                translationRepository.save(newPage.getId(), newTranslation);
+            }
+        }
+        log.info("CMS page duplicated: newId={}, newSlug={}", newPage.getId(), newPage.getSlug());
+        return toDetail(newPage, translationRepository.findByPageId(newPage.getId()));
+    }
+
     // ── Draft & Versioning ─────────────────────────────────────
 
     @Transactional
@@ -178,10 +206,12 @@ public class CmsApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public List<VersionResponse> listVersions(Long pageId, String locale) {
-        return versionRepository.findByPageIdAndLocale(pageId, locale).stream()
+    public PageResponse<VersionResponse> listVersions(Long pageId, String locale, int page, int pageSize) {
+        var pageResult = versionRepository.findByPageIdAndLocale(pageId, locale, page, pageSize);
+        List<VersionResponse> items = pageResult.items().stream()
                 .map(v -> new VersionResponse(v.getId(), v.getVersionNo(), v.getCreatedAt(), v.getRemark()))
                 .toList();
+        return PageResponse.of(items, pageResult.page(), pageResult.pageSize(), pageResult.total());
     }
 
     @Transactional(readOnly = true)

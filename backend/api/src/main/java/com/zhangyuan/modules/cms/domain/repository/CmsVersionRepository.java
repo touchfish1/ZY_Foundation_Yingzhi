@@ -1,5 +1,6 @@
 package com.zhangyuan.modules.cms.domain.repository;
 
+import com.zhangyuan.common.response.PageResponse;
 import com.zhangyuan.modules.cms.domain.model.PageVersion;
 
 import java.util.List;
@@ -22,6 +23,8 @@ public interface CmsVersionRepository {
     Optional<PageVersion> findLatestByPageIdAndLocale(Long pageId, String locale);
 
     List<PageVersion> findByPageIdAndLocale(Long pageId, String locale);
+
+    PageResponse<PageVersion> findByPageIdAndLocale(Long pageId, String locale, int page, int pageSize);
 
     Map<String, Object> getContentJson(Long versionId);
 
