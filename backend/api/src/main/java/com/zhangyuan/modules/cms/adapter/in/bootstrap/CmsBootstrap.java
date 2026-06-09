@@ -175,21 +175,69 @@ public class CmsBootstrap implements ApplicationRunner {
 
     private List<BlockSeed> defaultBlocks() {
         return List.of(
-                new BlockSeed("hero", "Hero", fields("title", "text", "subtitle", "textarea"), Map.of(), 10),
-                new BlockSeed("pricing", "Pricing", fields("planGroupCode", "text", "defaultBillingCycle", "text"), Map.of("defaultBillingCycle", "monthly"), 20),
-                new BlockSeed("feature-grid", "Feature Grid", fields("title", "text", "items", "list"), Map.of(), 30),
-                new BlockSeed("faq", "FAQ", fields("title", "text", "items", "list"), Map.of(), 40),
-                new BlockSeed("cta", "CTA", fields("title", "text", "buttonText", "text", "buttonUrl", "url"), Map.of(), 50),
-                new BlockSeed("rich-text", "Rich Text", fields("content", "rich-text"), Map.of(), 60)
+                new BlockSeed("hero", "Hero", schema(
+                        field("title", "标题", "text", "新一代 API 服务平台"),
+                        field("subtitle", "副标题", "textarea", "")
+                ), Map.of("title", "新一代 API 服务平台"), 10),
+                new BlockSeed("pricing", "Pricing", schema(
+                        field("planGroupCode", "套餐分组编码", "text", "api_plans"),
+                        field("defaultBillingCycle", "默认计费周期", "text", "monthly")
+                ), Map.of("defaultBillingCycle", "monthly", "planGroupCode", "api_plans"), 20),
+                new BlockSeed("feature-grid", "Feature Grid", schema(
+                        field("title", "标题", "text", "核心功能"),
+                        listField("items", "功能列表",
+                                listFieldItem("name", "名称"),
+                                listFieldItem("description", "描述"))
+                ), Map.of("title", "核心功能"), 30),
+                new BlockSeed("faq", "FAQ", schema(
+                        field("title", "标题", "text", "常见问题"),
+                        listField("items", "问答列表",
+                                listFieldItem("question", "问题"),
+                                listFieldItem("answer", "答案"))
+                ), Map.of("title", "常见问题"), 40),
+                new BlockSeed("cta", "CTA", schema(
+                        field("title", "标题", "text", "准备好开始了吗？"),
+                        field("buttonText", "按钮文字", "text", "立即开始"),
+                        field("buttonUrl", "按钮链接", "url", "#")
+                ), Map.of(), 50),
+                new BlockSeed("rich-text", "Rich Text", schema(
+                        field("content", "内容", "rich-text", "")
+                ), Map.of(), 60)
         );
     }
 
-    private Map<String, Object> fields(String... pairs) {
-        java.util.ArrayList<Map<String, Object>> fields = new java.util.ArrayList<>();
-        for (int i = 0; i < pairs.length; i += 2) {
-            fields.add(Map.of("key", pairs[i], "label", pairs[i], "type", pairs[i + 1]));
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> schema(Map<String, Object>... fields) {
+        var list = new java.util.ArrayList<Map<String, Object>>();
+        for (var f : fields) list.add(f);
+        return Map.of("fields", list);
+    }
+
+    private Map<String, Object> field(String key, String label, String type, String defaultValue) {
+        var map = new java.util.LinkedHashMap<String, Object>();
+        map.put("key", key);
+        map.put("label", label);
+        map.put("type", type);
+        if (defaultValue != null && !defaultValue.isEmpty()) {
+            map.put("defaultValue", defaultValue);
         }
-        return Map.of("fields", fields);
+        return map;
+    }
+
+    private Map<String, Object> listField(String key, String label, Map<String, Object>... listItems) {
+        var listFields = new java.util.ArrayList<Map<String, Object>>();
+        for (var item : listItems) listFields.add(item);
+        var map = new java.util.LinkedHashMap<String, Object>();
+        map.put("key", key);
+        map.put("label", label);
+        map.put("type", "list");
+        map.put("defaultValue", List.of());
+        map.put("listFields", listFields);
+        return map;
+    }
+
+    private Map<String, Object> listFieldItem(String key, String label) {
+        return Map.of("key", key, "label", label);
     }
 
     private record BlockSeed(String type, String name, Map<String, Object> schema, Map<String, Object> defaultProps, Integer sortOrder) {
