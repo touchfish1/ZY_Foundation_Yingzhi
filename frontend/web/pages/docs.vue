@@ -58,8 +58,8 @@ interface DocPage {
   to: string
 }
 
-const allDocs = ref<DocPage[]>([])
-const docContent = ref<Record<string, DocPage>>({})
+const allDocs = ref<DocPage[]>(getBuiltInDocs())
+const docContent = ref<Record<string, DocPage>>(getBuiltInDocContent())
 
 const selectedDoc = computed(() => {
   // Check if we're on a specific doc path
@@ -123,6 +123,198 @@ watch(() => route.path, async (path) => {
     await loadDoc(slug)
   }
 })
+
+function getBuiltInDocs(): DocPage[] {
+  return [
+    { title: '快速开始', slug: 'getting-started', description: '5 分钟集成 AI API', to: '/docs/getting-started' },
+    { title: 'API 认证', slug: 'authentication', description: 'API Key 获取与使用', to: '/docs/authentication' },
+    { title: 'Chat Completions', slug: 'chat-completions', description: '对话补全接口参考', to: '/docs/chat-completions' },
+    { title: '可用模型', slug: 'models', description: '支持的模型列表与规格', to: '/docs/models' },
+    { title: '用量与配额', slug: 'usage', description: '查看用量、管理配额', to: '/docs/usage' },
+    { title: '错误处理', slug: 'errors', description: 'API 错误码与处理方式', to: '/docs/errors' },
+    { title: 'API Playground', slug: 'playground', description: '在线调试 API 接口', to: '/docs/playground' },
+  ]
+}
+
+function getBuiltInDocContent(): Record<string, DocPage> {
+  return {
+    'getting-started': {
+      title: '快速开始',
+      slug: 'getting-started',
+      to: '/docs/getting-started',
+      content: `<h2>获取 API Key</h2>
+<p>登录后进入<a href="/dashboard">控制台</a>，在 API Keys 页面获取你的密钥。</p>
+<pre><code># 你的 API Key 格式
+sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></pre>
+
+<h2>发起第一个请求</h2>
+<p>使用 curl 调用 Chat Completions 接口：</p>
+<pre><code>curl https://api.zhangyuan.ai/v1/chat/completions \\
+  -H "Authorization: Bearer sk-your-key" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "gpt-4o",
+    "messages": [
+      {"role": "user", "content": "Hello!"}
+    ]
+  }'</code></pre>
+
+<h2>使用 Python</h2>
+<pre><code>import openai
+client = openai.OpenAI(
+    api_key="sk-your-key",
+    base_url="https://api.zhangyuan.ai/v1"
+)
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+print(response.choices[0].message.content)</code></pre>
+
+<h2>下一步</h2>
+<p>查看 <a href="/docs/authentication">API 认证文档</a> 了解更多。</p>`
+    },
+    'authentication': {
+      title: 'API 认证',
+      slug: 'authentication',
+      to: '/docs/authentication',
+      content: `<h2>认证方式</h2>
+<p>所有 API 请求必须使用 Bearer Token 认证方式：</p>
+<pre><code>Authorization: Bearer sk-your-api-key</code></pre>
+
+<h2>获取 API Key</h2>
+<ol>
+<li>注册并登录账号</li>
+<li>进入 <a href="/dashboard">控制台</a> → API Keys</li>
+<li>点击创建或复制现有 Key</li>
+</ol>
+
+<h2>安全建议</h2>
+<ul>
+<li>不要将 API Key 暴露在客户端代码中</li>
+<li>定期轮换密钥</li>
+<li>为不同应用使用不同的 Key</li>
+<li>如发现泄露，立即在控制台重新生成</li>
+</ul>`
+    },
+    'chat-completions': {
+      title: 'Chat Completions',
+      slug: 'chat-completions',
+      to: '/docs/chat-completions',
+      content: `<h2>接口</h2>
+<pre><code>POST /v1/chat/completions</code></pre>
+
+<h2>请求体</h2>
+<table>
+<tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>model</td><td>string</td><td>是</td><td>模型 ID</td></tr>
+<tr><td>messages</td><td>array</td><td>是</td><td>对话消息列表</td></tr>
+<tr><td>temperature</td><td>number</td><td>否</td><td>采样温度 (0-2)，默认 1</td></tr>
+<tr><td>max_tokens</td><td>integer</td><td>否</td><td>最大生成 token 数</td></tr>
+<tr><td>stream</td><td>boolean</td><td>否</td><td>是否流式输出（即将支持）</td></tr>
+</table>
+
+<h2>示例请求</h2>
+<pre><code>curl https://api.zhangyuan.ai/v1/chat/completions \\
+  -H "Authorization: Bearer sk-your-key" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "gpt-4o",
+    "messages": [
+      {"role": "system", "content": "You are helpful."},
+      {"role": "user", "content": "Hello!"}
+    ],
+    "temperature": 0.7
+  }'</code></pre>
+
+<h2>响应格式</h2>
+<pre><code>{
+  "id": "chatcmpl-xxx",
+  "object": "chat.completion",
+  "created": 1717000000,
+  "model": "gpt-4o",
+  "choices": [{
+    "index": 0,
+    "message": {
+      "role": "assistant",
+      "content": "Hello! How can I help you today?"
+    },
+    "finish_reason": "stop"
+  }],
+  "usage": {
+    "prompt_tokens": 10,
+    "completion_tokens": 15,
+    "total_tokens": 25
+  }
+}</code></pre>`
+    },
+    'models': {
+      title: '可用模型',
+      slug: 'models',
+      to: '/docs/models',
+      content: `<h2>OpenAI 兼容模型</h2>
+<table>
+<tr><th>模型 ID</th><th>提供商</th><th>说明</th></tr>
+<tr><td>gpt-4o</td><td>OpenAI</td><td>最新多模态模型，高效且强大</td></tr>
+<tr><td>gpt-4-turbo</td><td>OpenAI</td><td>GPT-4 Turbo，支持 128K 上下文</td></tr>
+<tr><td>gpt-3.5-turbo</td><td>OpenAI</td><td>快速经济的 GPT-3.5</td></tr>
+<tr><td>claude-3-opus</td><td>Anthropic</td><td>最强大的 Claude 3 模型</td></tr>
+<tr><td>claude-3-sonnet</td><td>Anthropic</td><td>速度与智能的平衡</td></tr>
+<tr><td>claude-3-haiku</td><td>Anthropic</td><td>最快最经济的 Claude 3</td></tr>
+</table>
+
+<p>所有模型可通过 <code>GET /v1/models</code> 获取实时列表。</p>`
+    },
+    'usage': {
+      title: '用量与配额',
+      slug: 'usage',
+      to: '/docs/usage',
+      content: `<h2>配额说明</h2>
+<p>不同套餐的配额限制：</p>
+<table>
+<tr><th>套餐</th><th>每月配额</th><th>RPM 限制</th></tr>
+<tr><td>Free Trial</td><td>10,000 tokens</td><td>10 RPM</td></tr>
+<tr><td>Basic</td><td>100,000 tokens</td><td>60 RPM</td></tr>
+<tr><td>Pro</td><td>1,000,000 tokens</td><td>300 RPM</td></tr>
+<tr><td>Enterprise</td><td>10,000,000 tokens</td><td>1000 RPM</td></tr>
+</table>
+
+<h2>查看用量</h2>
+<p>在<a href="/dashboard/usage">控制台用量页面</a>可以查看实时用量和配额使用情况。</p>
+
+<h2>配额耗尽</h2>
+<p>当配额耗尽时，API 返回 429 Too Many Requests。升级套餐或等待下个结算周期即可恢复。</p>`
+    },
+    'errors': {
+      title: '错误处理',
+      slug: 'errors',
+      to: '/docs/errors',
+      content: `<h2>错误码</h2>
+<table>
+<tr><th>HTTP 状态码</th><th>错误类型</th><th>说明</th></tr>
+<tr><td>401</td><td>auth_error</td><td>API Key 无效或已过期</td></tr>
+<tr><td>403</td><td>forbidden</td><td>账号已被禁用</td></tr>
+<tr><td>429</td><td>quota_exceeded</td><td>配额不足或请求过于频繁</td></tr>
+<tr><td>400</td><td>invalid_request</td><td>请求参数有误</td></tr>
+<tr><td>500</td><td>server_error</td><td>服务端内部错误</td></tr>
+</table>
+
+<h2>错误响应格式</h2>
+<pre><code>{
+  "error": {
+    "message": "Quota exhausted",
+    "type": "quota_exceeded"
+  }
+}</code></pre>`
+    },
+    'playground': {
+      title: 'API Playground',
+      slug: 'playground',
+      to: '/docs/playground',
+      content: `<p>Playground 页面已移至 <a href="/playground">/playground</a>。<p>`
+    },
+  }
+}
 </script>
 
 <style scoped>
