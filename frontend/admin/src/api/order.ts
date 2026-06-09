@@ -1,58 +1,7 @@
 import { request } from './http'
 import type { PageResponse } from '../types/common'
-
-export interface OrderItem {
-  orderNo: string
-  amount: string
-  currency: string
-  status: string
-  createdAt: string
-}
-
-export interface OrderDetail {
-  orderNo: string
-  planId: number
-  priceId: number
-  amount: string
-  currency: string
-  status: string
-  snapshotJson?: string
-  createdAt: string
-  paidAt: string | null
-  userId?: number
-  // populated client-side from snapshotJson
-  planName?: string
-  planCode?: string
-  billingCycle?: string
-}
-
-export interface SubscriptionItem {
-  id: number
-  userId: number
-  planCode: string
-  planName: string
-  status: string
-  startsAt: string
-  expiresAt: string
-  createdAt: string
-  active: boolean
-}
-
-export interface UsageRecord {
-  id: number
-  userId: number
-  model: string
-  callCount: number
-  quotaUsed: number
-  date: string
-}
-
-export interface UsageSummary {
-  totalQuota: number
-  dailyAverage: number
-  totalCalls: number
-  recordCount: number
-}
+import type { OrderItem, OrderDetail, SubscriptionItem, UsageRecord, UsageSummary } from '@shared/types/order'
+export type { OrderItem, OrderDetail, SubscriptionItem, UsageRecord, UsageSummary }
 
 export function listOrders(page = 1, pageSize = 20) {
   return request<PageResponse<OrderItem>>(`/admin/orders?page=${page}&pageSize=${pageSize}`)

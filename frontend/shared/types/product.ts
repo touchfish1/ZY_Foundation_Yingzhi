@@ -10,6 +10,7 @@ export interface PlanGroup {
 
 export interface Plan {
   id: number
+  groupId: number
   code: string
   name: string
   description: string

@@ -1,21 +1,8 @@
 import { request } from './http'
 import type { PageResponse } from '../types/common'
-
-export interface UserInfo {
-  id: number
-  username: string
-  nickname: string
-  email: string
-  status: string
-  createdAt: string
-}
-
-export interface RoleInfo {
-  id: number
-  code: string
-  name: string
-  createdAt: string
-}
+import type { UserInfo, RoleInfo } from '@shared/types/auth'
+import type { AuditLog, MonitorStats } from '@shared/types/system'
+export type { UserInfo, RoleInfo, AuditLog, MonitorStats }
 
 // 获取系统用户列表
 export function listUsers(
@@ -102,25 +89,8 @@ export function setRolePermissions(roleId: number, permissionIds: number[]) {
   })
 }
 
-export interface MonitorStats {
-  jvm: { maxMemory: number; totalMemory: number; freeMemory: number; usedMemory: number; usagePercent: number }
-  system: { osName: string; osArch: string; javaVersion: string; availableProcessors: number }
-  uptime: string; startTime: string
-  settings: { totalCount: number }
-}
-
 export function getMonitorStats() {
   return request<MonitorStats>('/admin/system/monitor/stats')
-}
-
-export interface AuditLog {
-  id: number
-  userId: number
-  username: string
-  action: string
-  detail: string
-  ipAddress: string
-  createdAt: string
 }
 
 // 获取审计日志列表（分页）
