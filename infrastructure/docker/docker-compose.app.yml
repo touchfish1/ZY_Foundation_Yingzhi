@@ -110,6 +110,27 @@ services:
     networks:
       - zhangyuan-dev
 
+  ai-service:
+    build:
+      context: ../../backend
+      dockerfile: ai-service/Dockerfile
+    container_name: zhangyuan-ai
+    environment:
+      SERVER_PORT: 8086
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      CLAUDE_API_KEY: ${CLAUDE_API_KEY:-}
+      REDIS_HOST: redis
+      NACOS_HOST: nacos
+      NACOS_PORT: 8848
+      NACOS_USERNAME: nacos
+      NACOS_PASSWORD: ${NACOS_PASSWORD:-chengccn}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - zhangyuan-dev
+
   gateway:
     build:
       context: ../../backend

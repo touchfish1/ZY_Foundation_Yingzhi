@@ -27,6 +27,7 @@ cd backend
 ./gradlew :order-service:bootRun                     # order-service (8083)
 ./gradlew :payment-service:bootRun                   # payment-service (8084)
 ./gradlew :system-service:bootRun                    # system-service (8081)
+./gradlew :ai-service:bootRun                        # ai-service (8086)
 ```
 
 ### 前端（不依赖中间件）
@@ -56,3 +57,5 @@ cd frontend/web && npm run dev       # Web (3000)
 - 不要启动本地 Docker 中间件，一律用远程 `100.125.148.23`
 - 启动后端时不需要等中间件启动，远程已经运行
 - RichTextBlock.vue 中通过 `props.props?.content` 访问区块内容（非 `props.content`）
+- 一键本地全栈启动（含中间件）: `./scripts/start-dev.sh`（需要 tmux + Docker）
+- AI 代理服务（8086）：`POST /v1/chat/completions`，OpenAI 兼容格式，支持 gpt-4o、claude-3 等
