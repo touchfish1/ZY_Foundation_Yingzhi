@@ -16,7 +16,7 @@ function sanitizeHtml(html: string): string {
     .replace(/javascript:/gi, '')
 }
 
-const sanitizedContent = computed(() => sanitizeHtml(String(props.content || '')))
+const sanitizedContent = computed(() => sanitizeHtml(String(props.props?.content ?? '')))
 </script>
 
 <style scoped>
