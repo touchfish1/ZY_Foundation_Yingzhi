@@ -41,17 +41,17 @@
     </n-card>
 
     <n-modal v-model:show="showCreate" preset="card" title="新建页面" class="modal-card" :mask-closable="false">
-      <n-form label-placement="top">
-        <n-form-item label="Slug（路径）">
+      <n-form ref="formRef" label-placement="top" :rules="formRules" :model="form">
+        <n-form-item label="Slug（路径）" path="slug">
           <n-input v-model:value="form.slug" placeholder="/plans" />
         </n-form-item>
-        <n-form-item label="标题">
+        <n-form-item label="标题" path="title">
           <n-input v-model:value="form.title" placeholder="套餐价格" />
         </n-form-item>
-        <n-form-item label="默认语言">
+        <n-form-item label="默认语言" path="defaultLocale">
           <n-select v-model:value="form.defaultLocale" :options="localeOptions" />
         </n-form-item>
-        <n-form-item label="页面类型">
+        <n-form-item label="页面类型" path="pageType">
           <n-select v-model:value="form.pageType" :options="pageTypeOptions" />
         </n-form-item>
         <n-space justify="end" style="margin-top: 8px;">
@@ -68,7 +68,7 @@ import { h, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { NButton, NCard, NEmpty, NForm, NFormItem, NIcon, NInput, NModal, NSelect, NSpace, NSwitch, NTag, useMessage } from 'naive-ui'
 import CommonTable from '../../components/CommonTable.vue'
-import type { DataTableColumns, SelectOption } from 'naive-ui'
+import type { DataTableColumns, FormRules, SelectOption } from 'naive-ui'
 import { createPage, deletePage, duplicatePage, listPages, updatePage } from '../../api/cms'
 import type { CmsPageListItem } from '../../api/cms'
 import { useConfirm } from '../../composables/useConfirm'
@@ -83,7 +83,21 @@ const showCreate = ref(false)
 const pages = ref<CmsPageListItem[]>([])
 const keyword = ref('')
 let searchTimer: ReturnType<typeof setTimeout> | null = null
+const formRef = ref<any>(null)
 const form = reactive({ slug: '/plans', title: '套餐价格', defaultLocale: 'zh-CN', pageType: 'custom' })
+const formRules: FormRules = {
+  slug: [
+    { required: true, message: '请输入路径', trigger: 'blur' },
+    { pattern: /^\//, message: '路径必须以 / 开头', trigger: 'blur' }
+  ],
+  title: [
+    { required: true, message: '请输入标题', trigger: 'blur' },
+    { min: 2, message: '标题至少 2 个字符', trigger: 'blur' }
+  ],
+  defaultLocale: [
+    { required: true, message: '请选择默认语言', trigger: 'blur' }
+  ]
+}
 const localeOptions: SelectOption[] = [
   { label: '中文 (zh-CN)', value: 'zh-CN' },
   { label: '英文 (en-US)', value: 'en-US' },
@@ -199,6 +213,12 @@ async function load() {
 }
 
 async function create() {
+  try {
+    await formRef.value?.validate()
+  } catch {
+    message.warning('请完善表单信息')
+    return
+  }
   creating.value = true
   try {
     const page = await createPage(form)
