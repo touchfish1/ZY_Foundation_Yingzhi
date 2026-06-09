@@ -22,9 +22,9 @@ public class MockChannelStrategy implements PaymentChannelStrategy {
 
     @Override
     public CheckoutResponse createPayment(Payment payment, CheckoutRequest request) {
-        String mockPayUrl = "/api/payments/mock/" + payment.getPaymentNo() + "/success";
-        log.info("Mock payment created: paymentNo={}, mockPayUrl={}", payment.getPaymentNo(), mockPayUrl);
-        return new CheckoutResponse(payment.getPaymentNo(), payment.getStatus(), mockPayUrl, null);
+        String payUrl = "/api/payments/mock/" + payment.getPaymentNo() + "/success";
+        log.info("Mock payment created: paymentNo={}, payUrl={}", payment.getPaymentNo(), payUrl);
+        return new CheckoutResponse(payment.getPaymentNo(), payment.getStatus(), payUrl, null, "mock");
     }
 
     @Override

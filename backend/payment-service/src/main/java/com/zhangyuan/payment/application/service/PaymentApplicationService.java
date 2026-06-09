@@ -77,7 +77,7 @@ public class PaymentApplicationService {
 
         if ("SUCCESS".equals(payment.getStatus())) {
             log.warn("Idempotent call: payment {} already SUCCESS, skipped", paymentNo);
-            return new CheckoutResponse(paymentNo, payment.getStatus(), null, null);
+            return new CheckoutResponse(paymentNo, payment.getStatus(), null, null, payment.getChannel());
         }
 
         PaymentChannelStrategy strategy = strategyRegistry.getStrategy(payment.getChannel());
@@ -101,7 +101,7 @@ public class PaymentApplicationService {
             log.error("Fulfillment failed for order: {}, compensation event created", payment.getOrderNo(), e);
         }
 
-        return new CheckoutResponse(paymentNo, payment.getStatus(), null, null);
+        return new CheckoutResponse(paymentNo, payment.getStatus(), null, null, payment.getChannel());
     }
 
     public PaymentResponse getPayment(String paymentNo) {

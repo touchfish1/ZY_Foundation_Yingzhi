@@ -55,6 +55,16 @@ sa-token:
   token-prefix: Bearer
   timeout: 7200
 
+payment:
+  wxpay:
+    enabled: false
+    native-notify-url: ${WXPAY_NATIVE_NOTIFY_URL:https://api.example.com/api/payments/callbacks/wxpay}
+  alipay:
+    enabled: false
+    gateway-url: https://openapi.alipay.com/gateway.do
+    return-url: ${ALIPAY_RETURN_URL:https://admin.example.com/payments/result}
+    notify-url: ${ALIPAY_NOTIFY_URL:https://api.example.com/api/payments/callbacks/alipay}
+
 logging:
   level:
     root: INFO

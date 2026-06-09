@@ -50,7 +50,7 @@ class PaymentApplicationServiceTest {
 
         assertThat(resp.paymentNo()).startsWith("PAY");
         assertThat(resp.status()).isEqualTo("PENDING");
-        assertThat(resp.mockPayUrl()).contains("/api/payments/mock/");
+        assertThat(resp.payUrl()).contains("/api/payments/mock/");
     }
 
     @Test

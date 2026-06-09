@@ -40,7 +40,7 @@ class ChannelStrategyRegistryTest {
         CheckoutResponse resp = strategy.createPayment(payment, new CheckoutRequest("ORD001", "mock"));
 
         assertThat(resp.paymentNo()).isEqualTo("PAY001");
-        assertThat(resp.mockPayUrl()).contains("/api/payments/mock/PAY001/success");
+        assertThat(resp.payUrl()).contains("/api/payments/mock/PAY001/success");
         assertThat(resp.checkoutUrl()).isNull();
     }
 
