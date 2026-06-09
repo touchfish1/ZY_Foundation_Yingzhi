@@ -29,6 +29,7 @@ export const router = createRouter({
         { path: 'payments/:paymentNo', component: () => import('../pages/payments/[paymentNo].vue'), meta: { title: '支付详情' } },
         { path: 'system/users', component: () => import('../pages/system/Users.vue') },
         { path: 'system/monitor', component: () => import('../pages/system/Monitor.vue') },
+        { path: 'system/reports', component: () => import('../pages/system/Reports.vue'), meta: { title: '数据报表', permissions: ['system:monitor'] } },
         { path: 'system/roles', component: () => import('../pages/system/Roles.vue') },
         { path: 'system/settings', component: () => import('../pages/system/Settings.vue') },
         { path: 'orders/usage', component: () => import('../pages/orders/Usage.vue'), meta: { title: '用量管理', permissions: ['order:usage:list'] } },
