@@ -5,8 +5,11 @@ import com.zhangyuan.common.security.AuthUser;
 import com.zhangyuan.modules.cms.domain.model.CmsPage;
 import com.zhangyuan.modules.cms.domain.model.PageTranslation;
 import com.zhangyuan.modules.cms.domain.model.CmsPublishRecord;
+import com.zhangyuan.modules.cms.domain.model.CmsBlockDefinition;
 import com.zhangyuan.modules.cms.dto.BlockDefinitionResponse;
+import com.zhangyuan.modules.cms.dto.CreateBlockDefinitionRequest;
 import com.zhangyuan.modules.cms.dto.CreatePageRequest;
+import com.zhangyuan.modules.cms.dto.UpdateBlockDefinitionRequest;
 import com.zhangyuan.modules.cms.dto.PageDetailResponse;
 import com.zhangyuan.modules.cms.dto.PageListItemResponse;
 import com.zhangyuan.modules.cms.dto.PageTranslationResponse;
@@ -67,8 +70,10 @@ public class CmsApplicationService {
     // ── Page CRUD ──────────────────────────────────────────────
 
     @Transactional(readOnly = true)
-    public PageResponse<PageListItemResponse> listPages(int page, int pageSize) {
-        var pageResult = pageRepository.findAll(page, pageSize);
+    public PageResponse<PageListItemResponse> listPages(int page, int pageSize, String keyword) {
+        var pageResult = (keyword != null && !keyword.isBlank())
+                ? pageRepository.findByKeyword(keyword, page, pageSize)
+                : pageRepository.findAll(page, pageSize);
         List<PageListItemResponse> items = pageResult.items().stream()
                 .map(p -> new PageListItemResponse(p.getId(), p.getSlug(), p.getPageType(), p.getDefaultLocale(), p.getStatus(), p.getUpdatedAt()))
                 .toList();
@@ -122,6 +127,13 @@ public class CmsApplicationService {
         if (request.pageType() != null && !request.pageType().isBlank()) {
             page.changeType(request.pageType());
         }
+        if (request.enabled() != null) {
+            if (request.enabled()) {
+                page.enable();
+            } else {
+                page.disable();
+            }
+        }
         page.touch();
         return toDetail(page, translationRepository.findByPageId(pageId));
     }
@@ -150,6 +162,7 @@ public class CmsApplicationService {
                 pageId, locale, nextVersion, request.content(), currentUserId(), request.remark());
         translation.updateDraftInfo(request.title(), request.seoTitle(), request.seoDescription(),
                 request.seoKeywords(), createdVersion.getId());
+        translationRepository.save(pageId, translation);
         page.touch();
         return toDetail(page, translationRepository.findByPageId(pageId));
     }
@@ -200,6 +213,7 @@ public class CmsApplicationService {
         var snapshot = buildPublishSnapshot(contentJson);
         versionRepository.publishSnapshot(translation.getDraftVersionId(), snapshot);
         translation.publish(translation.getDraftVersionId());
+        translationRepository.save(pageId, translation);
         publishRecordRepository.save(new CmsPublishRecord(
                 pageId, locale, translation.getDraftVersionId(), currentUserId(),
                 request == null ? null : request.remark()));
@@ -228,6 +242,7 @@ public class CmsApplicationService {
                 request.remark() != null ? request.remark() : "rollback to version " + nextVersion);
         translation.updateDraftInfo(translation.getTitle(), translation.getSeoTitle(),
                 translation.getSeoDescription(), translation.getSeoKeywords(), newVersion.getId());
+        translationRepository.save(pageId, translation);
         return toDetail(requirePage(pageId), translationRepository.findByPageId(pageId));
     }
 
@@ -268,8 +283,78 @@ public class CmsApplicationService {
     @Transactional(readOnly = true)
     public List<BlockDefinitionResponse> listEnabledBlockDefinitions() {
         return blockDefinitionRepository.findEnabled().stream()
-                .map(block -> new BlockDefinitionResponse(block.getType(), block.getName(), block.getSchemaJson(), block.getDefaultPropsJson()))
+                .map(block -> new BlockDefinitionResponse(block.getId(), block.getType(), block.getName(), block.getSchemaJson(), block.getDefaultPropsJson(), block.isEnabled(), block.getSortOrder(), block.getCreatedAt(), block.getUpdatedAt()))
                 .toList();
+    }
+
+    @Transactional
+    public BlockDefinitionResponse createBlockDefinition(CreateBlockDefinitionRequest request) {
+        log.info("Creating block definition: type={}", request.type());
+        if (blockDefinitionRepository.findByType(request.type()).isPresent()) {
+            log.warn("Block definition type already exists: {}", request.type());
+            throw new IllegalArgumentException("Block definition type already exists");
+        }
+        CmsBlockDefinition block = new CmsBlockDefinition(
+                request.type(), request.name(), request.schema(), request.defaultProps(), request.sortOrder());
+        CmsBlockDefinition saved = blockDefinitionRepository.save(block);
+        log.info("Block definition created: id={}, type={}", saved.getId(), saved.getType());
+        return toBlockDefinitionResponse(saved);
+    }
+
+    @Transactional
+    public BlockDefinitionResponse updateBlockDefinition(Long id, UpdateBlockDefinitionRequest request) {
+        log.info("Updating block definition: {}", id);
+        CmsBlockDefinition block = blockDefinitionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Block definition not found"));
+        if (request.type() != null && !request.type().isBlank()) {
+            if (!request.type().equals(block.getType()) && blockDefinitionRepository.findByType(request.type()).isPresent()) {
+                throw new IllegalArgumentException("Block definition type already exists");
+            }
+            block = new CmsBlockDefinition(request.type(), block.getName(), block.getSchemaJson(), block.getDefaultPropsJson(), block.getSortOrder());
+            block.setId(id);
+            block.setEnabled(block.isEnabled());
+        }
+        if (request.name() != null && !request.name().isBlank()) {
+            block = new CmsBlockDefinition(block.getType(), request.name(), block.getSchemaJson(), block.getDefaultPropsJson(), block.getSortOrder());
+            block.setId(id);
+            block.setEnabled(block.isEnabled());
+        }
+        if (request.schema() != null) {
+            block = new CmsBlockDefinition(block.getType(), block.getName(), request.schema(), block.getDefaultPropsJson(), block.getSortOrder());
+            block.setId(id);
+            block.setEnabled(block.isEnabled());
+        }
+        if (request.defaultProps() != null) {
+            block = new CmsBlockDefinition(block.getType(), block.getName(), block.getSchemaJson(), request.defaultProps(), block.getSortOrder());
+            block.setId(id);
+            block.setEnabled(block.isEnabled());
+        }
+        if (request.sortOrder() != null) {
+            block = new CmsBlockDefinition(block.getType(), block.getName(), block.getSchemaJson(), block.getDefaultPropsJson(), request.sortOrder());
+            block.setId(id);
+            block.setEnabled(block.isEnabled());
+        }
+        CmsBlockDefinition saved = blockDefinitionRepository.save(block);
+        log.info("Block definition updated: id={}, type={}", saved.getId(), saved.getType());
+        return toBlockDefinitionResponse(saved);
+    }
+
+    @Transactional
+    public void deleteBlockDefinition(Long id) {
+        log.info("Soft-deleting block definition: {}", id);
+        CmsBlockDefinition block = blockDefinitionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Block definition not found"));
+        block.setEnabled(false);
+        blockDefinitionRepository.save(block);
+        log.info("Block definition soft-deleted: {}", id);
+    }
+
+    private BlockDefinitionResponse toBlockDefinitionResponse(CmsBlockDefinition block) {
+        return new BlockDefinitionResponse(
+                block.getId(), block.getType(), block.getName(),
+                block.getSchemaJson(), block.getDefaultPropsJson(),
+                block.isEnabled(), block.getSortOrder(),
+                block.getCreatedAt(), block.getUpdatedAt());
     }
 
     // ── Private helpers ────────────────────────────────────────

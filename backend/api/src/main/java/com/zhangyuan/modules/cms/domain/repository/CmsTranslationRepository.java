@@ -9,7 +9,11 @@ public interface CmsTranslationRepository {
 
     PageTranslation create(Long pageId, String locale, String title);
 
-    PageTranslation save(PageTranslation translation);
+    /**
+     * Persist changes made to a PageTranslation domain object.
+     * Requires pageId because the domain model does not carry an entity ID.
+     */
+    PageTranslation save(Long pageId, PageTranslation translation);
 
     Optional<PageTranslation> findByPageIdAndLocale(Long pageId, String locale);
 

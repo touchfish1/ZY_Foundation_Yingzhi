@@ -1,17 +1,12 @@
 package com.zhangyuan.modules.cms.dto;
 
-import java.time.Instant;
 import java.util.Map;
 
-public record BlockDefinitionResponse(
-        Long id,
+public record UpdateBlockDefinitionRequest(
         String type,
         String name,
         Map<String, Object> schema,
         Map<String, Object> defaultProps,
-        Boolean enabled,
-        Integer sortOrder,
-        Instant createdAt,
-        Instant updatedAt
+        Integer sortOrder
 ) {
 }

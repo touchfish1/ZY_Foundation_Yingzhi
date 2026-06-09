@@ -66,7 +66,9 @@ class CmsServiceEdgeCasesTest {
     void saveDraftCreatesTranslationIfMissing() {
         CmsPage page = new CmsPage("/test", "zh-CN", "custom", 1L);
         when(pageRepository.findById(1L)).thenReturn(Optional.of(page));
-        when(translationRepository.findByPageIdAndLocale(1L, "en-US")).thenReturn(Optional.empty());
+        when(translationRepository.findByPageIdAndLocale(1L, "en-US"))
+                .thenReturn(Optional.empty())
+                .thenReturn(Optional.of(new CmsPageTranslation(1L, "en-US", "English Title")));
         Map<String, Object> content = Map.of("layout", "default", "blocks", List.of());
         SaveDraftRequest request = new SaveDraftRequest("English Title", "SEO Title", "SEO Desc", "kw",
                 content, "first draft");
@@ -78,7 +80,7 @@ class CmsServiceEdgeCasesTest {
         var response = cmsService.saveDraft(1L, "en-US", request);
 
         assertThat(response).isNotNull();
-        verify(translationRepository).save(any());
+        verify(translationRepository, times(2)).save(any());
     }
 
     @Test
@@ -87,6 +89,7 @@ class CmsServiceEdgeCasesTest {
         when(pageRepository.findById(1L)).thenReturn(Optional.of(page));
         CmsPageTranslation translation = new CmsPageTranslation(1L, "zh-CN", "Test");
         when(translationRepository.findByPageIdAndLocale(1L, "zh-CN")).thenReturn(Optional.of(translation));
+        when(translationRepository.save(any(CmsPageTranslation.class))).thenAnswer(invocation -> invocation.getArgument(0));
         CmsPageVersion existingVersion = new CmsPageVersion(1L, "zh-CN", 1, Map.of(), null, "v1");
         when(versionRepository.findFirstByPageIdAndLocaleOrderByVersionNoDesc(1L, "zh-CN"))
                 .thenReturn(Optional.of(existingVersion));

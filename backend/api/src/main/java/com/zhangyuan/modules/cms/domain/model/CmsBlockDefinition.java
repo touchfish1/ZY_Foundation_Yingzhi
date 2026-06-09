@@ -1,5 +1,6 @@
 package com.zhangyuan.modules.cms.domain.model;
 
+import java.time.Instant;
 import java.util.Map;
 
 public class CmsBlockDefinition {
@@ -11,9 +12,11 @@ public class CmsBlockDefinition {
     private Map<String, Object> defaultPropsJson;
     private boolean enabled;
     private int sortOrder;
+    private Instant createdAt;
+    private Instant updatedAt;
 
     public CmsBlockDefinition(String type, String name, Map<String, Object> schemaJson,
-                              Map<String, Object> defaultPropsJson, int sortOrder) {
+                               Map<String, Object> defaultPropsJson, int sortOrder) {
         this.type = type;
         this.name = name;
         this.schemaJson = schemaJson;
@@ -29,4 +32,11 @@ public class CmsBlockDefinition {
     public Map<String, Object> getDefaultPropsJson() { return defaultPropsJson; }
     public boolean isEnabled() { return enabled; }
     public int getSortOrder() { return sortOrder; }
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
+
+    public void setId(Long id) { this.id = id; }
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }

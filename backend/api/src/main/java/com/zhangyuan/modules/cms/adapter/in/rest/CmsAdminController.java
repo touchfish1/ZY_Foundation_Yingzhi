@@ -47,9 +47,10 @@ public class CmsAdminController {
     @OperationLog(type = QUERY, resource = CMS_PAGE)
     public ApiResponse<PageResponse<PageListItemResponse>> listPages(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int pageSize) {
-        log.info("Listing CMS pages, page={}, pageSize={}", page, pageSize);
-        return ApiResponse.ok(cmsApplicationService.listPages(page, pageSize));
+            @RequestParam(defaultValue = "20") int pageSize,
+            @RequestParam(required = false) String keyword) {
+        log.info("Listing CMS pages, page={}, pageSize={}, keyword={}", page, pageSize, keyword);
+        return ApiResponse.ok(cmsApplicationService.listPages(page, pageSize, keyword));
     }
 
     @PostMapping

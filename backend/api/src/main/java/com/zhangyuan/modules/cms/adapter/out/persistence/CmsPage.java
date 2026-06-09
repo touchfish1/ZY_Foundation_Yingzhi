@@ -91,6 +91,10 @@ public class CmsPage {
         this.defaultLocale = defaultLocale;
     }
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public void disable() {
         this.status = STATUS_DISABLED;
     }

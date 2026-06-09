@@ -39,7 +39,7 @@ public class CmsPageController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int pageSize) {
         log.info("Listing CMS pages, page={}, pageSize={}", page, pageSize);
-        return ApiResponse.ok(cmsApplicationService.listPages(page, pageSize));
+        return ApiResponse.ok(cmsApplicationService.listPages(page, pageSize, null));
     }
 
     @PostMapping("/pages")

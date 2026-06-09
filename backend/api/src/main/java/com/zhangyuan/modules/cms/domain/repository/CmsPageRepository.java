@@ -24,4 +24,6 @@ public interface CmsPageRepository {
     List<CmsPage> findByPageTypeAndStatus(String pageType, String status);
 
     PageResponse<CmsPage> findByPageTypeAndStatus(String pageType, String status, int page, int pageSize);
+
+    PageResponse<CmsPage> findByKeyword(String keyword, int page, int pageSize);
 }

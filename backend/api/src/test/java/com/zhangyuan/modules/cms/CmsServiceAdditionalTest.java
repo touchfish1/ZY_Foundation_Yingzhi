@@ -83,7 +83,7 @@ class CmsServiceAdditionalTest {
         when(pageRepository.existsBySlug("/new-slug")).thenReturn(false);
         when(translationRepository.findByPageId(1L)).thenReturn(List.of(new CmsPageTranslation(1L, "zh-CN", "Test")));
 
-        var response = cmsService.updatePage(1L, new UpdatePageRequest("/new-slug", null, null));
+        var response = cmsService.updatePage(1L, new UpdatePageRequest("/new-slug", null, null, null));
 
         assertThat(response.slug()).isEqualTo("/new-slug");
         verify(pageRepository).findById(1L);
@@ -95,7 +95,7 @@ class CmsServiceAdditionalTest {
         when(pageRepository.findById(1L)).thenReturn(Optional.of(page));
         when(pageRepository.existsBySlug("/existing")).thenReturn(true);
 
-        assertThatThrownBy(() -> cmsService.updatePage(1L, new UpdatePageRequest("/existing", null, null)))
+        assertThatThrownBy(() -> cmsService.updatePage(1L, new UpdatePageRequest("/existing", null, null, null)))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -124,6 +124,8 @@ class CmsServiceAdditionalTest {
         when(versionRepository.findFirstByPageIdAndLocaleOrderByVersionNoDesc(1L, "zh-CN"))
                 .thenReturn(Optional.of(sourceVersion));
         when(translationRepository.findByPageId(1L)).thenReturn(List.of(translation));
+        when(versionRepository.save(any(CmsPageVersion.class))).thenAnswer(returnsFirstArg());
+        when(translationRepository.save(any(CmsPageTranslation.class))).thenAnswer(returnsFirstArg());
 
         var response = cmsService.rollback(1L, "zh-CN", new PublishPageRequest(33L, "rollback to v1"));
 

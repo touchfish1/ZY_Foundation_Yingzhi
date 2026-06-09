@@ -49,10 +49,20 @@ public class JpaCmsPageRepository implements CmsPageRepository {
             entity.setSlug(page.getSlug());
             entity.setDefaultLocale(page.getDefaultLocale());
             entity.setPageType(page.getPageType());
+            if (page.isEnabled()) {
+                entity.enable();
+            } else {
+                entity.disable();
+            }
             entity.touch();
         } else {
             entity = new com.zhangyuan.modules.cms.adapter.out.persistence.CmsPage(
                     page.getSlug(), page.getDefaultLocale(), page.getPageType(), page.getCreatedBy());
+            if (page.isEnabled()) {
+                entity.enable();
+            } else {
+                entity.disable();
+            }
         }
         entity = jpaRepository.save(entity);
         return toDomain(entity);
@@ -81,9 +91,21 @@ public class JpaCmsPageRepository implements CmsPageRepository {
         return PageResponse.of(items, page, pageSize, springPage.getTotalElements());
     }
 
+    @Override
+    public PageResponse<CmsPage> findByKeyword(String keyword, int page, int pageSize) {
+        var springPage = jpaRepository.findByKeyword(keyword, PageRequest.of(page - 1, pageSize));
+        var items = springPage.getContent().stream().map(this::toDomain).toList();
+        return PageResponse.of(items, page, pageSize, springPage.getTotalElements());
+    }
+
     private CmsPage toDomain(com.zhangyuan.modules.cms.adapter.out.persistence.CmsPage entity) {
         CmsPage page = new CmsPage(entity.getSlug(), entity.getDefaultLocale(), entity.getPageType(), entity.getCreatedBy());
         page.setId(entity.getId());
+        if (CmsPage.STATUS_ENABLED.equals(entity.getStatus())) {
+            page.enable();
+        } else {
+            page.disable();
+        }
         return page;
     }
 }

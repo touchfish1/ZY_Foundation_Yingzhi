@@ -98,6 +98,7 @@ class CmsServiceTest {
         CmsPageVersion version = new CmsPageVersion(100L, "zh-CN", 1, content, null, null);
         when(pageRepository.findById(100L)).thenReturn(Optional.of(page));
         when(translationRepository.findByPageIdAndLocale(100L, "zh-CN")).thenReturn(Optional.of(translation));
+        when(translationRepository.save(any(CmsPageTranslation.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(versionRepository.findById(200L)).thenReturn(Optional.of(version));
         when(translationRepository.findByPageId(100L)).thenReturn(List.of(translation));
         return version;

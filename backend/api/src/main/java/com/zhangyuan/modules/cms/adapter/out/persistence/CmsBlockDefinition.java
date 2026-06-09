@@ -84,4 +84,40 @@ public class CmsBlockDefinition {
     public Integer getSortOrder() {
         return sortOrder;
     }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setSchemaJson(Map<String, Object> schemaJson) {
+        this.schemaJson = schemaJson;
+    }
+
+    public void setDefaultPropsJson(Map<String, Object> defaultPropsJson) {
+        this.defaultPropsJson = defaultPropsJson;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public void setSortOrder(Integer sortOrder) {
+        this.sortOrder = sortOrder;
+    }
+
+    public void touch() {
+        this.updatedAt = Instant.now();
+    }
 }
