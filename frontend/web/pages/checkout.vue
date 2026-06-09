@@ -75,16 +75,14 @@ async function submitOrder() {
       body: { orderNo, channel: channel.value }
     })
     const data = payRes?.data
-    const payUrl = data?.checkoutUrl || data?.mockPayUrl
     const paymentNo = data?.paymentNo
-    if (payUrl) {
-      if (channel.value === 'alipay') {
-        window.location.href = payUrl
-      } else if (channel.value === 'wxpay') {
-        navigateTo(`/payment?orderNo=${orderNo}&paymentNo=${paymentNo}&codeUrl=${encodeURIComponent(payUrl)}`)
-      } else {
-        navigateTo(`/payment?orderNo=${orderNo}&payUrl=${encodeURIComponent(payUrl)}&paymentNo=${paymentNo}`)
-      }
+    const ch = data?.channel || channel.value
+    if (ch === 'alipay' && data?.checkoutUrl) {
+      window.location.href = data.checkoutUrl
+    } else if (ch === 'wxpay' && data?.checkoutUrl) {
+      navigateTo(`/payment?orderNo=${orderNo}&paymentNo=${paymentNo}&codeUrl=${encodeURIComponent(data.checkoutUrl)}`)
+    } else if (data?.payUrl) {
+      navigateTo(`/payment?orderNo=${orderNo}&payUrl=${encodeURIComponent(data.payUrl)}&paymentNo=${paymentNo}`)
     }
   } catch (e: any) { error.value = e?.data?.message || e?.message || '下单失败' }
   finally { loading.value = false }
