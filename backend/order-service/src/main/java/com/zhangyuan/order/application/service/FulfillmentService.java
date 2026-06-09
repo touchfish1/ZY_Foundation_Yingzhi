@@ -1,5 +1,6 @@
 package com.zhangyuan.order.application.service;
 
+import com.zhangyuan.order.client.UserServiceClient;
 import com.zhangyuan.order.domain.model.Order;
 import com.zhangyuan.order.domain.model.OrderNumber;
 import com.zhangyuan.order.domain.model.OrderStatus;
@@ -18,10 +19,13 @@ public class FulfillmentService {
     private static final Logger log = LoggerFactory.getLogger(FulfillmentService.class);
     private final OrderRepository orderRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final UserServiceClient userServiceClient;
 
-    public FulfillmentService(OrderRepository orderRepository, SubscriptionRepository subscriptionRepository) {
+    public FulfillmentService(OrderRepository orderRepository, SubscriptionRepository subscriptionRepository,
+                              UserServiceClient userServiceClient) {
         this.orderRepository = orderRepository;
         this.subscriptionRepository = subscriptionRepository;
+        this.userServiceClient = userServiceClient;
     }
 
     @Transactional
@@ -61,9 +65,29 @@ public class FulfillmentService {
         }
         subscriptionRepository.save(sub);
 
+        // Provision quota in user-service based on plan
+        long quotaLimit = resolveQuotaLimit(planCode);
+        try {
+            userServiceClient.updateQuota(order.getUserId(), quotaLimit);
+            log.info("Quota updated for userId={}: limit={}", order.getUserId(), quotaLimit);
+        } catch (Exception e) {
+            log.error("Failed to update quota for userId={}, fulfillment continues", order.getUserId(), e);
+        }
+
         order.markFulfilled();
         orderRepository.save(order);
         log.info("Order {} fulfilled successfully", orderNo);
+    }
+
+    private long resolveQuotaLimit(String planCode) {
+        if (planCode == null) return 100_000L;
+        return switch (planCode.toLowerCase()) {
+            case "basic" -> 100_000L;
+            case "pro" -> 1_000_000L;
+            case "enterprise" -> 10_000_000L;
+            case "trial" -> 10_000L;
+            default -> 100_000L;
+        };
     }
 
     private String extractFromSnapshot(String snapshot, String key) {

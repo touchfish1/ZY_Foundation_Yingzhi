@@ -90,6 +90,13 @@ public class SaasUserController {
         return ApiResponse.ok();
     }
 
+    @PostMapping("/quota/{userId}")
+    public ApiResponse<Void> updateQuota(@PathVariable Long userId, @RequestParam Long quotaLimit) {
+        log.info("Admin update quota: userId={}, limit={}", userId, quotaLimit);
+        saasUserApplicationService.updateQuotaLimit(userId, quotaLimit);
+        return ApiResponse.ok();
+    }
+
     @GetMapping("/verify-key")
     public ApiResponse<Long> verifyApiKey(@RequestParam String apiKey, HttpServletRequest request) {
         String ip = request.getRemoteAddr();
@@ -99,5 +106,14 @@ public class SaasUserController {
         }
         log.info("Verifying API key");
         return saasUserApplicationService.verifyApiKey(apiKey);
+    }
+
+    @GetMapping("/verify-key-with-quota")
+    public ApiResponse<UserQuotaResponse> verifyApiKeyWithQuota(@RequestParam String apiKey, HttpServletRequest request) {
+        String ip = request.getRemoteAddr();
+        if (isRateLimited(ip)) {
+            return ApiResponse.error(429, "请求过于频繁，请稍后重试");
+        }
+        return saasUserApplicationService.verifyApiKeyWithQuota(apiKey);
     }
 }

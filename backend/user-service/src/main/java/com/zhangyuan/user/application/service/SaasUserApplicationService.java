@@ -67,6 +67,17 @@ public class SaasUserApplicationService {
         userRepository.save(user);
     }
 
+    public ApiResponse<UserQuotaResponse> verifyApiKeyWithQuota(String apiKey) {
+        return userRepository.findByApiKey(apiKey)
+                .map(user -> {
+                    if (!user.isActive()) {
+                        return ApiResponse.<UserQuotaResponse>error(403, "User is not active");
+                    }
+                    return ApiResponse.ok(new UserQuotaResponse(user.getId(), user.getQuotaUsed(), user.getQuotaLimit(), user.getRpmLimit()));
+                })
+                .orElse(ApiResponse.<UserQuotaResponse>error(404, "API Key not found"));
+    }
+
     public ApiResponse<Long> verifyApiKey(String apiKey) {
         return userRepository.findByApiKey(apiKey)
                 .map(user -> {
@@ -85,6 +96,16 @@ public class SaasUserApplicationService {
         user.setApiKey(generateApiKey());
         user = userRepository.save(user);
         return toResponse(user);
+    }
+
+    @Transactional
+    public void updateQuotaLimit(Long userId, Long quotaLimit) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+        user.setQuotaLimit(quotaLimit);
+        user.setQuotaUsed(0L);
+        userRepository.save(user);
+        log.info("Updated quota for userId={}: limit={}", userId, quotaLimit);
     }
 
     @Transactional

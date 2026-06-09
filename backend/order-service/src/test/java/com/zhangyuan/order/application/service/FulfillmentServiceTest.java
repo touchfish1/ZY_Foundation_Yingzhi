@@ -1,5 +1,6 @@
 package com.zhangyuan.order.application.service;
 
+import com.zhangyuan.order.client.UserServiceClient;
 import com.zhangyuan.order.domain.model.Order;
 import com.zhangyuan.order.domain.model.OrderNumber;
 import com.zhangyuan.order.domain.model.UserSubscription;
@@ -19,11 +20,12 @@ class FulfillmentServiceTest {
 
     private final OrderRepository orderRepository = mock(OrderRepository.class);
     private final SubscriptionRepository subscriptionRepository = mock(SubscriptionRepository.class);
+    private final UserServiceClient userServiceClient = mock(UserServiceClient.class);
     private FulfillmentService service;
 
     @BeforeEach
     void setUp() {
-        service = new FulfillmentService(orderRepository, subscriptionRepository);
+        service = new FulfillmentService(orderRepository, subscriptionRepository, userServiceClient);
     }
 
     private Order createPaidOrder() {
