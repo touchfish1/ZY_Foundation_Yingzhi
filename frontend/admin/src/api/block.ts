@@ -15,6 +15,41 @@ export function getBlockDefinitions() {
   return request<BlockDefinition[]>('/admin/cms/block-definitions')
 }
 
+// 创建新区块定义
+export function createBlockDefinition(data: {
+  type: string
+  name: string
+  schema: Record<string, unknown>
+  defaultProps: Record<string, unknown>
+  sortOrder: number
+}) {
+  return request<BlockDefinition>('/admin/cms/block-definitions', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+}
+
+// 更新区块定义
+export function updateBlockDefinition(id: number, data: {
+  type?: string
+  name?: string
+  schema?: Record<string, unknown>
+  defaultProps?: Record<string, unknown>
+  sortOrder?: number
+}) {
+  return request<BlockDefinition>(`/admin/cms/block-definitions/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  })
+}
+
+// 删除（软删除）区块定义
+export function deleteBlockDefinition(id: number) {
+  return request<void>(`/admin/cms/block-definitions/${id}`, {
+    method: 'DELETE'
+  })
+}
+
 // 获取指定页面和语言版本的草稿内容（区块列表）
 export function getDraftContent(pageId: number, locale: string) {
   console.log('[API] getDraftContent', { pageId, locale })

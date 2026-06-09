@@ -133,7 +133,10 @@ const fallbackMenus: MenuItem[] = [
     { id: 22, parentId: 2, name: '订阅管理', path: '/orders/subscriptions', icon: null, menuType: 'page', sortOrder: 2, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' }
   ], createdAt: '', updatedAt: '' },
   { id: 3, parentId: null, name: '支付记录', path: '/payments/transactions', icon: 'Wallet', menuType: 'page', sortOrder: 7, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
-  { id: 4, parentId: null, name: '页面管理', path: '/cms/pages', icon: 'FileText', menuType: 'page', sortOrder: 3, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
+  { id: 4, parentId: null, name: '页面管理', path: '/cms/pages', icon: 'FileText', menuType: 'page', sortOrder: 3, status: 'enabled', permissionCodes: [], children: [
+    { id: 41, parentId: 4, name: '页面列表', path: '/cms/pages', icon: null, menuType: 'page', sortOrder: 1, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
+    { id: 42, parentId: 4, name: '区块定义', path: '/cms/block-definitions', icon: null, menuType: 'page', sortOrder: 2, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' }
+  ], createdAt: '', updatedAt: '' },
   { id: 5, parentId: null, name: '资产管理', path: '/assets', icon: 'Image', menuType: 'page', sortOrder: 4, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
   { id: 6, parentId: null, name: '产品中心', path: '/products/plan-groups', icon: 'Layers', menuType: 'page', sortOrder: 5, status: 'enabled', permissionCodes: [], children: [
     { id: 61, parentId: 6, name: '套餐分组', path: '/products/plan-groups', icon: null, menuType: 'page', sortOrder: 1, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
