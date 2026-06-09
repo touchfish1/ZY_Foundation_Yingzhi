@@ -10,8 +10,7 @@ class OrderTest {
 
     @Test
     void createOrder() {
-        Order order = new Order(new OrderNumber("ORD123"), 1L, 1L, BigDecimal.valueOf(99), "CNY", "{}");
-        order.setUserId(100L);
+        Order order = new Order(new OrderNumber("ORD123"), 100L, 1L, 1L, BigDecimal.valueOf(99), "CNY", "{}");
 
         assertThat(order.getOrderNo().value()).isEqualTo("ORD123");
         assertThat(order.getStatus()).isEqualTo(OrderStatus.PENDING);
@@ -21,7 +20,7 @@ class OrderTest {
 
     @Test
     void markPaid() {
-        Order order = new Order(new OrderNumber("ORD123"), 1L, 1L, BigDecimal.TEN, "CNY", "{}");
+        Order order = new Order(new OrderNumber("ORD123"), null, 1L, 1L, BigDecimal.TEN, "CNY", "{}");
         order.markPaid();
 
         assertThat(order.getStatus()).isEqualTo(OrderStatus.PAID);
@@ -30,7 +29,7 @@ class OrderTest {
 
     @Test
     void markPaid_whenCancelled_throws() {
-        Order order = new Order(new OrderNumber("ORD123"), 1L, 1L, BigDecimal.TEN, "CNY", "{}");
+        Order order = new Order(new OrderNumber("ORD123"), null, 1L, 1L, BigDecimal.TEN, "CNY", "{}");
         order.cancel();
 
         assertThatThrownBy(order::markPaid).isInstanceOf(IllegalStateException.class);
@@ -38,7 +37,7 @@ class OrderTest {
 
     @Test
     void cancel() {
-        Order order = new Order(new OrderNumber("ORD123"), 1L, 1L, BigDecimal.TEN, "CNY", "{}");
+        Order order = new Order(new OrderNumber("ORD123"), null, 1L, 1L, BigDecimal.TEN, "CNY", "{}");
         order.cancel();
 
         assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);
@@ -46,7 +45,7 @@ class OrderTest {
 
     @Test
     void cancel_whenPaid_throws() {
-        Order order = new Order(new OrderNumber("ORD123"), 1L, 1L, BigDecimal.TEN, "CNY", "{}");
+        Order order = new Order(new OrderNumber("ORD123"), null, 1L, 1L, BigDecimal.TEN, "CNY", "{}");
         order.markPaid();
 
         assertThatThrownBy(order::cancel).isInstanceOf(IllegalStateException.class);
@@ -86,20 +85,20 @@ class OrderTest {
 
     @Test
     void isPaid_returnsTrue_whenPaid() {
-        Order order = new Order(new OrderNumber("ORD123"), 1L, 1L, BigDecimal.TEN, "CNY", "{}");
+        Order order = new Order(new OrderNumber("ORD123"), null, 1L, 1L, BigDecimal.TEN, "CNY", "{}");
         order.markPaid();
         assertThat(order.isPaid()).isTrue();
     }
 
     @Test
     void isPending_returnsTrue_whenPending() {
-        Order order = new Order(new OrderNumber("ORD123"), 1L, 1L, BigDecimal.TEN, "CNY", "{}");
+        Order order = new Order(new OrderNumber("ORD123"), null, 1L, 1L, BigDecimal.TEN, "CNY", "{}");
         assertThat(order.isPending()).isTrue();
     }
 
     @Test
     void markFulfilled_transitionsFromPaid() {
-        Order order = new Order(new OrderNumber("ORD123"), 1L, 1L, BigDecimal.TEN, "CNY", "{}");
+        Order order = new Order(new OrderNumber("ORD123"), null, 1L, 1L, BigDecimal.TEN, "CNY", "{}");
         order.markPaid();
         order.markFulfilled();
         assertThat(order.isFulfilled()).isTrue();
@@ -108,7 +107,7 @@ class OrderTest {
 
     @Test
     void markFulfilled_fromPending_throws() {
-        Order order = new Order(new OrderNumber("ORD123"), 1L, 1L, BigDecimal.TEN, "CNY", "{}");
+        Order order = new Order(new OrderNumber("ORD123"), null, 1L, 1L, BigDecimal.TEN, "CNY", "{}");
         assertThatThrownBy(order::markFulfilled)
                 .isInstanceOf(IllegalStateException.class);
     }

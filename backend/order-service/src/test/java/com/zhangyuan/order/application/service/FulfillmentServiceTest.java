@@ -27,9 +27,8 @@ class FulfillmentServiceTest {
     }
 
     private Order createPaidOrder() {
-        Order o = new Order(new OrderNumber("ORD001"), 1L, 1L, BigDecimal.valueOf(99), "CNY",
+        Order o = new Order(new OrderNumber("ORD001"), 1L, 1L, 1L, BigDecimal.valueOf(99), "CNY",
                 "{\"planCode\":\"premium\",\"planName\":\"Premium Plan\",\"validityDays\":\"30\"}");
-        o.setUserId(1L);
         o.markPaid();
         return o;
     }
@@ -62,7 +61,7 @@ class FulfillmentServiceTest {
 
     @Test
     void fulfillOrder_whenNotPaid_doesNothing() {
-        Order order = new Order(new OrderNumber("ORD001"), 1L, 1L, BigDecimal.valueOf(99), "CNY", "{}");
+        Order order = new Order(new OrderNumber("ORD001"), null, 1L, 1L, BigDecimal.valueOf(99), "CNY", "{}");
         when(orderRepository.findByOrderNo(new OrderNumber("ORD001"))).thenReturn(Optional.of(order));
 
         service.fulfillOrder("ORD001");
@@ -108,9 +107,8 @@ class FulfillmentServiceTest {
 
     @Test
     void fulfillOrder_usesDefaultValidityDays_whenSnapshotMalformed() {
-        Order order = new Order(new OrderNumber("ORD001"), 1L, 1L, BigDecimal.valueOf(99), "CNY",
+        Order order = new Order(new OrderNumber("ORD001"), 1L, 1L, 1L, BigDecimal.valueOf(99), "CNY",
                 "{\"planCode\":\"premium\",\"planName\":\"Premium Plan\",\"validityDays\":\"invalid\"}");
-        order.setUserId(1L);
         order.markPaid();
 
         when(orderRepository.findByOrderNo(new OrderNumber("ORD001"))).thenReturn(Optional.of(order));

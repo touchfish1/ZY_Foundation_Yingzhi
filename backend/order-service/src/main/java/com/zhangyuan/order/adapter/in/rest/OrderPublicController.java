@@ -5,6 +5,7 @@ import com.zhangyuan.order.application.service.OrderApplicationService;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.order.dto.CreateOrderRequest;
 import com.zhangyuan.order.dto.OrderResponse;
+import cn.dev33.satoken.stp.StpUtil;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +33,9 @@ public class OrderPublicController {
 
     @PostMapping
     public ApiResponse<OrderResponse> create(@Valid @RequestBody CreateOrderRequest request) {
-        log.info("Creating order: planCode={}, billingCycle={}, currency={}", request.planCode(), request.billingCycle(), request.currency());
-        return ApiResponse.ok(orderApplicationService.createOrder(request));
+        Long userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsLong() : null;
+        log.info("Creating order: planCode={}, billingCycle={}, currency={}, userId={}", request.planCode(), request.billingCycle(), request.currency(), userId);
+        return ApiResponse.ok(orderApplicationService.createOrder(request, userId));
     }
 
     @GetMapping("/{orderNo}")
