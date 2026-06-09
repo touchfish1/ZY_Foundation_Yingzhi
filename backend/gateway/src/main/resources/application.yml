@@ -161,6 +161,11 @@ spring:
           uri: ${USER_SERVICE_URI:http://127.0.0.1:8085}
           predicates:
             - Path=/api/users/**
+        # AI proxy service
+        - id: ai-proxy
+          uri: ${AI_SERVICE_URI:http://127.0.0.1:8086}
+          predicates:
+            - Path=/v1/**
         # Main API — public routes
         - id: api-public
           uri: ${API_SERVICE_URI:http://127.0.0.1:8088}

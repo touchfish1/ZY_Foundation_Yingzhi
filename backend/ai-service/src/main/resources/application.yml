@@ -1,0 +1,39 @@
+server:
+  port: ${SERVER_PORT:8086}
+
+spring:
+  application:
+    name: ai-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_HOST:100.125.148.23}:${NACOS_PORT:8848}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:}
+      config:
+        enabled: false
+    loadbalancer:
+      enabled: true
+  data:
+    redis:
+      host: ${REDIS_HOST:100.125.148.23}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+ai:
+  providers:
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      base-url: https://api.openai.com
+    claude:
+      api-key: ${CLAUDE_API_KEY:}
+      base-url: https://api.anthropic.com
+
+sa-token:
+  token-name: Authorization
+  token-prefix: Bearer
+  timeout: 7200
+
+logging:
+  level:
+    com.zhangyuan.ai: DEBUG
