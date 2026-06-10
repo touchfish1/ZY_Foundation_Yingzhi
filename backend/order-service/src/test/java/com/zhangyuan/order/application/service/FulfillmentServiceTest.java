@@ -1,5 +1,6 @@
 package com.zhangyuan.order.application.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhangyuan.order.client.UserServiceClient;
 import com.zhangyuan.order.domain.model.Order;
 import com.zhangyuan.order.domain.model.OrderNumber;
@@ -21,16 +22,17 @@ class FulfillmentServiceTest {
     private final OrderRepository orderRepository = mock(OrderRepository.class);
     private final SubscriptionRepository subscriptionRepository = mock(SubscriptionRepository.class);
     private final UserServiceClient userServiceClient = mock(UserServiceClient.class);
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private FulfillmentService service;
 
     @BeforeEach
     void setUp() {
-        service = new FulfillmentService(orderRepository, subscriptionRepository, userServiceClient);
+        service = new FulfillmentService(orderRepository, subscriptionRepository, userServiceClient, objectMapper);
     }
 
     private Order createPaidOrder() {
         Order o = new Order(new OrderNumber("ORD001"), 1L, 1L, 1L, BigDecimal.valueOf(99), "CNY",
-                "{\"planCode\":\"premium\",\"planName\":\"Premium Plan\",\"validityDays\":\"30\"}");
+                "{\"planCode\":\"premium\",\"planName\":\"Premium Plan\",\"validityDays\":30}");
         o.markPaid();
         return o;
     }
@@ -110,7 +112,7 @@ class FulfillmentServiceTest {
     @Test
     void fulfillOrder_usesDefaultValidityDays_whenSnapshotMalformed() {
         Order order = new Order(new OrderNumber("ORD001"), 1L, 1L, 1L, BigDecimal.valueOf(99), "CNY",
-                "{\"planCode\":\"premium\",\"planName\":\"Premium Plan\",\"validityDays\":\"invalid\"}");
+                "{\"planCode\":\"premium\",\"planName\":\"Premium Plan\"}");
         order.markPaid();
 
         when(orderRepository.findByOrderNo(new OrderNumber("ORD001"))).thenReturn(Optional.of(order));

@@ -1,5 +1,6 @@
 package com.zhangyuan.order.application.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhangyuan.order.client.UserServiceClient;
 import com.zhangyuan.order.domain.model.Order;
 import com.zhangyuan.order.domain.model.OrderNumber;
@@ -7,6 +8,7 @@ import com.zhangyuan.order.domain.model.OrderStatus;
 import com.zhangyuan.order.domain.model.UserSubscription;
 import com.zhangyuan.order.domain.repository.OrderRepository;
 import com.zhangyuan.order.domain.repository.SubscriptionRepository;
+import com.zhangyuan.order.dto.OrderSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,12 +22,14 @@ public class FulfillmentService {
     private final OrderRepository orderRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final UserServiceClient userServiceClient;
+    private final ObjectMapper objectMapper;
 
     public FulfillmentService(OrderRepository orderRepository, SubscriptionRepository subscriptionRepository,
-                              UserServiceClient userServiceClient) {
+                              UserServiceClient userServiceClient, ObjectMapper objectMapper) {
         this.orderRepository = orderRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.userServiceClient = userServiceClient;
+        this.objectMapper = objectMapper;
     }
 
     @Transactional
@@ -44,13 +48,16 @@ public class FulfillmentService {
         }
 
         // Parse snapshot to get plan info
-        String snapshot = order.getSnapshotJson();
-        String planCode = extractFromSnapshot(snapshot, "planCode");
-        String planName = extractFromSnapshot(snapshot, "planName");
-        int validityDays = 30; // Default 30 days
+        OrderSnapshot snapshot;
         try {
-            validityDays = Integer.parseInt(extractFromSnapshot(snapshot, "validityDays"));
-        } catch (Exception e) { /* use default */ }
+            snapshot = objectMapper.readValue(order.getSnapshotJson(), OrderSnapshot.class);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to parse snapshot JSON for order: " + orderNo, e);
+        }
+
+        String planCode = snapshot.planCode();
+        String planName = snapshot.planName();
+        int validityDays = snapshot.validityDays() != null ? snapshot.validityDays() : 30;
 
         // Assign or extend subscription
         Optional<UserSubscription> existing = subscriptionRepository.findByUserIdAndActive(order.getUserId());
@@ -88,15 +95,5 @@ public class FulfillmentService {
             case "trial" -> 10_000L;
             default -> 100_000L;
         };
-    }
-
-    private String extractFromSnapshot(String snapshot, String key) {
-        if (snapshot == null) return "";
-        String search = "\"" + key + "\":\"";
-        int start = snapshot.indexOf(search);
-        if (start < 0) return "";
-        start += search.length();
-        int end = snapshot.indexOf("\"", start);
-        return end > start ? snapshot.substring(start, end) : "";
     }
 }
