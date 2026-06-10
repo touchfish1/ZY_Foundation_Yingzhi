@@ -15,12 +15,16 @@ import com.zhangyuan.modules.product.repository.ProductFeatureRepository;
 import com.zhangyuan.modules.product.repository.ProductPlanGroupRepository;
 import com.zhangyuan.modules.product.repository.ProductPlanRepository;
 import com.zhangyuan.modules.product.repository.ProductPriceRepository;
+import com.zhangyuan.modules.ai.config.ModelPricingRepository;
+import com.zhangyuan.modules.ai.config.ModelRouteRepository;
+import com.zhangyuan.modules.ai.config.PlanModelAccessRepository;
 import io.minio.MinioClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -67,6 +71,10 @@ class OperationLogAspectIntegrationTest {
     @MockBean private MinioClient minioClient;
     @MockBean private OperationLogJpaRepository operationLogJpaRepository;
     @MockBean private AccessLogJpaRepository accessLogJpaRepository;
+    @MockBean private JdbcTemplate jdbcTemplate;
+    @MockBean private ModelPricingRepository modelPricingRepository;
+    @MockBean private ModelRouteRepository modelRouteRepository;
+    @MockBean private PlanModelAccessRepository planModelAccessRepository;
 
     @Test
     void operationLogAnnotationTriggersOnCreateCmsPage() throws Exception {

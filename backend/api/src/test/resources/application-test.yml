@@ -5,6 +5,9 @@ spring:
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
       - org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
       - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
+  mail:
+    host: localhost
+    port: 25
   data:
     redis:
       host: 100.125.148.23

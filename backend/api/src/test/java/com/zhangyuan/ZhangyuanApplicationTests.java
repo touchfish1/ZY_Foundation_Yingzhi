@@ -14,10 +14,14 @@ import com.zhangyuan.modules.product.repository.ProductFeatureRepository;
 import com.zhangyuan.modules.product.repository.ProductPlanGroupRepository;
 import com.zhangyuan.modules.product.repository.ProductPlanRepository;
 import com.zhangyuan.modules.product.repository.ProductPriceRepository;
+import com.zhangyuan.modules.ai.config.ModelPricingRepository;
+import com.zhangyuan.modules.ai.config.ModelRouteRepository;
+import com.zhangyuan.modules.ai.config.PlanModelAccessRepository;
 import io.minio.MinioClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(properties = {
@@ -78,6 +82,18 @@ class ZhangyuanApplicationTests {
 
     @MockBean
     private MinioClient minioClient;
+
+    @MockBean
+    private JdbcTemplate jdbcTemplate;
+
+    @MockBean
+    private ModelPricingRepository modelPricingRepository;
+
+    @MockBean
+    private ModelRouteRepository modelRouteRepository;
+
+    @MockBean
+    private PlanModelAccessRepository planModelAccessRepository;
 
     @Test
     void contextLoads() {
