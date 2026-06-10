@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: system-service
+  labels:
+    app: system-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: system-service
+  template:
+    metadata:
+      labels:
+        app: system-service
+    spec:
+      containers:
+      - name: system
+        image: ${REGISTRY}/zhangyuan-system-service:${IMAGE_TAG}
+        ports:
+        - containerPort: 8081
+        env:
+        - name: SERVER_PORT
+          value: "8081"
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: zhangyuan-db
+              key: host
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: zhangyuan-db
+              key: password
+        - name: REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: zhangyuan-redis
+              key: host
+        - name: NACOS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: zhangyuan-nacos
+              key: password
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8081
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: system-service
+spec:
+  selector:
+    app: system-service
+  ports:
+  - port: 8081
+    targetPort: 8081
