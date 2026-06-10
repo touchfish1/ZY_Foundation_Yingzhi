@@ -2,6 +2,7 @@ package com.zhangyuan.ai.application.service;
 
 import com.zhangyuan.ai.client.OrderServiceClient;
 import com.zhangyuan.ai.client.UserServiceClient;
+import com.zhangyuan.ai.common.RateLimiter;
 import com.zhangyuan.ai.domain.model.ChatRequest;
 import com.zhangyuan.ai.domain.model.ChatResponse;
 import com.zhangyuan.ai.domain.service.ModelProvider;
@@ -16,16 +17,25 @@ import java.util.Map;
 public class ChatProxyService {
     private static final Logger log = LoggerFactory.getLogger(ChatProxyService.class);
 
+    private static final int DEFAULT_CONCURRENCY = 5;
+    private static final int DEFAULT_RPM = 60;
+
     private final ProviderRegistry providerRegistry;
     private final UserServiceClient userServiceClient;
     private final OrderServiceClient orderServiceClient;
+    private final ModelAccessService modelAccessService;
+    private final RateLimiter rateLimiter;
 
     public ChatProxyService(ProviderRegistry providerRegistry,
                             UserServiceClient userServiceClient,
-                            OrderServiceClient orderServiceClient) {
+                            OrderServiceClient orderServiceClient,
+                            ModelAccessService modelAccessService,
+                            RateLimiter rateLimiter) {
         this.providerRegistry = providerRegistry;
         this.userServiceClient = userServiceClient;
         this.orderServiceClient = orderServiceClient;
+        this.modelAccessService = modelAccessService;
+        this.rateLimiter = rateLimiter;
     }
 
     public ChatResponse chat(String apiKey, ChatRequest request) {
@@ -34,30 +44,41 @@ public class ChatProxyService {
         long quotaUsed = userQuota.get("quotaUsed") != null ? ((Number) userQuota.get("quotaUsed")).longValue() : 0;
         long quotaLimit = userQuota.get("quotaLimit") != null ? ((Number) userQuota.get("quotaLimit")).longValue() : 0;
 
+        String planCode = (String) userQuota.get("planCode");
+        modelAccessService.checkAccess(planCode, request.getModel());
+
         if (quotaLimit > 0 && quotaUsed >= quotaLimit) {
             throw new IllegalStateException("Quota exhausted");
         }
 
-        ModelProvider provider = providerRegistry.resolveProvider(request.getModel());
-        Map<String, String> config = providerRegistry.getConfig(provider.getName());
+        if (!rateLimiter.tryAcquire(userId, 1, DEFAULT_RPM, DEFAULT_CONCURRENCY)) {
+            throw new IllegalStateException("Rate limit exceeded");
+        }
 
-        int estimatedInputTokens = request.getMessages().stream()
-                .mapToInt(m -> provider.estimateTokens(request.getModel(), m.getContent()))
-                .sum();
+        try {
+            ModelProvider provider = providerRegistry.resolveProvider(request.getModel());
+            Map<String, String> config = providerRegistry.getConfig(provider.getName());
 
-        long startMs = System.currentTimeMillis();
-        ChatResponse response = provider.chat(request, config);
-        long durationMs = System.currentTimeMillis() - startMs;
+            int estimatedInputTokens = request.getMessages().stream()
+                    .mapToInt(m -> provider.estimateTokens(request.getModel(), m.getContent()))
+                    .sum();
 
-        recordUsage(userId, apiKey, request, response, estimatedInputTokens, durationMs);
+            long startMs = System.currentTimeMillis();
+            ChatResponse response = provider.chat(request, config);
+            long durationMs = System.currentTimeMillis() - startMs;
 
-        log.info("Chat completed: userId={}, model={}, tokens={}+{}, duration={}ms",
-                userId, response.getModel(),
-                response.getUsage().getPromptTokens(),
-                response.getUsage().getCompletionTokens(),
-                durationMs);
+            recordUsage(userId, apiKey, request, response, estimatedInputTokens, durationMs);
 
-        return response;
+            log.info("Chat completed: userId={}, model={}, tokens={}+{}, duration={}ms",
+                    userId, response.getModel(),
+                    response.getUsage().getPromptTokens(),
+                    response.getUsage().getCompletionTokens(),
+                    durationMs);
+
+            return response;
+        } finally {
+            rateLimiter.release(userId);
+        }
     }
 
     private Map<String, Object> verifyKey(String apiKey) {

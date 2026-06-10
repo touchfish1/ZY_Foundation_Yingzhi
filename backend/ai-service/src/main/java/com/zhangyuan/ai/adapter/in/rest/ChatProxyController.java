@@ -1,5 +1,6 @@
 package com.zhangyuan.ai.adapter.in.rest;
 
+import com.zhangyuan.ai.application.service.AccessDeniedException;
 import com.zhangyuan.ai.application.service.ChatProxyService;
 import com.zhangyuan.ai.domain.model.ChatRequest;
 import com.zhangyuan.ai.domain.model.ChatResponse;
@@ -39,6 +40,9 @@ public class ChatProxyController {
         } catch (SecurityException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", Map.of("message", e.getMessage(), "type", "auth_error")));
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", Map.of("message", e.getMessage(), "type", "access_denied")));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                     .body(Map.of("error", Map.of("message", e.getMessage(), "type", "quota_exceeded")));
