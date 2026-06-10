@@ -1,6 +1,7 @@
 package com.zhangyuan.payment.adapter.in.rest;
 
 import com.zhangyuan.payment.application.service.ChannelStrategyRegistry;
+import com.zhangyuan.payment.application.service.PaymentApplicationService;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.payment.domain.model.Payment;
 import com.zhangyuan.payment.domain.repository.PaymentRepository;
@@ -18,11 +19,14 @@ public class PaymentCallbackController {
     private static final Logger log = LoggerFactory.getLogger(PaymentCallbackController.class);
     private final PaymentRepository paymentRepository;
     private final ChannelStrategyRegistry strategyRegistry;
+    private final PaymentApplicationService paymentApplicationService;
 
     public PaymentCallbackController(PaymentRepository paymentRepository,
-                                     ChannelStrategyRegistry strategyRegistry) {
+                                     ChannelStrategyRegistry strategyRegistry,
+                                     PaymentApplicationService paymentApplicationService) {
         this.paymentRepository = paymentRepository;
         this.strategyRegistry = strategyRegistry;
+        this.paymentApplicationService = paymentApplicationService;
     }
 
     @PostMapping("/{channel}")
@@ -50,7 +54,7 @@ public class PaymentCallbackController {
 
         var strategy = strategyRegistry.getStrategy(channel);
         strategy.processCallback(payment, params);
-        paymentRepository.save(payment);
+        paymentApplicationService.handlePaymentSuccess(paymentNo);
 
         log.info("Payment callback processed: paymentNo={}, channel={}", paymentNo, channel);
         return ApiResponse.ok("success");
