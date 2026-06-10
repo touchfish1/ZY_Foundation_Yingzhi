@@ -15,4 +15,6 @@ public interface OrderMainEntityRepository extends JpaRepository<OrderMainEntity
     List<OrderMainEntity> findAllByOrderByCreatedAtDesc();
 
     List<OrderMainEntity> findByStatusAndCreatedAtBeforeOrderByCreatedAtAsc(String status, Instant threshold, Pageable pageable);
+
+    List<OrderMainEntity> findAllByUserIdOrderByCreatedAtDesc(Long userId);
 }

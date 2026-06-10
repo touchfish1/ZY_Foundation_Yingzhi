@@ -7,6 +7,7 @@ import com.zhangyuan.order.dto.CreateOrderRequest;
 import com.zhangyuan.order.dto.OrderResponse;
 import cn.dev33.satoken.stp.StpUtil;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController("orderServiceOrderPublicController")
@@ -29,6 +31,14 @@ public class OrderPublicController {
                                  FulfillmentService fulfillmentService) {
         this.orderApplicationService = orderApplicationService;
         this.fulfillmentService = fulfillmentService;
+    }
+
+    @GetMapping
+    public ApiResponse<List<OrderResponse>> list(@RequestParam(required = false) Long userId) {
+        if (userId != null) {
+            return ApiResponse.ok(orderApplicationService.listOrdersByUserId(userId));
+        }
+        return ApiResponse.ok(orderApplicationService.listOrders());
     }
 
     @PostMapping

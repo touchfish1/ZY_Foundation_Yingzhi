@@ -46,6 +46,13 @@ public class JpaOrderRepository implements OrderRepository {
     }
 
     @Override
+    public List<Order> findByUserId(Long userId) {
+        return jpaRepository.findAllByUserIdOrderByCreatedAtDesc(userId).stream()
+                .map(this::toDomain)
+                .toList();
+    }
+
+    @Override
     public Order save(Order order) {
         OrderMainEntity entity;
         if (order.getId() != null) {

@@ -113,6 +113,13 @@ public class OrderApplicationService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<OrderResponse> listOrdersByUserId(Long userId) {
+        return orderRepository.findByUserId(userId).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     @Transactional
     public Order markPaid(String orderNo) {
         log.info("Marking order as paid: {}", orderNo);

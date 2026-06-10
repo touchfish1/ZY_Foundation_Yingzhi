@@ -16,5 +16,7 @@ public interface OrderRepository {
 
     List<Order> findPendingOrdersOlderThan(Instant threshold, int limit);
 
+    List<Order> findByUserId(Long userId);
+
     Order save(Order order);
 }
