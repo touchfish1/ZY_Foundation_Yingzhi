@@ -37,7 +37,10 @@ export const router = createRouter({
         { path: 'system/operation-logs', component: () => import('../pages/system/OperationLogs.vue'), meta: { title: '操作日志', permissions: ['system:operation-log'] } },
         { path: 'system/access-logs', component: () => import('../pages/system/AccessLogs.vue'), meta: { title: '访问日志', permissions: ['system:access-log'] } },
         { path: 'system/permissions', component: () => import('../pages/system/Permissions.vue'), meta: { permissions: ['system:permission:list'] } },
-        { path: 'system/menus', component: () => import('../pages/system/Menus.vue'), meta: { permissions: ['system:menu:list'] } }
+        { path: 'system/menus', component: () => import('../pages/system/Menus.vue'), meta: { permissions: ['system:menu:list'] } },
+        { path: 'system/model-routes', component: () => import('../pages/system/ModelRoutes.vue'), meta: { title: '模型路由', permissions: ['ai:model:list'] } },
+        { path: 'system/model-pricing', component: () => import('../pages/system/ModelPricing.vue'), meta: { title: '模型定价', permissions: ['ai:pricing:list'] } },
+        { path: 'system/plan-model-access', component: () => import('../pages/system/PlanModelAccess.vue'), meta: { title: '模型访问权限', permissions: ['ai:access:list'] } }
       ]
     }
   ]
