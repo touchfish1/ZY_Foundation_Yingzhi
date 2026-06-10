@@ -17,6 +17,7 @@ export const useSaasAuth = () => {
 
   const config = useRuntimeConfig()
   const apiBase = config.public.apiBase
+  const aiBase = config.public.aiBase || config.public.apiBase
 
   const cookieToken = useCookie('saas_token', { maxAge: 60 * 60 * 24 * 7, sameSite: 'lax' })
 
@@ -103,7 +104,8 @@ export const useSaasAuth = () => {
     const headers = new Headers(options.headers || {})
     headers.set('Authorization', `Bearer ${token.value}`)
     headers.set('Content-Type', 'application/json')
-    return $fetch<T>(`${apiBase}${url}`, {
+    const base = url.startsWith('/v1/') ? aiBase : apiBase
+    return $fetch<T>(`${base}${url}`, {
       ...options,
       headers
     })
