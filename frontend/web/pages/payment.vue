@@ -12,6 +12,20 @@
         </button>
       </template>
 
+      <!-- Virtual payment (Wxpay/Alipay simulation) -->
+      <template v-else-if="isVirtual">
+        <div class="virtual-payment">
+          <div class="virtual-icon">{{ channelIcon }}</div>
+          <p class="virtual-title">{{ channelName }} 模拟支付</p>
+          <p class="virtual-order">订单号: {{ orderNo }}</p>
+          <p class="virtual-amount">{{ channelAmount }}</p>
+          <button class="btn-primary" @click="verifyPayment" :disabled="verifying">
+            {{ verifying ? '处理中...' : '确认支付' }}
+          </button>
+          <p class="virtual-hint">使用虚拟商户号进行模拟支付</p>
+        </div>
+      </template>
+
       <!-- WeChat QR code -->
       <template v-else-if="isWeChat">
         <div class="qr-wrapper">
@@ -42,6 +56,8 @@ const orderNo = ref(route.query.orderNo as string || '')
 const paymentNo = ref(route.query.paymentNo as string || '')
 const payUrl = ref(route.query.payUrl ? decodeURIComponent(route.query.payUrl as string) : '')
 const codeUrl = ref(route.query.codeUrl ? decodeURIComponent(route.query.codeUrl as string) : '')
+const channel = ref(route.query.channel as string || '')
+const amount = ref(route.query.amount as string || '')
 const verifying = ref(false)
 const verified = ref(false)
 const error = ref('')
@@ -49,10 +65,14 @@ const pollStatus = ref('等待支付...')
 const qrRef = ref<HTMLElement | null>(null)
 const pollingInterval = ref<ReturnType<typeof setInterval> | null>(null)
 
-const isMock = computed(() => !!(payUrl.value && !codeUrl.value))
-const isWeChat = computed(() => !!codeUrl.value)
-const isAlipay = computed(() => !payUrl.value && !codeUrl.value && !!paymentNo.value)
+const isMock = computed(() => channel.value === 'mock' || !!(payUrl.value && !codeUrl.value && !isVirtual.value))
+const isVirtual = computed(() => codeUrl.value?.startsWith('/payment/virtual/'))
+const isWeChat = computed(() => !isVirtual.value && !!codeUrl.value)
+const isAlipay = computed(() => !isMock.value && !isVirtual.value && !codeUrl.value && !!paymentNo.value)
 const fullPayUrl = computed(() => payUrl.value ? `${useRuntimeConfig().public.apiBase}${payUrl.value}` : '')
+const channelIcon = computed(() => channel.value === 'wxpay' ? '💳' : '🔵')
+const channelName = computed(() => channel.value === 'wxpay' ? '微信' : '支付宝')
+const channelAmount = computed(() => amount.value ? `¥${amount.value}` : '')
 
 onMounted(() => {
   if (isWeChat.value && qrRef.value) {
@@ -106,7 +126,12 @@ function stopPolling() {
 async function verifyPayment() {
   verifying.value = true; error.value = ''
   try {
-    await auth.authFetch<any>(payUrl.value, { method: 'POST' })
+    if (isVirtual.value) {
+      const mockUrl = `/api/payments/mock/${paymentNo.value}/success`
+      await auth.authFetch<any>(mockUrl, { method: 'POST' })
+    } else {
+      await auth.authFetch<any>(payUrl.value, { method: 'POST' })
+    }
     verified.value = true
     setTimeout(() => router.push('/dashboard/orders'), 2000)
   } catch (e: any) { error.value = e?.data?.message || '验证失败' }
@@ -127,4 +152,10 @@ async function verifyPayment() {
 .qr-code { width: 220px; height: 220px; }
 .hint { font-size: 13px; color: var(--vp-c-text-3); margin-bottom: 8px; }
 .poll-status { font-size: 13px; color: var(--vp-c-brand); }
+.virtual-payment { padding: 20px 0; }
+.virtual-icon { font-size: 48px; margin-bottom: 12px; }
+.virtual-title { font-size: 18px; font-weight: 700; color: var(--vp-c-text); margin-bottom: 8px; }
+.virtual-order { font-size: 13px; color: var(--vp-c-text-3); margin-bottom: 4px; }
+.virtual-amount { font-size: 28px; font-weight: 800; color: var(--vp-c-brand); margin-bottom: 24px; }
+.virtual-hint { font-size: 12px; color: var(--vp-c-text-3); margin-top: 12px; }
 </style>

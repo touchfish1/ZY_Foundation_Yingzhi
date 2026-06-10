@@ -119,12 +119,16 @@ async function submitOrder() {
 
     // Step 3: Handle payment channel
     if (ch === 'mock') {
-      // Mock payment succeeds immediately
+      // Mock payment: confirm and navigate
+      await auth.authFetch<any>(`/api/payments/mock/${paymentNo}/success`, { method: 'POST' })
       navigateTo('/dashboard/orders')
+    } else if (data?.checkoutUrl?.startsWith('/payment/virtual/')) {
+      // Virtual payment (simulated Wxpay/Alipay)
+      navigateTo(`/payment?orderNo=${orderNo}&paymentNo=${paymentNo}&codeUrl=${encodeURIComponent(data.checkoutUrl)}&channel=${ch}&amount=${amount.value}`)
     } else if (ch === 'alipay' && data?.checkoutUrl) {
       window.location.href = data.checkoutUrl
     } else if (ch === 'wxpay' && data?.checkoutUrl) {
-      navigateTo(`/payment?orderNo=${orderNo}&paymentNo=${paymentNo}&codeUrl=${encodeURIComponent(data.checkoutUrl)}`)
+      navigateTo(`/payment?orderNo=${orderNo}&paymentNo=${paymentNo}&codeUrl=${encodeURIComponent(data.checkoutUrl)}&channel=${ch}`)
     } else if (data?.payUrl) {
       navigateTo(`/payment?orderNo=${orderNo}&payUrl=${encodeURIComponent(data.payUrl)}&paymentNo=${paymentNo}`)
     }

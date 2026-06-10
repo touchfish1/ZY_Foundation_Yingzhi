@@ -3,12 +3,14 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8080'
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8080',
+      aiBase: process.env.NUXT_PUBLIC_AI_BASE || 'http://localhost:8086'
     }
   },
   nitro: {
     routeRules: {
-      '/api/**': { proxy: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8080' }
+      '/api/**': { proxy: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8080' },
+      '/v1/**': { proxy: process.env.NUXT_PUBLIC_AI_BASE || 'http://localhost:8086' }
     }
   },
   app: {
