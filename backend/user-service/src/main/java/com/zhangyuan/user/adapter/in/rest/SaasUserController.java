@@ -92,6 +92,7 @@ public class SaasUserController {
 
     @PostMapping("/quota/{userId}")
     public ApiResponse<Void> updateQuota(@PathVariable Long userId, @RequestParam Long quotaLimit) {
+        StpUtil.checkLogin();
         log.info("Admin update quota: userId={}, limit={}", userId, quotaLimit);
         saasUserApplicationService.updateQuotaLimit(userId, quotaLimit);
         return ApiResponse.ok();

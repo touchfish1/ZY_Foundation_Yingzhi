@@ -4,6 +4,7 @@ import com.zhangyuan.payment.application.service.PaymentApplicationService;
 import com.zhangyuan.common.response.ApiResponse;
 import com.zhangyuan.payment.dto.CheckoutRequest;
 import com.zhangyuan.payment.dto.CheckoutResponse;
+import cn.dev33.satoken.stp.StpUtil;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ public class PaymentPublicController {
 
     @PostMapping("/mock/{paymentNo}/success")
     public ApiResponse<CheckoutResponse> mockSuccess(@PathVariable String paymentNo) {
+        StpUtil.checkLogin();
         log.info("Mock payment success: {}", paymentNo);
         return ApiResponse.ok(paymentApplicationService.mockSuccess(paymentNo));
     }

@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleNotPermission(NotPermissionException e) {
         log.warn("无权限访问: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error(403, e.getMessage()));
+                .body(ApiResponse.error(403, "无权限访问"));
     }
 
     @ExceptionHandler(Exception.class)

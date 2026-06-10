@@ -36,14 +36,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException e) {
         log.warn("请求参数错误: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(400, e.getMessage()));
+                .body(ApiResponse.error(400, "请求参数错误"));
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotFound(NotFoundException e) {
         log.warn("资源不存在: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error(404, e.getMessage()));
+                .body(ApiResponse.error(404, "资源不存在"));
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

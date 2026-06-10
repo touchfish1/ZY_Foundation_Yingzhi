@@ -56,12 +56,14 @@ public class OrderPublicController {
 
     @PostMapping("/{orderNo}/pay")
     public ApiResponse<OrderResponse> markPaid(@PathVariable String orderNo) {
+        StpUtil.checkLogin();
         log.info("Marking order as paid: {}", orderNo);
         return ApiResponse.ok(orderApplicationService.toResponse(orderApplicationService.markPaid(orderNo)));
     }
 
     @PostMapping("/{orderNo}/fulfill")
     public ApiResponse<Void> fulfillOrder(@PathVariable String orderNo) {
+        StpUtil.checkLogin();
         log.info("Fulfilling order: {}", orderNo);
         fulfillmentService.fulfillOrder(orderNo);
         return ApiResponse.ok();
