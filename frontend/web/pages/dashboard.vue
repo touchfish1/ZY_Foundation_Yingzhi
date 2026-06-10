@@ -60,20 +60,37 @@
           <div class="stat-label">配额上限</div>
           <div class="stat-value">{{ user?.quotaLimit || 0 }}</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">订阅状态</div>
+        <NuxtLink to="/dashboard/subscription" class="stat-card-link stat-card">
+          <div class="stat-label">
+            订阅状态
+            <span class="manage-link">管理</span>
+          </div>
           <div class="stat-value">
             <span v-if="loadingSubscription" class="loading-text">加载中...</span>
             <span v-else class="badge" :class="subscriptionStatusClass">
-              {{ subscriptionStatus || '无订阅' }}
+              {{ activeSub?.planName || subscriptionStatus || '无订阅' }}
             </span>
           </div>
+        </NuxtLink>
+      </div>
+
+      <!-- Usage Progress Bar -->
+      <div class="usage-bar-section" v-if="user?.quotaLimit">
+        <div class="usage-bar-header">
+          <span class="usage-bar-label">本月用量</span>
+          <span class="usage-bar-text">{{ user?.quotaUsed || 0 }} / {{ user?.quotaLimit }}</span>
+        </div>
+        <div class="usage-bar-track">
+          <div class="usage-bar-fill" :style="{ width: usagePercent + '%' }" :class="usageBarClass" />
         </div>
       </div>
 
       <div class="section">
-        <h2>最近订单</h2>
-        <div class="table-card" v-if="recentOrders.length">
+        <div class="section-header">
+          <h2>最近订单</h2>
+          <NuxtLink to="/dashboard/orders" class="section-link">查看全部</NuxtLink>
+        </div>
+        <div class="table-card" v-if="!loadingOrders && recentOrders.length">
           <table class="data-table">
             <thead>
               <tr>
@@ -95,12 +112,20 @@
             </tbody>
           </table>
         </div>
-        <p v-else class="empty-text">{{ loadingOrders ? '加载中...' : '暂无订单' }}</p>
+        <div v-else-if="!loadingOrders && !recentOrders.length" class="empty-state-card">
+          <div class="empty-icon">📋</div>
+          <p class="empty-text">暂无订单记录</p>
+          <NuxtLink to="/pricing" class="btn-primary btn-sm">去订阅套餐</NuxtLink>
+        </div>
+        <p v-else class="loading-hint">{{ loadingOrders ? '加载中...' : '' }}</p>
       </div>
 
       <div class="section">
-        <h2>订阅历史</h2>
-        <div class="table-card" v-if="subscriptions.length">
+        <div class="section-header">
+          <h2>订阅历史</h2>
+          <NuxtLink to="/dashboard/subscription" class="section-link" v-if="hasActiveSubscription">管理订阅</NuxtLink>
+        </div>
+        <div class="table-card" v-if="!loadingSubscriptions && subscriptions.length">
           <table class="data-table">
             <thead>
               <tr>
@@ -123,13 +148,15 @@
                   <span class="badge" :class="subStatusClass(sub.status)">{{ sub.status }}</span>
                 </td>
               </tr>
-              <tr v-if="!subscriptions.length">
-                <td colspan="6" class="empty-text">暂无订阅记录</td>
-              </tr>
             </tbody>
           </table>
         </div>
-        <p v-else class="empty-text">{{ loadingSubscriptions ? '加载中...' : '暂无订阅记录' }}</p>
+        <div v-else-if="!loadingSubscriptions && !subscriptions.length" class="empty-state-card">
+          <div class="empty-icon">📄</div>
+          <p class="empty-text">暂无订阅记录</p>
+          <NuxtLink to="/pricing" class="btn-primary btn-sm">去订阅套餐</NuxtLink>
+        </div>
+        <p v-else class="loading-hint">{{ loadingSubscriptions ? '加载中...' : '' }}</p>
       </div>
 
       <div class="section">
@@ -154,12 +181,30 @@ const balance = ref(0)
 const usageSummary = ref<any>(null)
 
 const pageLoading = ref(true)
+const activeSub = ref<any>(null)
 const subscriptionStatus = ref('')
 const loadingSubscription = ref(true)
 const recentOrders = ref<any[]>([])
 const loadingOrders = ref(true)
 const subscriptions = ref<any[]>([])
 const loadingSubscriptions = ref(true)
+
+const hasActiveSubscription = computed(() => {
+  return activeSub.value?.status === 'ACTIVE' || activeSub.value?.status === 'active'
+})
+
+const usagePercent = computed(() => {
+  const limit = user.value?.quotaLimit || 0
+  const used = user.value?.quotaUsed || 0
+  if (!limit) return 0
+  return Math.min(100, Math.round((used / limit) * 100))
+})
+
+const usageBarClass = computed(() => {
+  if (usagePercent.value >= 90) return 'usage-danger'
+  if (usagePercent.value >= 70) return 'usage-warning'
+  return ''
+})
 
 const subscriptionStatusClass = computed(() => {
   const map: Record<string, string> = { active: 'badge-success', expired: 'badge-error', pending: 'badge-warning' }
@@ -193,7 +238,13 @@ async function fetchSubscription() {
       const subRes = await auth.authFetch<any>('/api/subscriptions/active', {
         params: { userId: user.value.id }
       })
-      subscriptionStatus.value = subRes?.data?.status || subRes?.status || 'none'
+      const data = subRes?.data || subRes
+      if (data && data.status && data.status !== 'none') {
+        activeSub.value = data
+        subscriptionStatus.value = data.status
+      } else {
+        subscriptionStatus.value = 'none'
+      }
     } catch {
       subscriptionStatus.value = 'none'
     } finally { loadingSubscription.value = false }
@@ -321,7 +372,19 @@ function formatDate(ts: string) {
   background: var(--vp-c-bg); border-radius: 12px; padding: 20px;
   box-shadow: var(--vp-shadow-1);
 }
-.stat-label { font-size: 12px; color: var(--vp-c-text-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.stat-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.stat-card-link:hover {
+  box-shadow: var(--vp-shadow-3);
+  transform: translateY(-1px);
+}
+.stat-label { font-size: 12px; color: var(--vp-c-text-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.manage-link { font-size: 11px; font-weight: 600; color: var(--vp-c-brand); text-transform: none; letter-spacing: 0; }
 .stat-value { font-size: 20px; font-weight: 700; color: var(--vp-c-text); }
 .stat-value.code { font-size: 13px; font-family: var(--vp-font-family-mono); color: var(--vp-c-brand); }
 .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
@@ -329,7 +392,10 @@ function formatDate(ts: string) {
 .badge-warning { background: var(--vp-c-warning-soft); color: var(--vp-c-warning); }
 .badge-error { background: var(--vp-c-danger-soft); color: var(--vp-c-danger); }
 .section { margin-bottom: 32px; }
-.section h2 { font-size: 18px; font-weight: 600; margin: 0 0 16px; font-family: var(--vp-font-family-display); }
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.section-header h2 { font-size: 18px; font-weight: 600; margin: 0; font-family: var(--vp-font-family-display); }
+.section-link { font-size: 13px; color: var(--vp-c-brand); text-decoration: none; font-weight: 500; }
+.section-link:hover { text-decoration: underline; }
 .table-card { background: var(--vp-c-bg); border-radius: 12px; box-shadow: var(--vp-shadow-1); overflow: hidden; }
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th, .data-table td { padding: 12px 16px; text-align: left; font-size: 14px; }
@@ -337,8 +403,52 @@ function formatDate(ts: string) {
 .data-table tr:not(:last-child) td { border-bottom: 1px solid var(--vp-c-bg-mute); }
 .data-table tr:hover td { background: var(--vp-c-bg-soft); }
 .mono { font-family: var(--vp-font-family-mono); font-size: 13px; }
-.empty-text { text-align: center; padding: 24px; color: var(--vp-c-text-3); font-size: 14px; }
+.empty-text { text-align: center; padding: 12px; color: var(--vp-c-text-3); font-size: 14px; }
 .loading-text { font-size: 13px; color: var(--vp-c-text-3); }
+.loading-hint { text-align: center; padding: 12px; color: var(--vp-c-text-3); font-size: 13px; }
+
+/* ── Empty State ── */
+.empty-state-card {
+  background: var(--vp-c-bg);
+  border-radius: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  box-shadow: var(--vp-shadow-1);
+}
+.empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.6; }
+.empty-state-card .empty-text { font-size: 14px; margin-bottom: 16px; padding: 0; }
+.btn-sm { display: inline-block; padding: 8px 20px; font-size: 13px; text-decoration: none; }
+
+/* ── Usage Bar ── */
+.usage-bar-section {
+  background: var(--vp-c-bg);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 32px;
+  box-shadow: var(--vp-shadow-1);
+}
+.usage-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.usage-bar-label { font-size: 13px; color: var(--vp-c-text-2); font-weight: 600; }
+.usage-bar-text { font-size: 13px; color: var(--vp-c-text-3); }
+.usage-bar-track {
+  height: 8px;
+  background: var(--vp-c-bg-mute);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.usage-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--vp-c-brand);
+  transition: width 0.5s ease;
+}
+.usage-bar-fill.usage-warning { background: var(--vp-c-warning); }
+.usage-bar-fill.usage-danger { background: var(--vp-c-danger); }
 
 .page-loading {
   display: flex;
