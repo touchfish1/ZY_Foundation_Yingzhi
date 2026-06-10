@@ -9,6 +9,7 @@ import com.zhangyuan.ai.domain.service.ModelProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -25,17 +26,20 @@ public class ChatProxyService {
     private final OrderServiceClient orderServiceClient;
     private final ModelAccessService modelAccessService;
     private final RateLimiter rateLimiter;
+    private final PricingService pricingService;
 
     public ChatProxyService(ProviderRegistry providerRegistry,
                             UserServiceClient userServiceClient,
                             OrderServiceClient orderServiceClient,
                             ModelAccessService modelAccessService,
-                            RateLimiter rateLimiter) {
+                            RateLimiter rateLimiter,
+                            PricingService pricingService) {
         this.providerRegistry = providerRegistry;
         this.userServiceClient = userServiceClient;
         this.orderServiceClient = orderServiceClient;
         this.modelAccessService = modelAccessService;
         this.rateLimiter = rateLimiter;
+        this.pricingService = pricingService;
     }
 
     public ChatResponse chat(String apiKey, ChatRequest request) {
@@ -59,15 +63,17 @@ public class ChatProxyService {
             ModelProvider provider = providerRegistry.resolveProvider(request.getModel());
             Map<String, String> config = providerRegistry.getConfig(provider.getName());
 
-            int estimatedInputTokens = request.getMessages().stream()
-                    .mapToInt(m -> provider.estimateTokens(request.getModel(), m.getContent()))
-                    .sum();
-
             long startMs = System.currentTimeMillis();
             ChatResponse response = provider.chat(request, config);
             long durationMs = System.currentTimeMillis() - startMs;
 
-            recordUsage(userId, apiKey, request, response, estimatedInputTokens, durationMs);
+            BigDecimal cost = pricingService.calculateCost(
+                    response.getModel(),
+                    response.getUsage().getPromptTokens(),
+                    response.getUsage().getCompletionTokens()
+            );
+
+            recordUsage(userId, apiKey, request, response, cost, durationMs);
 
             log.info("Chat completed: userId={}, model={}, tokens={}+{}, duration={}ms",
                     userId, response.getModel(),
@@ -81,6 +87,41 @@ public class ChatProxyService {
         }
     }
 
+    public Flux<String> chatStream(String apiKey, ChatRequest request) {
+        Map<String, Object> userQuota = verifyKey(apiKey);
+        Long userId = ((Number) userQuota.get("userId")).longValue();
+        long quotaUsed = userQuota.get("quotaUsed") != null ? ((Number) userQuota.get("quotaUsed")).longValue() : 0;
+        long quotaLimit = userQuota.get("quotaLimit") != null ? ((Number) userQuota.get("quotaLimit")).longValue() : 0;
+
+        String planCode = (String) userQuota.get("planCode");
+        modelAccessService.checkAccess(planCode, request.getModel());
+
+        if (quotaLimit > 0 && quotaUsed >= quotaLimit) {
+            throw new IllegalStateException("Quota exhausted");
+        }
+
+        if (!rateLimiter.tryAcquire(userId, 1, DEFAULT_RPM, DEFAULT_CONCURRENCY)) {
+            throw new IllegalStateException("Rate limit exceeded");
+        }
+
+        ModelProvider provider = providerRegistry.resolveProvider(request.getModel());
+        Map<String, String> config = providerRegistry.getConfig(provider.getName());
+
+        int estimatedInputTokens = request.getMessages().stream()
+                .mapToInt(m -> provider.estimateTokens(request.getModel(), m.getContent()))
+                .sum();
+
+        long startMs = System.currentTimeMillis();
+
+        return provider.chatStream(request, config)
+                .doFinally(signalType -> {
+                    rateLimiter.release(userId);
+                    long durationMs = System.currentTimeMillis() - startMs;
+                    recordStreamUsage(userId, apiKey, request, estimatedInputTokens, durationMs);
+                })
+                .doOnError(e -> log.error("Stream error for userId={}: {}", userId, e.getMessage()));
+    }
+
     private Map<String, Object> verifyKey(String apiKey) {
         var resp = userServiceClient.verifyApiKey(apiKey);
         if (resp == null || resp.code() != 0 || resp.data() == null) {
@@ -90,7 +131,7 @@ public class ChatProxyService {
     }
 
     private void recordUsage(Long userId, String apiKey, ChatRequest request,
-                             ChatResponse response, int estimatedInputTokens, long durationMs) {
+                             ChatResponse response, BigDecimal cost, long durationMs) {
         try {
             Map<String, Object> record = Map.of(
                     "userId", userId,
@@ -99,7 +140,7 @@ public class ChatProxyService {
                     "model", request.getModel(),
                     "tokensIn", response.getUsage().getPromptTokens(),
                     "tokensOut", response.getUsage().getCompletionTokens(),
-                    "cost", BigDecimal.ZERO,
+                    "cost", cost,
                     "durationMs", (int) durationMs,
                     "status", "SUCCESS"
             );
@@ -108,4 +149,25 @@ public class ChatProxyService {
             log.warn("Failed to record usage for userId={}: {}", userId, e.getMessage());
         }
     }
+
+    private void recordStreamUsage(Long userId, String apiKey, ChatRequest request,
+                                   int estimatedInputTokens, long durationMs) {
+        try {
+            Map<String, Object> record = Map.of(
+                    "userId", userId,
+                    "apiKey", apiKey,
+                    "apiPath", "/v1/chat/completions",
+                    "model", request.getModel(),
+                    "tokensIn", estimatedInputTokens,
+                    "tokensOut", 0,
+                    "cost", BigDecimal.ZERO,
+                    "durationMs", (int) durationMs,
+                    "status", "SUCCESS"
+            );
+            orderServiceClient.recordUsage(record);
+        } catch (Exception e) {
+            log.warn("Failed to record stream usage for userId={}: {}", userId, e.getMessage());
+        }
+    }
+
 }

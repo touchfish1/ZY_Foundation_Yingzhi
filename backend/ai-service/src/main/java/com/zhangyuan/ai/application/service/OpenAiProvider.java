@@ -12,12 +12,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Component
 public class OpenAiProvider implements ModelProvider {
@@ -83,7 +87,58 @@ public class OpenAiProvider implements ModelProvider {
 
     @Override
     public Flux<String> chatStream(ChatRequest request, Map<String, String> config) {
-        return Flux.error(new UnsupportedOperationException("Streaming not yet implemented"));
+        String apiKey = config.get("api-key");
+        String baseUrl = config.getOrDefault("base-url", "https://api.openai.com");
+
+        if (apiKey == null || apiKey.isEmpty()) {
+            log.warn("OpenAI API key not configured, returning mock streaming response");
+            return createMockStream(request);
+        }
+
+        WebClient webClient = WebClient.builder()
+                .baseUrl(baseUrl)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
+                .build();
+
+        Map<String, Object> body = objectMapper.convertValue(request, Map.class);
+        body.put("stream", true);
+
+        return webClient.post()
+                .uri("/v1/chat/completions")
+                .bodyValue(body)
+                .retrieve()
+                .bodyToFlux(String.class)
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(chunk -> Flux.fromArray(chunk.split("\n")))
+                .map(String::trim)
+                .filter(line -> line.startsWith("data: "))
+                .map(line -> line.substring(6).trim())
+                .filter(data -> !"[DONE]".equals(data))
+                .doOnError(e -> log.error("OpenAI streaming error: {}", e.getMessage()));
+    }
+
+    private Flux<String> createMockStream(ChatRequest request) {
+        String model = request.getModel();
+        String mockChunk1 = "{\"id\":\"chatcmpl-mock\",\"object\":\"chat.completion.chunk\",\"created\":"
+                + (System.currentTimeMillis() / 1000)
+                + ",\"model\":\"" + model
+                + "\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}";
+        String mockChunk2 = "{\"id\":\"chatcmpl-mock\",\"object\":\"chat.completion.chunk\",\"created\":"
+                + (System.currentTimeMillis() / 1000)
+                + ",\"model\":\"" + model
+                + "\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Hello! \"},\"finish_reason\":null}]}";
+        String mockChunk3 = "{\"id\":\"chatcmpl-mock\",\"object\":\"chat.completion.chunk\",\"created\":"
+                + (System.currentTimeMillis() / 1000)
+                + ",\"model\":\"" + model
+                + "\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"This is a mock streaming response from OpenAI.\"},\"finish_reason\":null}]}";
+        String mockChunk4 = "{\"id\":\"chatcmpl-mock\",\"object\":\"chat.completion.chunk\",\"created\":"
+                + (System.currentTimeMillis() / 1000)
+                + ",\"model\":\"" + model
+                + "\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}]}";
+
+        return Flux.just(mockChunk1, mockChunk2, mockChunk3, mockChunk4)
+                .delayElements(Duration.ofMillis(100));
     }
 
     public EmbeddingResponse embed(EmbeddingRequest request, Map<String, String> config) {
