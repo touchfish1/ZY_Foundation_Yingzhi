@@ -66,6 +66,32 @@ spring:
           uri: lb://payment-service
           predicates:
             - Path=/admin/payments/**
+        - id: ai-proxy
+          uri: lb://ai-service
+          predicates:
+            - Path=/v1/**
+        - id: order-usage-admin
+          uri: lb://order-service
+          predicates:
+            - Path=/admin/usage/**
+          filters:
+            - RewritePath=/admin/usage/(?<segment>.*), /api/usage/$\{segment}
+        - id: order-admin-subscriptions
+          uri: lb://order-service
+          predicates:
+            - Path=/admin/subscriptions/**
+        - id: user-balance-admin
+          uri: lb://user-service
+          predicates:
+            - Path=/admin/balance/**
+          filters:
+            - RewritePath=/admin/balance/(?<segment>.*), /api/balance/$\{segment}
+        - id: user-logs-admin
+          uri: lb://user-service
+          predicates:
+            - Path=/admin/logs,/admin/logs/**
+          filters:
+            - RewritePath=/admin/logs(?<segment>/.*)?, /api/logs$\{segment}
         - id: order-subscriptions
           uri: lb://order-service
           predicates:
