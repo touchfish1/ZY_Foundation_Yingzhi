@@ -43,7 +43,7 @@ public class PricingService {
 
     private static final BigDecimal DEFAULT_INPUT_PRICE = new BigDecimal("1.00");
     private static final BigDecimal DEFAULT_OUTPUT_PRICE = new BigDecimal("2.00");
-    private static final BigDecimal ONE_MILLION = new BigDecimal("1_000_000");
+    private static final BigDecimal ONE_MILLION = BigDecimal.valueOf(1_000_000);
     private static final int COST_SCALE = 8;
 
     private static Map<String, BigDecimal[]> createPricingMap() {

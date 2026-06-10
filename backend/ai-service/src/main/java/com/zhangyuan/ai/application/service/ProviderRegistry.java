@@ -31,6 +31,18 @@ public class ProviderRegistry {
                 env.getProperty("ai.providers.claude.api-key", ""));
         configMap.put("claude.base-url",
                 env.getProperty("ai.providers.claude.base-url", "https://api.anthropic.com"));
+        configMap.put("deepseek.api-key",
+                env.getProperty("ai.providers.deepseek.api-key", ""));
+        configMap.put("deepseek.base-url",
+                env.getProperty("ai.providers.deepseek.base-url", "https://api.deepseek.com"));
+        configMap.put("qwen.api-key",
+                env.getProperty("ai.providers.qwen.api-key", ""));
+        configMap.put("qwen.base-url",
+                env.getProperty("ai.providers.qwen.base-url", "https://dashscope.aliyuncs.com"));
+        configMap.put("moonshot.api-key",
+                env.getProperty("ai.providers.moonshot.api-key", ""));
+        configMap.put("moonshot.base-url",
+                env.getProperty("ai.providers.moonshot.base-url", "https://api.moonshot.cn"));
     }
 
     public ModelProvider resolveProvider(String model) {
