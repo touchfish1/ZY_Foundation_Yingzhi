@@ -10,11 +10,11 @@ spring:
         server-addr: ${NACOS_HOST:100.125.148.23}:${NACOS_PORT:8848}
         ip: ${NACOS_DISCOVERY_IP:127.0.0.1}
         username: ${NACOS_USERNAME:nacos}
-        password: ${NACOS_PASSWORD:chengccn}
+        password: ${NACOS_PASSWORD}
       config:
         server-addr: ${NACOS_HOST:100.125.148.23}:${NACOS_PORT:8848}
         username: ${NACOS_USERNAME:nacos}
-        password: ${NACOS_PASSWORD:chengccn}
+        password: ${NACOS_PASSWORD}
         file-extension: yaml
         import-check:
           enabled: false
