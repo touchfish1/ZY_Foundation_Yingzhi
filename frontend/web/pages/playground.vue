@@ -6,10 +6,34 @@
         <div class="sidebar-section">
           <label>Model</label>
           <select v-model="model">
-            <option value="gpt-4o">gpt-4o</option>
-            <option value="gpt-4-turbo">gpt-4-turbo</option>
-            <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-            <option value="claude-3-sonnet">claude-3-sonnet</option>
+            <optgroup label="OpenAI">
+              <option value="gpt-4o">gpt-4o</option>
+              <option value="gpt-4-turbo">gpt-4-turbo</option>
+              <option value="gpt-4">gpt-4</option>
+              <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+              <option value="text-embedding-3-small">text-embedding-3-small</option>
+            </optgroup>
+            <optgroup label="Claude (Anthropic)">
+              <option value="claude-3-opus">claude-3-opus</option>
+              <option value="claude-3-sonnet">claude-3-sonnet</option>
+              <option value="claude-3-haiku">claude-3-haiku</option>
+              <option value="claude-2">claude-2</option>
+            </optgroup>
+            <optgroup label="DeepSeek">
+              <option value="deepseek-chat">deepseek-chat</option>
+              <option value="deepseek-coder">deepseek-coder</option>
+            </optgroup>
+            <optgroup label="通义千问 (Qwen)">
+              <option value="qwen-max">qwen-max</option>
+              <option value="qwen-plus">qwen-plus</option>
+              <option value="qwen-turbo">qwen-turbo</option>
+              <option value="qwen2.5-72b-instruct">qwen2.5-72b-instruct</option>
+            </optgroup>
+            <optgroup label="Moonshot (Kimi)">
+              <option value="moonshot-v1-8k">moonshot-v1-8k</option>
+              <option value="moonshot-v1-32k">moonshot-v1-32k</option>
+              <option value="moonshot-v1-128k">moonshot-v1-128k</option>
+            </optgroup>
           </select>
         </div>
         <div class="sidebar-section">
@@ -18,6 +42,12 @@
             <input type="range" min="0" max="2" step="0.1" v-model.number="temperature" />
             <span class="range-value">{{ temperature }}</span>
           </div>
+        </div>
+        <div class="sidebar-section">
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="streamEnabled" />
+            <span>流式输出 (SSE)</span>
+          </label>
         </div>
         <div class="sidebar-section">
           <label>System Prompt</label>
@@ -40,7 +70,7 @@
         <div class="message-list" ref="messageListRef">
           <div v-for="(msg, i) in messages" :key="i" :class="['message', msg.role]">
             <div class="msg-label">{{ msg.role === 'user' ? 'You' : 'Assistant' }}</div>
-            <div class="msg-content">{{ msg.content }}</div>
+            <div class="msg-content">{{ msg.content }}<span v-if="sending && i === messages.length - 1 && msg.role === 'assistant'" class="stream-cursor">▊</span></div>
           </div>
           <div v-if="error" class="message error-msg">
             <div class="msg-label">Error</div>
@@ -70,14 +100,16 @@ import { ref, nextTick } from 'vue'
 const config = useRuntimeConfig()
 const auth = useSaasAuth()
 
-const apiBase = config.public.apiBase || ''
-const apiKey = ref('')
+const apiBase = config.public.aiBase || config.public.apiBase || ''
+const apiKey = ref(auth.user.value?.apiKey || '')
 const model = ref('gpt-4o')
 const temperature = ref(0.7)
+const streamEnabled = ref(true)
 const systemPrompt = ref('')
 const userInput = ref('')
 const messages = ref<{ role: string; content: string }[]>([])
 const sending = ref(false)
+const streamingContent = ref('')
 const error = ref('')
 const messageListRef = ref<HTMLElement | null>(null)
 
@@ -91,10 +123,12 @@ async function sendRequest() {
   scrollToBottom()
 
   sending.value = true
+  streamingContent.value = ''
   try {
     const body: any = {
       model: model.value,
-      messages: []
+      messages: [],
+      stream: streamEnabled.value
     }
     if (systemPrompt.value.trim()) {
       body.messages.push({ role: 'system', content: systemPrompt.value.trim() })
@@ -104,22 +138,83 @@ async function sendRequest() {
     }
     if (temperature.value !== 0.7) body.temperature = temperature.value
 
-    const res = await auth.authFetch<any>('/v1/chat/completions', {
-      method: 'POST',
-      body,
-      headers: { 'Authorization': `Bearer ${apiKey.value || auth.authFetch}` }
-    })
-    const choice = res?.choices?.[0]
-    if (choice?.message?.content) {
-      messages.value.push({ role: 'assistant', content: choice.message.content })
+    if (streamEnabled.value) {
+      await sendStreamRequest(body)
     } else {
-      error.value = 'Empty response'
+      await sendRegularRequest(body)
     }
   } catch (e: any) {
     error.value = e?.data?.error?.message || e?.message || 'Request failed'
   } finally {
     sending.value = false
     scrollToBottom()
+  }
+}
+
+async function sendRegularRequest(body: any) {
+  const res = await auth.authFetch<any>('/v1/chat/completions', {
+    method: 'POST',
+    body,
+    headers: { 'Authorization': `Bearer ${apiKey.value}` }
+  })
+  const choice = res?.choices?.[0]
+  if (choice?.message?.content) {
+    messages.value.push({ role: 'assistant', content: choice.message.content })
+  } else {
+    error.value = 'Empty response'
+  }
+}
+
+async function sendStreamRequest(body: any) {
+  const url = `${apiBase}/v1/chat/completions`
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey.value}`
+    },
+    body: JSON.stringify(body)
+  })
+
+  if (!response.ok) {
+    const err = await response.text()
+    throw new Error(err)
+  }
+
+  const reader = response.body?.getReader()
+  if (!reader) throw new Error('Stream not supported')
+
+  messages.value.push({ role: 'assistant', content: '' })
+  const assistantMsg = messages.value[messages.value.length - 1]
+  let buffer = ''
+
+  const decoder = new TextDecoder()
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+
+    buffer += decoder.decode(value, { stream: true })
+    const lines = buffer.split('\n')
+    buffer = lines.pop() || ''
+
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (!trimmed || !trimmed.startsWith('data: ')) continue
+      const data = trimmed.slice(6).trim()
+      if (data === '[DONE]') continue
+
+      try {
+        const parsed = JSON.parse(data)
+        const content = parsed?.choices?.[0]?.delta?.content || ''
+        if (content) {
+          assistantMsg.content += content
+          streamingContent.value = assistantMsg.content
+          scrollToBottom()
+        }
+      } catch {
+        // skip unparseable chunks
+      }
+    }
   }
 }
 
@@ -211,6 +306,27 @@ function scrollToBottom() {
 .btn-send:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vp-c-text-2);
+  cursor: pointer;
+}
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+}
+.stream-cursor {
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+  font-size: 14px;
+  color: var(--vp-c-brand);
+}
+@keyframes blink {
+  50% { opacity: 0; }
 }
 .playground-main {
   flex: 1;
