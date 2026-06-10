@@ -67,11 +67,10 @@ const form = reactive({
 
 const providerOptions: SelectOption[] = [
   { label: 'OpenAI', value: 'openai' },
-  { label: 'Anthropic', value: 'anthropic' },
-  { label: 'Google', value: 'google' },
-  { label: 'Azure', value: 'azure' },
+  { label: 'Anthropic (Claude)', value: 'anthropic' },
   { label: 'DeepSeek', value: 'deepseek' },
-  { label: 'Qwen', value: 'qwen' },
+  { label: '通义千问 (Qwen)', value: 'qwen' },
+  { label: 'Moonshot (Kimi)', value: 'moonshot' },
   { label: '自定义', value: 'custom' }
 ]
 

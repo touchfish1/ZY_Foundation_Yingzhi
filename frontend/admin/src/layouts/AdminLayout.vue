@@ -142,6 +142,11 @@ const fallbackMenus: MenuItem[] = [
     { id: 61, parentId: 6, name: '套餐分组', path: '/products/plan-groups', icon: null, menuType: 'page', sortOrder: 1, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
     { id: 62, parentId: 6, name: '套餐列表', path: '/products/plans', icon: null, menuType: 'page', sortOrder: 2, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' }
   ], createdAt: '', updatedAt: '' },
+  { id: 8, parentId: null, name: 'AI 管理', path: '/system/model-routes', icon: 'Code', menuType: 'page', sortOrder: 8, status: 'enabled', permissionCodes: [], children: [
+    { id: 81, parentId: 8, name: '模型路由', path: '/system/model-routes', icon: null, menuType: 'page', sortOrder: 1, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
+    { id: 82, parentId: 8, name: '模型定价', path: '/system/model-pricing', icon: null, menuType: 'page', sortOrder: 2, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
+    { id: 83, parentId: 8, name: '模型访问权限', path: '/system/plan-model-access', icon: null, menuType: 'page', sortOrder: 3, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' }
+  ], createdAt: '', updatedAt: '' },
   { id: 7, parentId: null, name: '系统管理', path: '/system/users', icon: 'Settings', menuType: 'page', sortOrder: 10, status: 'enabled', permissionCodes: [], children: [
     { id: 71, parentId: 7, name: '用户管理', path: '/system/users', icon: null, menuType: 'page', sortOrder: 1, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
     { id: 72, parentId: 7, name: '角色管理', path: '/system/roles', icon: null, menuType: 'page', sortOrder: 2, status: 'enabled', permissionCodes: [], children: [], createdAt: '', updatedAt: '' },
