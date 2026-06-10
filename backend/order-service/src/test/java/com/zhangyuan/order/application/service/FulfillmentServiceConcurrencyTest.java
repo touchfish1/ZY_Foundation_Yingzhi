@@ -1,5 +1,6 @@
 package com.zhangyuan.order.application.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhangyuan.order.client.UserServiceClient;
 import com.zhangyuan.order.domain.model.Order;
 import com.zhangyuan.order.domain.model.OrderNumber;
@@ -24,7 +25,8 @@ class FulfillmentServiceConcurrencyTest {
     private final OrderRepository orderRepository = mock(OrderRepository.class);
     private final SubscriptionRepository subscriptionRepository = mock(SubscriptionRepository.class);
     private final UserServiceClient userServiceClient = mock(UserServiceClient.class);
-    private final FulfillmentService service = new FulfillmentService(orderRepository, subscriptionRepository, userServiceClient);
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final FulfillmentService service = new FulfillmentService(orderRepository, subscriptionRepository, userServiceClient, objectMapper);
 
     @Test
     void sequentialDuplicateFulfill_shouldBeIdempotent() {

@@ -71,7 +71,7 @@ public class PaymentApplicationService {
     }
 
     @Transactional
-    public void handlePaymentSuccess(String paymentNo) {
+    public CheckoutResponse handlePaymentSuccess(String paymentNo) {
         Payment payment = paymentRepository.findByPaymentNo(paymentNo)
                 .orElseThrow(() -> new IllegalArgumentException("Payment not found: " + paymentNo));
 
@@ -84,39 +84,6 @@ public class PaymentApplicationService {
         strategy.processCallback(payment, java.util.Map.of());
         payment = paymentRepository.save(payment);
 
-        // Notify order-service to mark order as paid
-        try {
-            fulfillmentClient.markPaid(payment.getOrderNo());
-            log.info("Order marked as paid: {}", payment.getOrderNo());
-        } catch (Exception e) {
-            log.error("Failed to mark order as paid: {}", payment.getOrderNo(), e);
-        }
-
-        compensationService.createFulfillEvent(paymentNo, payment.getOrderNo());
-
-        try {
-            fulfillmentClient.fulfillOrder(payment.getOrderNo());
-            log.info("Fulfillment triggered for order: {}", payment.getOrderNo());
-        } catch (Exception e) {
-            log.error("Fulfillment failed for order: {}, compensation event created", payment.getOrderNo(), e);
-        }
-    }
-
-    @Transactional
-    public CheckoutResponse mockSuccess(String paymentNo) {
-        Payment payment = paymentRepository.findByPaymentNo(paymentNo)
-                .orElseThrow(() -> new IllegalArgumentException("Payment not found: " + paymentNo));
-
-        if ("SUCCESS".equals(payment.getStatus())) {
-            log.warn("Idempotent call: payment {} already SUCCESS, skipped", paymentNo);
-            return new CheckoutResponse(paymentNo, payment.getStatus(), null, null, payment.getChannel());
-        }
-
-        PaymentChannelStrategy strategy = strategyRegistry.getStrategy(payment.getChannel());
-        strategy.processCallback(payment, java.util.Map.of());
-        payment = paymentRepository.save(payment);
-
-        // Notify order-service to mark order as paid
         try {
             fulfillmentClient.markPaid(payment.getOrderNo());
             log.info("Order marked as paid: {}", payment.getOrderNo());
@@ -134,6 +101,11 @@ public class PaymentApplicationService {
         }
 
         return new CheckoutResponse(paymentNo, payment.getStatus(), null, null, payment.getChannel());
+    }
+
+    @Transactional
+    public CheckoutResponse mockSuccess(String paymentNo) {
+        return this.handlePaymentSuccess(paymentNo);
     }
 
     public PaymentResponse getPayment(String paymentNo) {
